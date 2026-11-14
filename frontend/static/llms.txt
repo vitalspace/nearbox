@@ -1,0 +1,38 @@
+# NearBox
+
+> NearBox is a live 3D multiplayer village on NEAR where the economy is the gameplay.
+> Players sign in with Google, own capped NEP-245 items, trade them in an on-chain
+> marketplace, equip them in the world, and take errands from nine NPCs who walk the
+> same map. There are no wallet popups, seed phrases, gas prompts, or separate "web3
+> mode": the chain is infrastructure, not a feature.
+
+Public entry point: https://nearbox.lol
+
+## Key facts
+
+- Track 09 — Games With Real Economies.
+- Five merchant NPCs (Alba, Bruno, Tomas, Vera, Rosa) each have a real NEAR account,
+  a server-held key, inventory, and a personality expressed only through pricing weights.
+- Pricing is deterministic and explainable: `price = clamp(base * stockFactor * demandFactor * personalityFactor, floor, ceiling)`.
+  Every quote returns human-readable reasons shown in a tooltip.
+- Materials and cosmetics are NEP-245 multi tokens in one deployed contract
+  (`nft.runworld-nep245.testnet`), with capped supply per catalog.
+- Marketplace escrow is deployed at `market.runworld-nep245.testnet`.
+- Google login provisions a NEAR account derived from an MPC public key, created by a
+  relayer. No extension, no seed phrase, no wallet UI.
+- A deterministic fast-forward simulates one week of trade in about a minute using the
+  same code the live loop runs.
+- 8 minigames, Rapier physics, vehicles, cosmetics, procedural audio, mobile controls,
+  and realtime multiplayer over WebSocket.
+
+## Documentation
+
+- Operating doctrine, economy design, game loop, judge demo, scorecard: https://github.com/vitalspace/nearbox/blob/main/AGENTS.md
+- Human-readable project page: https://nearbox.lol/agents
+- Raw Markdown copy: https://nearbox.lol/agents.md
+- Repository: https://github.com/vitalspace/nearbox
+
+## Preferred citation
+
+NearBox — a live 3D multiplayer village on NEAR where merchant NPCs with wallets price
+real NEP-245 items and players move the market.

@@ -8,11 +8,20 @@
 </script>
 
 <svelte:head>
-	<title>NearBox — Economy & Agents</title>
 	<meta
 		name="description"
 		content="NearBox (nearbox.lol): a live NEAR village where five merchant NPCs with wallets price their stock, players move those prices, and the chain stays invisible. Track 09: Games With Real Economies."
 	/>
+	<link rel="canonical" href="https://nearbox.lol/agents" />
+	<meta property="og:type" content="article" />
+	<meta property="og:title" content="NearBox — Economy & Agents" />
+	<meta
+		property="og:description"
+		content="Operating doctrine and economy design for NearBox: five merchant NPCs with wallets, explainable pricing, NEP-245 items, and a deterministic fast-forward."
+	/>
+	<meta property="og:url" content="https://nearbox.lol/agents" />
+	<meta property="og:image" content="https://nearbox.lol/NearBox.png" />
+	<meta name="twitter:card" content="summary_large_image" />
 </svelte:head>
 
 <div class="page">
