@@ -356,3 +356,9 @@ That is the submission. NearBox does not need to become more crypto-native to wi
 this track. It needs to make the economy it already has the center of the screen.
 
 **The economy is the gameplay. Keep the chain invisible. Win the track.**
+
+---
+
+## License
+
+MIT — see [`LICENSE`](LICENSE).
