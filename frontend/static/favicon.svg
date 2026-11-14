@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="NearBox">
+	<defs>
+		<radialGradient id="sky" cx="50%" cy="38%" r="72%">
+			<stop offset="0%" stop-color="#2a1150" />
+			<stop offset="100%" stop-color="#06030b" />
+		</radialGradient>
+		<linearGradient id="moon" x1="0" y1="0" x2="1" y2="1">
+			<stop offset="0%" stop-color="#fef3c7" />
+			<stop offset="55%" stop-color="#fbbf24" />
+			<stop offset="100%" stop-color="#b45309" />
+		</linearGradient>
+	</defs>
+	<rect width="64" height="64" rx="14" fill="url(#sky)" />
+	<circle cx="24" cy="22" r="10" fill="url(#moon)" />
+	<circle cx="28" cy="19" r="2.2" fill="#b45309" opacity="0.28" />
+	<circle cx="21" cy="26" r="1.5" fill="#b45309" opacity="0.24" />
+	<path d="M8 52 16 34l8 18z" fill="#0b0518" />
+	<path d="M44 52 52 36l6 16z" fill="#0b0518" />
+	<path d="M27 40c4-5 8-5 12 0 2 2.5 2 7 2 7H25s0-4.5 2-7z" fill="#7c3aed" />
+	<path d="M30 36h6l1-6h-8z" fill="#a855f7" />
+	<circle cx="33" cy="33" r="1.4" fill="#fbbf24" />
+	<g fill="#fbbf24" opacity="0.9">
+		<circle cx="12" cy="14" r="1" />
+		<circle cx="44" cy="12" r="1.2" />
+		<circle cx="52" cy="24" r="0.9" />
+		<circle cx="38" cy="22" r="0.8" />
+	</g>
+</svg>

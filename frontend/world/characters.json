@@ -1,0 +1,269 @@
+{
+	"version": 1,
+	"defaults": {
+		"resampleTolerance": 0.0001,
+		"maxTotalBytes": 12582912,
+		"maxFileBytes": 576717,
+		"minReduction": 0.65
+	},
+	"characters": [
+		{
+			"id": "hero",
+			"glb": "characters/Hero.glb",
+			"group": "skins",
+			"loaders": [
+				"src/lib/components/player/Hero.svelte",
+				"src/lib/components/npc/NpcCharacter.svelte"
+			],
+			"bytes": 1954252,
+			"sha256": "aad77702c7db65a652b584ff923fa8cbaa3f81a80ffb9e821057e325aad47c0d",
+			"clips": 26,
+			"nodes": 30,
+			"meshes": 6,
+			"materials": 22
+		},
+		{
+			"id": "heroina",
+			"glb": "characters/Heroina.glb",
+			"group": "skins",
+			"loaders": ["src/lib/components/npc/NpcCharacter.svelte"],
+			"bytes": 1954860,
+			"sha256": "1000d5bf87011ae1b0459718be6113d1c8dbaa61e65ff2ba71f89950f1a7d476",
+			"clips": 26,
+			"nodes": 30,
+			"meshes": 6,
+			"materials": 22
+		},
+		{
+			"id": "scarecrow-feet",
+			"glb": "characters/Scarecrow_Feet.glb",
+			"group": "skins",
+			"loaders": ["src/lib/components/player/SkinCharacter.svelte"],
+			"bytes": 1487472,
+			"sha256": "c6fb16544c0c021ab3104ab1eee78c5967ef8999614086108f031af84cd63f86",
+			"clips": 24,
+			"nodes": 29,
+			"meshes": 7,
+			"materials": 19
+		},
+		{
+			"id": "witch",
+			"glb": "characters/Witch.glb",
+			"group": "skins",
+			"loaders": ["src/lib/components/player/SkinCharacter.svelte"],
+			"bytes": 1429388,
+			"sha256": "50709ce5a466e5eeb27d27b9fca388aef7c2b632d857f7705fe748e24a41e51d",
+			"clips": 25,
+			"nodes": 32,
+			"meshes": 8,
+			"materials": 19
+		},
+		{
+			"id": "demon",
+			"glb": "characters/Demon.glb",
+			"group": "skins",
+			"loaders": ["src/lib/components/player/SkinCharacter.svelte"],
+			"bytes": 1388364,
+			"sha256": "5d66849fba7a992612b7afa0ddb6a03b57634f48910a00f3f51ae2b7924b7c4f",
+			"clips": 24,
+			"nodes": 28,
+			"meshes": 5,
+			"materials": 10
+		},
+		{
+			"id": "frankenstein",
+			"glb": "characters/Frankenstein.glb",
+			"group": "skins",
+			"loaders": ["src/lib/components/player/SkinCharacter.svelte"],
+			"bytes": 1351580,
+			"sha256": "1f37bd3af8515dca5b618c0d0a633a7810d104e767349828e72c633a078be357",
+			"clips": 24,
+			"nodes": 28,
+			"meshes": 5,
+			"materials": 10
+		},
+		{
+			"id": "ghost",
+			"glb": "characters/Ghost.glb",
+			"group": "skins",
+			"loaders": ["src/lib/components/player/SkinCharacter.svelte"],
+			"bytes": 977116,
+			"sha256": "f4a7b64a6433d038839ad1ad3293db44d20a7776de9254dcf961d8f31118f1b0",
+			"clips": 23,
+			"nodes": 20,
+			"meshes": 3,
+			"materials": 10
+		},
+		{
+			"id": "golem",
+			"glb": "characters/Golem.glb",
+			"group": "skins",
+			"loaders": ["src/lib/components/player/SkinCharacter.svelte"],
+			"bytes": 1420396,
+			"sha256": "0bbee09142687ae2ef1a4fd0d0876dca8326544a5eb8196d35c30ca9fe82d483",
+			"clips": 24,
+			"nodes": 28,
+			"meshes": 5,
+			"materials": 10
+		},
+		{
+			"id": "mummy",
+			"glb": "characters/Mummy.glb",
+			"group": "skins",
+			"loaders": [
+				"src/lib/components/player/SkinCharacter.svelte",
+				"src/lib/components/minigame2/MummyModel.svelte"
+			],
+			"bytes": 1442784,
+			"sha256": "47bd51f6e5fea285ae53fc2210a913be1f1394bdd4250f43f5594004b6ba2708",
+			"clips": 24,
+			"nodes": 28,
+			"meshes": 5,
+			"materials": 10
+		},
+		{
+			"id": "pumpkinking",
+			"glb": "characters/PumpkinKing.glb",
+			"group": "skins",
+			"loaders": ["src/lib/components/player/SkinCharacter.svelte"],
+			"bytes": 1389872,
+			"sha256": "9da73e00fd62b8f53a67b4bf949a318e45a03bdda7c491fdddc4416ab9b90a44",
+			"clips": 25,
+			"nodes": 28,
+			"meshes": 5,
+			"materials": 10
+		},
+		{
+			"id": "skeleton",
+			"glb": "characters/Skeleton.glb",
+			"group": "skins",
+			"loaders": ["src/lib/components/player/SkinCharacter.svelte"],
+			"bytes": 1360792,
+			"sha256": "f5942e8f3e29bded293ea4e860aa6df0a1bff4fe8650a8b93f7fc269bd50e95c",
+			"clips": 24,
+			"nodes": 28,
+			"meshes": 5,
+			"materials": 9
+		},
+		{
+			"id": "vampire",
+			"glb": "characters/Vampire.glb",
+			"group": "skins",
+			"loaders": ["src/lib/components/player/SkinCharacter.svelte"],
+			"bytes": 1344724,
+			"sha256": "c81ede625fac275b2049d898d43bdff04ba4565329ddb617ac3625c3507aa5c6",
+			"clips": 24,
+			"nodes": 28,
+			"meshes": 5,
+			"materials": 10
+		},
+		{
+			"id": "abuela",
+			"glb": "characters/Abuela.glb",
+			"group": "npcs",
+			"loaders": ["src/lib/components/npc/NpcCharacter.svelte"],
+			"bytes": 1969048,
+			"sha256": "6ea2dc2359476fa14327707cb86ace4a18d115dce4dda44675506b850be5134d",
+			"clips": 26,
+			"nodes": 31,
+			"meshes": 7,
+			"materials": 23
+		},
+		{
+			"id": "abuelo",
+			"glb": "characters/Abuelo.glb",
+			"group": "npcs",
+			"loaders": ["src/lib/components/npc/NpcCharacter.svelte"],
+			"bytes": 1968632,
+			"sha256": "c72520f1c254ed69344dc852982033db395f7564b3f32b3f2d40e5bccbbac476",
+			"clips": 26,
+			"nodes": 31,
+			"meshes": 7,
+			"materials": 23
+		},
+		{
+			"id": "hombre",
+			"glb": "characters/Hombre.glb",
+			"group": "npcs",
+			"loaders": ["src/lib/components/npc/NpcCharacter.svelte"],
+			"bytes": 1958520,
+			"sha256": "a97762ab8a8257b7a615eec698618de0511939569754c7f392f15c4fd59b92dc",
+			"clips": 26,
+			"nodes": 30,
+			"meshes": 6,
+			"materials": 22
+		},
+		{
+			"id": "hombre2",
+			"glb": "characters/Hombre2.glb",
+			"group": "npcs",
+			"loaders": ["src/lib/components/npc/NpcCharacter.svelte"],
+			"bytes": 1956172,
+			"sha256": "61fc7b454054a713b408194aee4256c7136377d79679572d54fe0190dc809e21",
+			"clips": 26,
+			"nodes": 30,
+			"meshes": 6,
+			"materials": 22
+		},
+		{
+			"id": "npc-joven",
+			"glb": "characters/NPC_Joven.glb",
+			"group": "npcs",
+			"loaders": ["src/lib/components/npc/NpcCharacter.svelte"],
+			"bytes": 1956156,
+			"sha256": "64b1e7dd1588ab6ac9fa6bc362ca38de36736e4eaad17b50c3c833872bcc0db8",
+			"clips": 26,
+			"nodes": 30,
+			"meshes": 6,
+			"materials": 22
+		},
+		{
+			"id": "npc-jovena",
+			"glb": "characters/NPC_Jovena.glb",
+			"group": "npcs",
+			"loaders": ["src/lib/components/npc/NpcCharacter.svelte"],
+			"bytes": 1954864,
+			"sha256": "f0e9659dcd53fb2a795b6758ad0306bab70f60e85df59179768eb777b291c6fa",
+			"clips": 26,
+			"nodes": 30,
+			"meshes": 6,
+			"materials": 22
+		},
+		{
+			"id": "npc-nina",
+			"glb": "characters/NPC_Nina.glb",
+			"group": "npcs",
+			"loaders": ["src/lib/components/npc/NpcCharacter.svelte"],
+			"bytes": 1976896,
+			"sha256": "ee942659fa054784d6ecd8424fe3ae53de5548ba00a3e4df43154c002ea881a3",
+			"clips": 26,
+			"nodes": 32,
+			"meshes": 8,
+			"materials": 24
+		},
+		{
+			"id": "shopkeeper",
+			"glb": "characters/Shopkeeper.glb",
+			"group": "unused",
+			"loaders": [],
+			"bytes": 1704280,
+			"sha256": "cb4785c10978b806c99c6f12ec9b91c441979a0ba2bc16b9d9964db34a86b000",
+			"clips": 25,
+			"nodes": 29,
+			"meshes": 5,
+			"materials": 17
+		},
+		{
+			"id": "touristguide",
+			"glb": "characters/TouristGuide.glb",
+			"group": "unused",
+			"loaders": [],
+			"bytes": 1778540,
+			"sha256": "f43494082294724cce1e7a168b12493245c98159be1f971e25ba2be2cdbaaff9",
+			"clips": 25,
+			"nodes": 32,
+			"meshes": 8,
+			"materials": 24
+		}
+	]
+}

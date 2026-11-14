@@ -1,0 +1,39 @@
+{
+	"id": "crypt",
+	"glb": "maps/game2.glb",
+	"sourceSha256": "2d022e2b0eea9a9fc3cac3e0f112f3a056e21245a2664a524aedd679bbcc7498",
+	"collision": {
+		"mode": "inject",
+		"readyNode": "A4C_Hall",
+		"maxColliderTriangles": 25000,
+		"maxColliders": 256
+	},
+	"animations": {
+		"mode": "none"
+	},
+	"groups": {
+		"suelo": [],
+		"paredes": ["A4C_Chambers", "A4C_Gallery.001", "A4C_Hall", "A4C_Stairwell", "A4C_Tunnels"],
+		"muebles": ["A4C_StoneProps", "A4C_Tombs"],
+		"obstaculos": [],
+		"criptas": ["a_Crypt", "b_Crypt", "c_Crypt", "d_Crypt"],
+		"hierro": [
+			"A4C_Ironwork.001",
+			"A4C_Ironwork.002",
+			"A4C_Ironwork.003",
+			"A4C_Ironwork.004",
+			"A4C_Ironwork.005"
+		]
+	},
+	"shapes": {},
+	"excludePatterns": [
+		"A4C_Bones",
+		"A4C_Bones.001",
+		"A4C_Candles",
+		"A4C_Candles.001",
+		"A4C_Candles.002",
+		"A4C_Ironwork"
+	],
+	"forceInclude": [],
+	"review": []
+}

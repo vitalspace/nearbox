@@ -1,0 +1,23 @@
+{
+	"maxColliderTriangles": 25000,
+	"groups": {
+		"estructura": ["A4C_Chambers", "A4C_Gallery.001", "A4C_Hall", "A4C_Stairwell", "A4C_Tunnels"],
+		"criptas": ["a_Crypt", "b_Crypt", "c_Crypt", "d_Crypt"],
+		"props": ["A4C_StoneProps", "A4C_Tombs"],
+		"hierro": [
+			"A4C_Ironwork.001",
+			"A4C_Ironwork.002",
+			"A4C_Ironwork.003",
+			"A4C_Ironwork.004",
+			"A4C_Ironwork.005"
+		]
+	},
+	"excludePatterns": [
+		"A4C_Bones",
+		"A4C_Bones.001",
+		"A4C_Candles",
+		"A4C_Candles.001",
+		"A4C_Candles.002",
+		"A4C_Ironwork"
+	]
+}

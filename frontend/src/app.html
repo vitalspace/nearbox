@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta
+			name="viewport"
+			content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
+		/>
+		<meta name="text-scale" content="scale" />
+		<meta name="color-scheme" content="dark" />
+		<meta name="theme-color" content="#04070f" />
+		<meta
+			name="description"
+			content="NearBox: a moonlit Halloween village full of lost cats, monsters and secrets."
+		/>
+		<title>NearBox</title>
+		<link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+		<link rel="preload" as="image" href="./NearBox.png" />
+		<style>
+			html,
+			body {
+				min-height: 100%;
+				background: #04070f;
+			}
+
+			/*
+			 * Fondo de transición: el único splash visible es el de Svelte
+			 * (`LoadingScreen.svelte`), que muestra el logo y el progreso real
+			 * de los assets. Aquí solo mantenemos la paleta para evitar un
+			 * flash negro antes de que arranque el bundle.
+			 */
+			body {
+				background:
+					radial-gradient(ellipse at 24% 26%, rgba(255, 176, 0, 0.26), transparent 46%),
+					radial-gradient(ellipse at 78% 24%, rgba(0, 200, 255, 0.24), transparent 48%),
+					radial-gradient(ellipse at 50% 108%, rgba(8, 74, 110, 0.38), transparent 62%),
+					linear-gradient(165deg, #071326 0%, #050b16 48%, #02040a 100%);
+				background-attachment: fixed;
+			}
+		</style>
+		%sveltekit.head%
+	</head>
+	<body data-sveltekit-preload-data="hover">
+		<div style="display: contents">%sveltekit.body%</div>
+	</body>
+</html>

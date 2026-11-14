@@ -1,0 +1,163 @@
+{
+	"version": 1,
+	"defaults": {
+		"friction": 0.9,
+		"restitution": 0,
+		"maxColliderTriangles": 60000,
+		"maxColliders": 256,
+		"collisionMode": "auto",
+		"animations": "auto"
+	},
+	"maps": {
+		"map": {
+			"glb": "maps/map.glb",
+			"component": "Map",
+			"physics": "map.physics.json",
+			"externalComponents": [
+				{
+					"node": "Balloon_Root",
+					"component": "Balloon",
+					"glb": "props/balloon.glb"
+				},
+				{
+					"node": "Zeppelin_Root",
+					"component": "Zeppelin",
+					"glb": "props/zeppelin.glb",
+					"props": {
+						"position": null,
+						"rotation": null,
+						"orbit": true,
+						"orbitRadius": 93,
+						"orbitHeight": 21,
+						"orbitSpeed": 0.035
+					}
+				}
+			],
+			"spawn": {
+				"x": 0,
+				"y": 0.4,
+				"z": 12
+			},
+			"transform": {
+				"position": [0, 0, 0],
+				"rotation": [0, 0, 0],
+				"scale": [1, 1, 1]
+			},
+			"lighting": "global",
+			"scene": "global",
+			"id": "map"
+		},
+		"crypt": {
+			"glb": "maps/game2.glb",
+			"component": "Crypt",
+			"physics": "crypt.physics.json",
+			"spawn": {
+				"x": 36.7,
+				"y": -7.98,
+				"z": 45
+			},
+			"transform": {
+				"position": [0, 0, 0],
+				"rotation": [0, 0, 0],
+				"scale": [1, 1, 1]
+			},
+			"lighting": "crypt",
+			"scene": "crypt",
+			"id": "crypt"
+		},
+		"whi-interior": {
+			"glb": "maps/whi-interior.glb",
+			"component": "WhiInterior",
+			"physics": "whi-interior.physics.json",
+			"spawn": {
+				"x": 0,
+				"y": 0.1,
+				"z": 0
+			},
+			"transform": {
+				"position": [0, 0, 0],
+				"rotation": [0, 0, 0],
+				"scale": [1, 1, 1]
+			},
+			"lighting": "global",
+			"scene": "global",
+			"id": "whi-interior"
+		},
+		"roadmap": {
+			"id": "roadmap",
+			"glb": "maps/roadmap.glb",
+			"component": "Roadmap",
+			"physics": "roadmap.physics.json",
+			"spawn": {
+				"x": -79,
+				"y": 0.4,
+				"z": 132
+			},
+			"transform": {
+				"position": [0, 0, 0],
+				"rotation": [0, 0, 0],
+				"scale": [1, 1, 1]
+			},
+			"lighting": "global",
+			"scene": "global"
+		},
+		"barnsiege": {
+			"id": "barnsiege",
+			"glb": "maps/barnsiege.glb",
+			"component": "Barnsiege",
+			"physics": "barnsiege.physics.json",
+			"spawn": {
+				"x": 0,
+				"y": 0.53,
+				"z": 0
+			},
+			"transform": {
+				"position": [0, 0, 0],
+				"rotation": [0, 0, 0],
+				"scale": [1, 1, 1]
+			},
+			"lighting": "global",
+			"scene": "global"
+		},
+		"parkour": {
+			"id": "parkour",
+			"glb": "maps/Parkour.glb",
+			"component": "Parkour",
+			"physics": "parkour.physics.json",
+			"manualComponent": true,
+			"manualPhysics": true,
+			"spawn": {
+				"x": 0,
+				"y": 0.15,
+				"z": 82.5
+			},
+			"transform": {
+				"position": [0, 0, 0],
+				"rotation": [0, 0, 0],
+				"scale": [1, 1, 1]
+			},
+			"lighting": "global",
+			"scene": "parkour"
+		},
+		"islas-ciudad": {
+			"id": "islas-ciudad",
+			"glb": "maps/islas_ciudad.glb",
+			"component": "IslasCiudad",
+			"physics": "islas-ciudad.physics.json",
+			"manualComponent": true,
+			"manualPhysics": true,
+			"spawn": {
+				"x": 0,
+				"y": 2.4,
+				"z": -30
+			},
+			"transform": {
+				"position": [0, 0, 0],
+				"rotation": [0, 0, 0],
+				"scale": [1, 1, 1]
+			},
+			"lighting": "global",
+			"scene": "global"
+		}
+	}
+}

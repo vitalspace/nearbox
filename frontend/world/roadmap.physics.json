@@ -1,0 +1,38 @@
+{
+	"id": "roadmap",
+	"glb": "maps/roadmap.glb",
+	"sourceSha256": "905ab90541f4e0b9fa4a26a3380bc4e136df92c5f1dc915bbc55936ee1ec1eec",
+	"collision": {
+		"mode": "inject",
+		"readyNode": "HW_Track_Asphalt",
+		"maxColliderTriangles": 60000,
+		"maxColliders": 256,
+		"maxColliderNodes": 64
+	},
+	"animations": {
+		"mode": "auto"
+	},
+	"groups": {
+		"suelo": [
+			"Ground_300x300",
+			"HW_Curb_L",
+			"HW_Curb_R",
+			"HW_Jump1_Landing_Deck",
+			"HW_Jump1_Up_Deck",
+			"HW_Jump2_Landing_Deck",
+			"HW_Jump2_Up_Deck",
+			"HW_Jump3_Landing_Deck",
+			"HW_Jump3_Up_Deck",
+			"HW_NeonEdge_Inner",
+			"HW_NeonEdge_Outer",
+			"HW_Track_Asphalt"
+		],
+		"paredes": [],
+		"muebles": [],
+		"obstaculos": []
+	},
+	"shapes": {},
+	"excludePatterns": [],
+	"forceInclude": [],
+	"review": []
+}

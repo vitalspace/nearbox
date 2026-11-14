@@ -1,0 +1,4490 @@
+{
+	"id": "whi-interior",
+	"glb": "maps/whi-interior.glb",
+	"sourceSha256": "aa038275a9db29dfb731d6bfafa202830df2aa96e35c157226adada9cf655e3c",
+	"collision": {
+		"mode": "merged",
+		"readyNode": "WHI_Floor_Ground",
+		"maxColliderTriangles": 60000,
+		"maxColliders": 256,
+		"maxColliderNodes": 64
+	},
+	"animations": {
+		"mode": "auto"
+	},
+	"groups": {
+		"suelo": [
+			"WHI_Attic_Cage_Floor",
+			"WHI_Base_Cage_Floor",
+			"WHI_Floor_Basement_01",
+			"WHI_Floor_F1_01",
+			"WHI_Floor_F1_02",
+			"WHI_Floor_F1_03",
+			"WHI_Floor_F1_04",
+			"WHI_Floor_F2_01",
+			"WHI_Floor_F2_02",
+			"WHI_Floor_F2_03",
+			"WHI_Floor_F2_04",
+			"WHI_Floor_F3_01",
+			"WHI_Floor_F3_02",
+			"WHI_Floor_F3_03",
+			"WHI_Floor_F3_04",
+			"WHI_Floor_Ground_01",
+			"WHI_Floor_Ground_02",
+			"WHI_Floor_Ground_03",
+			"WHI_Floor_Ground_04",
+			"WHI_Par_Fire_FireFloor",
+			"WHI_Porch_Floor",
+			"WHI_Ritual_Cage1_Floor",
+			"WHI_Ritual_Cage2_Floor"
+		],
+		"paredes": [
+			"WHI_Attic_Wardrobe_DoorL",
+			"WHI_Attic_Wardrobe_DoorR",
+			"WHI_Barge_N_E",
+			"WHI_Barge_N_W",
+			"WHI_Barge_S_E",
+			"WHI_Barge_S_W",
+			"WHI_Base_BeamX_00",
+			"WHI_Base_BeamX_01",
+			"WHI_Base_BeamX_02",
+			"WHI_Base_BeamX_03",
+			"WHI_Base_BeamX_04",
+			"WHI_Base_Col_0",
+			"WHI_Base_Col_1",
+			"WHI_Base_Col_2",
+			"WHI_Base_Col_3",
+			"WHI_Base_E_01",
+			"WHI_Base_N_01",
+			"WHI_Base_S_01",
+			"WHI_Base_W_01",
+			"WHI_Child_Wardrobe_DoorL",
+			"WHI_Child_Wardrobe_DoorR",
+			"WHI_Chimney",
+			"WHI_ChimneyCap",
+			"WHI_Din_Sideboard_Door0",
+			"WHI_Din_Sideboard_Door1",
+			"WHI_Din_Sideboard_Door2",
+			"WHI_Door_Child_FrameL",
+			"WHI_Door_Child_FrameR",
+			"WHI_Door_Child_FrameT",
+			"WHI_Door_Child_Knob",
+			"WHI_Door_Child_Slab",
+			"WHI_Door_Ensuite_FrameL",
+			"WHI_Door_Ensuite_FrameR",
+			"WHI_Door_Ensuite_FrameT",
+			"WHI_Door_Ensuite_Knob",
+			"WHI_Door_Ensuite_Slab",
+			"WHI_Door_Front_FrameL",
+			"WHI_Door_Front_FrameR",
+			"WHI_Door_Front_FrameT",
+			"WHI_Door_Front_Knob",
+			"WHI_Door_Front_Slab",
+			"WHI_Door_Guest_FrameL",
+			"WHI_Door_Guest_FrameR",
+			"WHI_Door_Guest_FrameT",
+			"WHI_Door_Guest_Knob",
+			"WHI_Door_Guest_Slab",
+			"WHI_Door_Kitchen_FrameL",
+			"WHI_Door_Kitchen_FrameR",
+			"WHI_Door_Kitchen_FrameT",
+			"WHI_Door_Kitchen_Knob",
+			"WHI_Door_Kitchen_Slab",
+			"WHI_Door_KitchenPantry_FrameL",
+			"WHI_Door_KitchenPantry_FrameR",
+			"WHI_Door_KitchenPantry_FrameT",
+			"WHI_Door_KitchenPantry_Knob",
+			"WHI_Door_KitchenPantry_Slab",
+			"WHI_Door_Master_FrameL",
+			"WHI_Door_Master_FrameR",
+			"WHI_Door_Master_FrameT",
+			"WHI_Door_Master_Knob",
+			"WHI_Door_Master_Slab",
+			"WHI_Door_Pantry_FrameL",
+			"WHI_Door_Pantry_FrameR",
+			"WHI_Door_Pantry_FrameT",
+			"WHI_Door_Pantry_Knob",
+			"WHI_Door_Pantry_Slab",
+			"WHI_Door_Study_FrameL",
+			"WHI_Door_Study_FrameR",
+			"WHI_Door_Study_FrameT",
+			"WHI_Door_Study_Knob",
+			"WHI_Door_Study_Slab",
+			"WHI_Ext_E_F1_01",
+			"WHI_Ext_E_F1_04",
+			"WHI_Ext_E_F1_07",
+			"WHI_Ext_E_F2_01",
+			"WHI_Ext_E_F2_04",
+			"WHI_Ext_E_F2_07",
+			"WHI_Ext_E_F3_01",
+			"WHI_Ext_E_F3_04",
+			"WHI_Ext_E_G_01",
+			"WHI_Ext_E_G_04",
+			"WHI_Ext_N_F1_01",
+			"WHI_Ext_N_F1_04",
+			"WHI_Ext_N_F1_07",
+			"WHI_Ext_N_F2_01",
+			"WHI_Ext_N_F2_04",
+			"WHI_Ext_N_F2_07",
+			"WHI_Ext_N_F3_01",
+			"WHI_Ext_N_F3_04",
+			"WHI_Ext_N_F3_07",
+			"WHI_Ext_N_G_01",
+			"WHI_Ext_N_G_04",
+			"WHI_Ext_N_G_07",
+			"WHI_Ext_S_F1_01",
+			"WHI_Ext_S_F1_04",
+			"WHI_Ext_S_F1_07",
+			"WHI_Ext_S_F2_01",
+			"WHI_Ext_S_F2_04",
+			"WHI_Ext_S_F2_07",
+			"WHI_Ext_S_F3_01",
+			"WHI_Ext_S_F3_04",
+			"WHI_Ext_S_F3_07",
+			"WHI_Ext_S_G_01",
+			"WHI_Ext_S_G_04",
+			"WHI_Ext_S_G_06",
+			"WHI_Ext_S_G_09",
+			"WHI_Ext_W_F1_01",
+			"WHI_Ext_W_F2_01",
+			"WHI_Ext_W_F2_04",
+			"WHI_Ext_W_F3_01",
+			"WHI_Ext_W_F3_04",
+			"WHI_Ext_W_G_01",
+			"WHI_Ext_W_G_04",
+			"WHI_F1_BeamX_00",
+			"WHI_F1_BeamX_01",
+			"WHI_F1_BeamX_02",
+			"WHI_F1_BeamX_03_A",
+			"WHI_F1_BeamX_03_B",
+			"WHI_F1_BeamX_04",
+			"WHI_F2_BeamX_00",
+			"WHI_F2_BeamX_01",
+			"WHI_F2_BeamX_02",
+			"WHI_F2_BeamX_03_A",
+			"WHI_F2_BeamX_03_B",
+			"WHI_F2_BeamX_04",
+			"WHI_Ground_BeamX_00",
+			"WHI_Ground_BeamX_01",
+			"WHI_Ground_BeamX_02",
+			"WHI_Ground_BeamX_03_A",
+			"WHI_Ground_BeamX_03_B",
+			"WHI_Ground_BeamX_04",
+			"WHI_Guard_F3_E_Post_0",
+			"WHI_Guard_F3_E_Post_1",
+			"WHI_Guard_F3_E_Post_2",
+			"WHI_Guard_F3_N_Post_0",
+			"WHI_Guard_F3_N_Post_1",
+			"WHI_Guard_F3_W_Post_0",
+			"WHI_Guard_F3_W_Post_1",
+			"WHI_Guard_F3_W_Post_2",
+			"WHI_Guard_G_E_Post_0",
+			"WHI_Guard_G_E_Post_1",
+			"WHI_Guard_G_W_Post_0",
+			"WHI_Guard_G_W_Post_1",
+			"WHI_Guest_Wardrobe_DoorL",
+			"WHI_Guest_Wardrobe_DoorR",
+			"WHI_Int_DiningParlor_01",
+			"WHI_Int_DiningParlor_03",
+			"WHI_Int_HallE_F1_01",
+			"WHI_Int_HallE_F1_03",
+			"WHI_Int_HallE_F1_05",
+			"WHI_Int_HallE_F2_01",
+			"WHI_Int_HallE_F2_03",
+			"WHI_Int_HallE_G_01",
+			"WHI_Int_HallE_G_03",
+			"WHI_Int_HallE_G_05",
+			"WHI_Int_HallW_F1_01",
+			"WHI_Int_HallW_F1_03",
+			"WHI_Int_HallW_F2_01",
+			"WHI_Int_HallW_F2_03",
+			"WHI_Int_HallW_F2_05",
+			"WHI_Int_HallW_G_01",
+			"WHI_Int_HallW_G_03",
+			"WHI_Int_HallW_G_05",
+			"WHI_Int_KitchenPantry_01",
+			"WHI_Int_KitchenPantry_03",
+			"WHI_Kit_Counter_Door0",
+			"WHI_Kit_Counter_Door1",
+			"WHI_Kit_Counter_Door2",
+			"WHI_Kit_Stove_OvenDoor",
+			"WHI_Master_Wardrobe_DoorL",
+			"WHI_Master_Wardrobe_DoorR",
+			"WHI_Par_Fire_Pillar-1",
+			"WHI_Par_Fire_Pillar1",
+			"WHI_Porch_BeamL",
+			"WHI_Porch_BeamR",
+			"WHI_Porch_Post-1",
+			"WHI_Porch_Post1",
+			"WHI_Porch_Roof",
+			"WHI_Porch_Step",
+			"WHI_Rafter_E_0",
+			"WHI_Rafter_E_1",
+			"WHI_Rafter_E_2",
+			"WHI_Rafter_E_3",
+			"WHI_Rafter_E_4",
+			"WHI_Rafter_W_0",
+			"WHI_Rafter_W_1",
+			"WHI_Rafter_W_2",
+			"WHI_Rafter_W_3",
+			"WHI_Rafter_W_4",
+			"WHI_Rail_Base_E_Mid",
+			"WHI_Rail_Base_E_Post_0",
+			"WHI_Rail_Base_E_Post_100",
+			"WHI_Rail_Base_E_Post_33",
+			"WHI_Rail_Base_E_Post_66",
+			"WHI_Rail_Base_E_Top",
+			"WHI_Rail_Base_W_Mid",
+			"WHI_Rail_Base_W_Post_0",
+			"WHI_Rail_Base_W_Post_100",
+			"WHI_Rail_Base_W_Post_33",
+			"WHI_Rail_Base_W_Post_66",
+			"WHI_Rail_Base_W_Top",
+			"WHI_Rail_F1_F2_E_Mid",
+			"WHI_Rail_F1_F2_E_Post_0",
+			"WHI_Rail_F1_F2_E_Post_100",
+			"WHI_Rail_F1_F2_E_Post_33",
+			"WHI_Rail_F1_F2_E_Post_66",
+			"WHI_Rail_F1_F2_E_Top",
+			"WHI_Rail_F1_F2_W_Mid",
+			"WHI_Rail_F1_F2_W_Post_0",
+			"WHI_Rail_F1_F2_W_Post_100",
+			"WHI_Rail_F1_F2_W_Post_33",
+			"WHI_Rail_F1_F2_W_Post_66",
+			"WHI_Rail_F1_F2_W_Top",
+			"WHI_Rail_F2_F3_E_Mid",
+			"WHI_Rail_F2_F3_E_Post_0",
+			"WHI_Rail_F2_F3_E_Post_100",
+			"WHI_Rail_F2_F3_E_Post_33",
+			"WHI_Rail_F2_F3_E_Post_66",
+			"WHI_Rail_F2_F3_E_Top",
+			"WHI_Rail_F2_F3_W_Mid",
+			"WHI_Rail_F2_F3_W_Post_0",
+			"WHI_Rail_F2_F3_W_Post_100",
+			"WHI_Rail_F2_F3_W_Post_33",
+			"WHI_Rail_F2_F3_W_Post_66",
+			"WHI_Rail_F2_F3_W_Top",
+			"WHI_Rail_G_F1_E_Mid",
+			"WHI_Rail_G_F1_E_Post_0",
+			"WHI_Rail_G_F1_E_Post_100",
+			"WHI_Rail_G_F1_E_Post_33",
+			"WHI_Rail_G_F1_E_Post_66",
+			"WHI_Rail_G_F1_E_Top",
+			"WHI_Rail_G_F1_W_Mid",
+			"WHI_Rail_G_F1_W_Post_0",
+			"WHI_Rail_G_F1_W_Post_100",
+			"WHI_Rail_G_F1_W_Post_33",
+			"WHI_Rail_G_F1_W_Post_66",
+			"WHI_Rail_G_F1_W_Top",
+			"WHI_RidgeBeam",
+			"WHI_Roof_E",
+			"WHI_Roof_Ridge",
+			"WHI_Roof_W",
+			"WHI_Stair_Base_Riser_01",
+			"WHI_Stair_Base_Riser_02",
+			"WHI_Stair_Base_Riser_03",
+			"WHI_Stair_Base_Riser_04",
+			"WHI_Stair_Base_Riser_05",
+			"WHI_Stair_Base_Riser_06",
+			"WHI_Stair_Base_Riser_07",
+			"WHI_Stair_Base_Riser_08",
+			"WHI_Stair_Base_Riser_09",
+			"WHI_Stair_Base_Riser_10",
+			"WHI_Stair_Base_Riser_11",
+			"WHI_Stair_Base_Riser_12",
+			"WHI_Stair_Base_Riser_13",
+			"WHI_Stair_Base_StringerE",
+			"WHI_Stair_Base_StringerW",
+			"WHI_Stair_Base_Tread_01",
+			"WHI_Stair_Base_Tread_02",
+			"WHI_Stair_Base_Tread_03",
+			"WHI_Stair_Base_Tread_04",
+			"WHI_Stair_Base_Tread_05",
+			"WHI_Stair_Base_Tread_06",
+			"WHI_Stair_Base_Tread_07",
+			"WHI_Stair_Base_Tread_08",
+			"WHI_Stair_Base_Tread_09",
+			"WHI_Stair_Base_Tread_10",
+			"WHI_Stair_Base_Tread_11",
+			"WHI_Stair_Base_Tread_12",
+			"WHI_Stair_Base_Tread_13",
+			"WHI_Stair_F1_F2_Riser_01",
+			"WHI_Stair_F1_F2_Riser_02",
+			"WHI_Stair_F1_F2_Riser_03",
+			"WHI_Stair_F1_F2_Riser_04",
+			"WHI_Stair_F1_F2_Riser_05",
+			"WHI_Stair_F1_F2_Riser_06",
+			"WHI_Stair_F1_F2_Riser_07",
+			"WHI_Stair_F1_F2_Riser_08",
+			"WHI_Stair_F1_F2_Riser_09",
+			"WHI_Stair_F1_F2_Riser_10",
+			"WHI_Stair_F1_F2_Riser_11",
+			"WHI_Stair_F1_F2_Riser_12",
+			"WHI_Stair_F1_F2_Riser_13",
+			"WHI_Stair_F1_F2_StringerE",
+			"WHI_Stair_F1_F2_StringerW",
+			"WHI_Stair_F1_F2_Tread_01",
+			"WHI_Stair_F1_F2_Tread_02",
+			"WHI_Stair_F1_F2_Tread_03",
+			"WHI_Stair_F1_F2_Tread_04",
+			"WHI_Stair_F1_F2_Tread_05",
+			"WHI_Stair_F1_F2_Tread_06",
+			"WHI_Stair_F1_F2_Tread_07",
+			"WHI_Stair_F1_F2_Tread_08",
+			"WHI_Stair_F1_F2_Tread_09",
+			"WHI_Stair_F1_F2_Tread_10",
+			"WHI_Stair_F1_F2_Tread_11",
+			"WHI_Stair_F1_F2_Tread_12",
+			"WHI_Stair_F1_F2_Tread_13",
+			"WHI_Stair_F2_F3_Riser_01",
+			"WHI_Stair_F2_F3_Riser_02",
+			"WHI_Stair_F2_F3_Riser_03",
+			"WHI_Stair_F2_F3_Riser_04",
+			"WHI_Stair_F2_F3_Riser_05",
+			"WHI_Stair_F2_F3_Riser_06",
+			"WHI_Stair_F2_F3_Riser_07",
+			"WHI_Stair_F2_F3_Riser_08",
+			"WHI_Stair_F2_F3_Riser_09",
+			"WHI_Stair_F2_F3_Riser_10",
+			"WHI_Stair_F2_F3_Riser_11",
+			"WHI_Stair_F2_F3_Riser_12",
+			"WHI_Stair_F2_F3_Riser_13",
+			"WHI_Stair_F2_F3_StringerE",
+			"WHI_Stair_F2_F3_StringerW",
+			"WHI_Stair_F2_F3_Tread_01",
+			"WHI_Stair_F2_F3_Tread_02",
+			"WHI_Stair_F2_F3_Tread_03",
+			"WHI_Stair_F2_F3_Tread_04",
+			"WHI_Stair_F2_F3_Tread_05",
+			"WHI_Stair_F2_F3_Tread_06",
+			"WHI_Stair_F2_F3_Tread_07",
+			"WHI_Stair_F2_F3_Tread_08",
+			"WHI_Stair_F2_F3_Tread_09",
+			"WHI_Stair_F2_F3_Tread_10",
+			"WHI_Stair_F2_F3_Tread_11",
+			"WHI_Stair_F2_F3_Tread_12",
+			"WHI_Stair_F2_F3_Tread_13",
+			"WHI_Stair_G_F1_Riser_01",
+			"WHI_Stair_G_F1_Riser_02",
+			"WHI_Stair_G_F1_Riser_03",
+			"WHI_Stair_G_F1_Riser_04",
+			"WHI_Stair_G_F1_Riser_05",
+			"WHI_Stair_G_F1_Riser_06",
+			"WHI_Stair_G_F1_Riser_07",
+			"WHI_Stair_G_F1_Riser_08",
+			"WHI_Stair_G_F1_Riser_09",
+			"WHI_Stair_G_F1_Riser_10",
+			"WHI_Stair_G_F1_Riser_11",
+			"WHI_Stair_G_F1_Riser_12",
+			"WHI_Stair_G_F1_Riser_13",
+			"WHI_Stair_G_F1_StringerE",
+			"WHI_Stair_G_F1_StringerW",
+			"WHI_Stair_G_F1_Tread_01",
+			"WHI_Stair_G_F1_Tread_02",
+			"WHI_Stair_G_F1_Tread_03",
+			"WHI_Stair_G_F1_Tread_04",
+			"WHI_Stair_G_F1_Tread_05",
+			"WHI_Stair_G_F1_Tread_06",
+			"WHI_Stair_G_F1_Tread_07",
+			"WHI_Stair_G_F1_Tread_08",
+			"WHI_Stair_G_F1_Tread_09",
+			"WHI_Stair_G_F1_Tread_10",
+			"WHI_Stair_G_F1_Tread_11",
+			"WHI_Stair_G_F1_Tread_12",
+			"WHI_Stair_G_F1_Tread_13"
+		],
+		"muebles": [
+			"WHI_Attic_Altar_Body",
+			"WHI_Attic_Altar_Bowl",
+			"WHI_Attic_Altar_BowlBrew",
+			"WHI_Attic_Altar_Dagger",
+			"WHI_Attic_Altar_DaggerHilt",
+			"WHI_Attic_Altar_Panel-1",
+			"WHI_Attic_Altar_Panel1",
+			"WHI_Attic_Altar_Top",
+			"WHI_Attic_Bed_Blanket",
+			"WHI_Attic_Bed_CPost-1-1",
+			"WHI_Attic_Bed_CPost-11",
+			"WHI_Attic_Bed_CPost1-1",
+			"WHI_Attic_Bed_CPost11",
+			"WHI_Attic_Bed_CRailX1",
+			"WHI_Attic_Bed_CRailX2",
+			"WHI_Attic_Bed_CRailY1",
+			"WHI_Attic_Bed_CRailY2",
+			"WHI_Attic_Bed_CTop",
+			"WHI_Attic_Bed_Footboard",
+			"WHI_Attic_Bed_Frame",
+			"WHI_Attic_Bed_Headboard",
+			"WHI_Attic_Bed_Mattress",
+			"WHI_Attic_Bed_Pillow",
+			"WHI_Attic_Bed_Post-1-1",
+			"WHI_Attic_Bed_Post-11",
+			"WHI_Attic_Bed_Post1-1",
+			"WHI_Attic_Bed_Post11",
+			"WHI_Attic_Chair_Back",
+			"WHI_Attic_Chair_BackTop",
+			"WHI_Attic_Chair_Cushion",
+			"WHI_Attic_Chair_Leg-1-1",
+			"WHI_Attic_Chair_Leg-11",
+			"WHI_Attic_Chair_Leg1-1",
+			"WHI_Attic_Chair_Leg11",
+			"WHI_Attic_Chair_Seat",
+			"WHI_Attic_Desk_Drawer",
+			"WHI_Attic_Desk_DrawerFace",
+			"WHI_Attic_Desk_Leg-1-1",
+			"WHI_Attic_Desk_Leg-11",
+			"WHI_Attic_Desk_Leg1-1",
+			"WHI_Attic_Desk_Leg11",
+			"WHI_Attic_Desk_Top",
+			"WHI_Attic_Tub_Body",
+			"WHI_Attic_Tub_Foot0",
+			"WHI_Attic_Tub_Foot1",
+			"WHI_Attic_Tub_Foot2",
+			"WHI_Attic_Tub_Foot3",
+			"WHI_Attic_Wardrobe_Base",
+			"WHI_Attic_Wardrobe_Body",
+			"WHI_Attic_Wardrobe_Eye-1",
+			"WHI_Attic_Wardrobe_Eye1",
+			"WHI_Attic_Wardrobe_HandleL",
+			"WHI_Attic_Wardrobe_HandleR",
+			"WHI_Attic_Wardrobe_InnerDark",
+			"WHI_Attic_Wardrobe_Top",
+			"WHI_Base_Altar_Body",
+			"WHI_Base_Altar_Bowl",
+			"WHI_Base_Altar_BowlBrew",
+			"WHI_Base_Altar_Dagger",
+			"WHI_Base_Altar_DaggerHilt",
+			"WHI_Base_Altar_Panel-1",
+			"WHI_Base_Altar_Panel1",
+			"WHI_Base_Altar_Top",
+			"WHI_Base_Barrel1_Band18",
+			"WHI_Base_Barrel1_Band62",
+			"WHI_Base_Barrel1_Body",
+			"WHI_Base_Barrel1_Top",
+			"WHI_Base_Barrel2_Band18",
+			"WHI_Base_Barrel2_Band48",
+			"WHI_Base_Barrel2_Body",
+			"WHI_Base_Barrel2_Top",
+			"WHI_Base_Barrel3_Band18",
+			"WHI_Base_Barrel3_Band54",
+			"WHI_Base_Barrel3_Body",
+			"WHI_Base_Barrel3_Top",
+			"WHI_Base_Brazier_Bowl",
+			"WHI_Base_Brazier_Fire",
+			"WHI_Base_Brazier_Leg0",
+			"WHI_Base_Brazier_Leg1",
+			"WHI_Base_Brazier_Leg2",
+			"WHI_Base_ColCap_0",
+			"WHI_Base_ColCap_1",
+			"WHI_Base_ColCap_2",
+			"WHI_Base_ColCap_3",
+			"WHI_Base_Crate1_Body",
+			"WHI_Base_Crate1_Brace1",
+			"WHI_Base_Crate1_Brace2",
+			"WHI_Base_Crate1_Lid",
+			"WHI_Base_Crate2_Body",
+			"WHI_Base_Crate2_Brace1",
+			"WHI_Base_Crate2_Brace2",
+			"WHI_Base_Crate2_Lid",
+			"WHI_Base_Sack1_Body",
+			"WHI_Base_Sack2_Body",
+			"WHI_Base_ShelfE_Board0",
+			"WHI_Base_ShelfE_Board1",
+			"WHI_Base_ShelfE_Board2",
+			"WHI_Base_ShelfE_Bracket0-1",
+			"WHI_Base_ShelfE_Bracket01",
+			"WHI_Base_ShelfE_Bracket1-1",
+			"WHI_Base_ShelfE_Bracket11",
+			"WHI_Base_ShelfE_Bracket2-1",
+			"WHI_Base_ShelfE_Bracket21",
+			"WHI_Base_ShelfN_Board0",
+			"WHI_Base_ShelfN_Board1",
+			"WHI_Base_ShelfN_Board2",
+			"WHI_Base_ShelfN_Bracket0-1",
+			"WHI_Base_ShelfN_Bracket01",
+			"WHI_Base_ShelfN_Bracket1-1",
+			"WHI_Base_ShelfN_Bracket11",
+			"WHI_Base_ShelfN_Bracket2-1",
+			"WHI_Base_ShelfN_Bracket21",
+			"WHI_Base_Well_Bucket",
+			"WHI_Base_Well_BucketDark",
+			"WHI_Base_Well_Cross",
+			"WHI_Base_Well_Hole",
+			"WHI_Base_Well_Post-1",
+			"WHI_Base_Well_Post1",
+			"WHI_Base_Well_Stone0",
+			"WHI_Base_Well_Stone1",
+			"WHI_Base_Well_Stone10",
+			"WHI_Base_Well_Stone11",
+			"WHI_Base_Well_Stone2",
+			"WHI_Base_Well_Stone3",
+			"WHI_Base_Well_Stone4",
+			"WHI_Base_Well_Stone5",
+			"WHI_Base_Well_Stone6",
+			"WHI_Base_Well_Stone7",
+			"WHI_Base_Well_Stone8",
+			"WHI_Base_Well_Stone9",
+			"WHI_Cauldron",
+			"WHI_Child_Bed_Blanket",
+			"WHI_Child_Bed_Footboard",
+			"WHI_Child_Bed_Frame",
+			"WHI_Child_Bed_Headboard",
+			"WHI_Child_Bed_Mattress",
+			"WHI_Child_Bed_Pillow",
+			"WHI_Child_Bed_Post-1-1",
+			"WHI_Child_Bed_Post-11",
+			"WHI_Child_Bed_Post1-1",
+			"WHI_Child_Bed_Post11",
+			"WHI_Child_Rocker_Back",
+			"WHI_Child_Rocker_Seat",
+			"WHI_Child_Wardrobe_Base",
+			"WHI_Child_Wardrobe_Body",
+			"WHI_Child_Wardrobe_Eye-1",
+			"WHI_Child_Wardrobe_Eye1",
+			"WHI_Child_Wardrobe_HandleL",
+			"WHI_Child_Wardrobe_HandleR",
+			"WHI_Child_Wardrobe_InnerDark",
+			"WHI_Child_Wardrobe_Top",
+			"WHI_Din_Chair1_Back",
+			"WHI_Din_Chair1_BackTop",
+			"WHI_Din_Chair1_Cushion",
+			"WHI_Din_Chair1_Leg-1-1",
+			"WHI_Din_Chair1_Leg-11",
+			"WHI_Din_Chair1_Leg1-1",
+			"WHI_Din_Chair1_Leg11",
+			"WHI_Din_Chair1_Seat",
+			"WHI_Din_Chair2_Back",
+			"WHI_Din_Chair2_BackTop",
+			"WHI_Din_Chair2_Cushion",
+			"WHI_Din_Chair2_Leg-1-1",
+			"WHI_Din_Chair2_Leg-11",
+			"WHI_Din_Chair2_Leg1-1",
+			"WHI_Din_Chair2_Leg11",
+			"WHI_Din_Chair2_Seat",
+			"WHI_Din_Chair3_Back",
+			"WHI_Din_Chair3_BackTop",
+			"WHI_Din_Chair3_Cushion",
+			"WHI_Din_Chair3_Leg-1-1",
+			"WHI_Din_Chair3_Leg-11",
+			"WHI_Din_Chair3_Leg1-1",
+			"WHI_Din_Chair3_Leg11",
+			"WHI_Din_Chair3_Seat",
+			"WHI_Din_Chair4_Back",
+			"WHI_Din_Chair4_BackTop",
+			"WHI_Din_Chair4_Cushion",
+			"WHI_Din_Chair4_Leg-1-1",
+			"WHI_Din_Chair4_Leg-11",
+			"WHI_Din_Chair4_Leg1-1",
+			"WHI_Din_Chair4_Leg11",
+			"WHI_Din_Chair4_Seat",
+			"WHI_Din_Sideboard_Base",
+			"WHI_Din_Sideboard_Kick",
+			"WHI_Din_Sideboard_Top",
+			"WHI_Din_Table_ApronX1",
+			"WHI_Din_Table_ApronX2",
+			"WHI_Din_Table_Leg-1-1",
+			"WHI_Din_Table_Leg-11",
+			"WHI_Din_Table_Leg1-1",
+			"WHI_Din_Table_Leg11",
+			"WHI_Din_Table_Top",
+			"WHI_Ext_E_F1_02",
+			"WHI_Ext_E_F1_03",
+			"WHI_Ext_E_F1_05",
+			"WHI_Ext_E_F1_06",
+			"WHI_Ext_E_F2_02",
+			"WHI_Ext_E_F2_03",
+			"WHI_Ext_E_F2_05",
+			"WHI_Ext_E_F2_06",
+			"WHI_Ext_E_F3_02",
+			"WHI_Ext_E_F3_03",
+			"WHI_Ext_E_G_02",
+			"WHI_Ext_E_G_03",
+			"WHI_Ext_N_F1_02",
+			"WHI_Ext_N_F1_03",
+			"WHI_Ext_N_F1_05",
+			"WHI_Ext_N_F1_06",
+			"WHI_Ext_N_F2_02",
+			"WHI_Ext_N_F2_03",
+			"WHI_Ext_N_F2_05",
+			"WHI_Ext_N_F2_06",
+			"WHI_Ext_N_F3_02",
+			"WHI_Ext_N_F3_03",
+			"WHI_Ext_N_F3_05",
+			"WHI_Ext_N_F3_06",
+			"WHI_Ext_N_G_02",
+			"WHI_Ext_N_G_03",
+			"WHI_Ext_N_G_05",
+			"WHI_Ext_N_G_06",
+			"WHI_Ext_S_F1_02",
+			"WHI_Ext_S_F1_03",
+			"WHI_Ext_S_F1_05",
+			"WHI_Ext_S_F1_06",
+			"WHI_Ext_S_F2_02",
+			"WHI_Ext_S_F2_03",
+			"WHI_Ext_S_F2_05",
+			"WHI_Ext_S_F2_06",
+			"WHI_Ext_S_F3_02",
+			"WHI_Ext_S_F3_03",
+			"WHI_Ext_S_F3_05",
+			"WHI_Ext_S_F3_06",
+			"WHI_Ext_S_G_02",
+			"WHI_Ext_S_G_03",
+			"WHI_Ext_S_G_05",
+			"WHI_Ext_S_G_07",
+			"WHI_Ext_S_G_08",
+			"WHI_Ext_W_F2_02",
+			"WHI_Ext_W_F2_03",
+			"WHI_Ext_W_F3_02",
+			"WHI_Ext_W_F3_03",
+			"WHI_Ext_W_G_02",
+			"WHI_Ext_W_G_03",
+			"WHI_Guard_F3_E_Top",
+			"WHI_Guard_F3_W_Top",
+			"WHI_Guest_Bed_Blanket",
+			"WHI_Guest_Bed_Footboard",
+			"WHI_Guest_Bed_Frame",
+			"WHI_Guest_Bed_Headboard",
+			"WHI_Guest_Bed_Mattress",
+			"WHI_Guest_Bed_Pillow",
+			"WHI_Guest_Bed_Post-1-1",
+			"WHI_Guest_Bed_Post-11",
+			"WHI_Guest_Bed_Post1-1",
+			"WHI_Guest_Bed_Post11",
+			"WHI_Guest_Table_ApronX1",
+			"WHI_Guest_Table_ApronX2",
+			"WHI_Guest_Table_Leg-1-1",
+			"WHI_Guest_Table_Leg-11",
+			"WHI_Guest_Table_Leg1-1",
+			"WHI_Guest_Table_Leg11",
+			"WHI_Guest_Table_Top",
+			"WHI_Guest_Wardrobe_Base",
+			"WHI_Guest_Wardrobe_Body",
+			"WHI_Guest_Wardrobe_HandleL",
+			"WHI_Guest_Wardrobe_HandleR",
+			"WHI_Guest_Wardrobe_InnerDark",
+			"WHI_Guest_Wardrobe_Top",
+			"WHI_Int_DiningParlor_02",
+			"WHI_Int_HallE_F1_02",
+			"WHI_Int_HallE_F1_04",
+			"WHI_Int_HallE_F2_02",
+			"WHI_Int_HallE_G_02",
+			"WHI_Int_HallE_G_04",
+			"WHI_Int_HallW_F1_02",
+			"WHI_Int_HallW_F2_02",
+			"WHI_Int_HallW_F2_04",
+			"WHI_Int_HallW_G_02",
+			"WHI_Int_HallW_G_04",
+			"WHI_Int_KitchenPantry_02",
+			"WHI_Kit_Chair1_Back",
+			"WHI_Kit_Chair1_BackTop",
+			"WHI_Kit_Chair1_Cushion",
+			"WHI_Kit_Chair1_Leg-1-1",
+			"WHI_Kit_Chair1_Leg-11",
+			"WHI_Kit_Chair1_Leg1-1",
+			"WHI_Kit_Chair1_Leg11",
+			"WHI_Kit_Chair1_Seat",
+			"WHI_Kit_Chair2_Back",
+			"WHI_Kit_Chair2_BackTop",
+			"WHI_Kit_Chair2_Cushion",
+			"WHI_Kit_Chair2_Leg-1-1",
+			"WHI_Kit_Chair2_Leg-11",
+			"WHI_Kit_Chair2_Leg1-1",
+			"WHI_Kit_Chair2_Leg11",
+			"WHI_Kit_Chair2_Seat",
+			"WHI_Kit_Counter_Base",
+			"WHI_Kit_Counter_Kick",
+			"WHI_Kit_Counter_Top",
+			"WHI_Kit_Shelf_Board0",
+			"WHI_Kit_Shelf_Board1",
+			"WHI_Kit_Shelf_Bracket0-1",
+			"WHI_Kit_Shelf_Bracket01",
+			"WHI_Kit_Shelf_Bracket1-1",
+			"WHI_Kit_Shelf_Bracket11",
+			"WHI_Kit_Stove_Body",
+			"WHI_Kit_Stove_Burner-1-1",
+			"WHI_Kit_Stove_Burner-11",
+			"WHI_Kit_Stove_Burner1-1",
+			"WHI_Kit_Stove_Burner11",
+			"WHI_Kit_Stove_Foot-1-1",
+			"WHI_Kit_Stove_Foot-11",
+			"WHI_Kit_Stove_Foot1-1",
+			"WHI_Kit_Stove_Foot11",
+			"WHI_Kit_Stove_Knob0",
+			"WHI_Kit_Stove_Knob1",
+			"WHI_Kit_Stove_Knob2",
+			"WHI_Kit_Stove_Pipe",
+			"WHI_Kit_Stove_Top",
+			"WHI_Kit_Table_ApronX1",
+			"WHI_Kit_Table_ApronX2",
+			"WHI_Kit_Table_Leg-1-1",
+			"WHI_Kit_Table_Leg-11",
+			"WHI_Kit_Table_Leg1-1",
+			"WHI_Kit_Table_Leg11",
+			"WHI_Kit_Table_Top",
+			"WHI_Master_Bed_Blanket",
+			"WHI_Master_Bed_CPost-1-1",
+			"WHI_Master_Bed_CPost-11",
+			"WHI_Master_Bed_CPost1-1",
+			"WHI_Master_Bed_CPost11",
+			"WHI_Master_Bed_CRailX1",
+			"WHI_Master_Bed_CRailX2",
+			"WHI_Master_Bed_CRailY1",
+			"WHI_Master_Bed_CRailY2",
+			"WHI_Master_Bed_CTop",
+			"WHI_Master_Bed_Footboard",
+			"WHI_Master_Bed_Frame",
+			"WHI_Master_Bed_Headboard",
+			"WHI_Master_Bed_Mattress",
+			"WHI_Master_Bed_Pillow",
+			"WHI_Master_Bed_Post-1-1",
+			"WHI_Master_Bed_Post-11",
+			"WHI_Master_Bed_Post1-1",
+			"WHI_Master_Bed_Post11",
+			"WHI_Master_Nightstand_ApronX1",
+			"WHI_Master_Nightstand_ApronX2",
+			"WHI_Master_Nightstand_Leg-1-1",
+			"WHI_Master_Nightstand_Leg-11",
+			"WHI_Master_Nightstand_Leg1-1",
+			"WHI_Master_Nightstand_Leg11",
+			"WHI_Master_Nightstand_Top",
+			"WHI_Master_Wardrobe_Base",
+			"WHI_Master_Wardrobe_Body",
+			"WHI_Master_Wardrobe_Eye-1",
+			"WHI_Master_Wardrobe_Eye1",
+			"WHI_Master_Wardrobe_HandleL",
+			"WHI_Master_Wardrobe_HandleR",
+			"WHI_Master_Wardrobe_InnerDark",
+			"WHI_Master_Wardrobe_Top",
+			"WHI_Pan_Barrel1_Band18",
+			"WHI_Pan_Barrel1_Band62",
+			"WHI_Pan_Barrel1_Body",
+			"WHI_Pan_Barrel1_Top",
+			"WHI_Pan_Barrel2_Band18",
+			"WHI_Pan_Barrel2_Band48",
+			"WHI_Pan_Barrel2_Body",
+			"WHI_Pan_Barrel2_Top",
+			"WHI_Pan_Crate1_Body",
+			"WHI_Pan_Crate1_Brace1",
+			"WHI_Pan_Crate1_Brace2",
+			"WHI_Pan_Crate1_Lid",
+			"WHI_Pan_Crate2_Body",
+			"WHI_Pan_Crate2_Brace1",
+			"WHI_Pan_Crate2_Brace2",
+			"WHI_Pan_Crate2_Lid",
+			"WHI_Pan_Sack1_Body",
+			"WHI_Pan_Sack2_Body",
+			"WHI_Pan_Sack3_Body",
+			"WHI_Pan_Shelf_Board0",
+			"WHI_Pan_Shelf_Board1",
+			"WHI_Pan_Shelf_Board2",
+			"WHI_Pan_Shelf_Bracket0-1",
+			"WHI_Pan_Shelf_Bracket01",
+			"WHI_Pan_Shelf_Bracket1-1",
+			"WHI_Pan_Shelf_Bracket11",
+			"WHI_Pan_Shelf_Bracket2-1",
+			"WHI_Pan_Shelf_Bracket21",
+			"WHI_Par_Arm1_Arm-1",
+			"WHI_Par_Arm1_Arm1",
+			"WHI_Par_Arm1_Back",
+			"WHI_Par_Arm1_BackCushion",
+			"WHI_Par_Arm1_Cushion",
+			"WHI_Par_Arm1_Seat",
+			"WHI_Par_Arm2_Arm-1",
+			"WHI_Par_Arm2_Arm1",
+			"WHI_Par_Arm2_Back",
+			"WHI_Par_Arm2_BackCushion",
+			"WHI_Par_Arm2_Cushion",
+			"WHI_Par_Arm2_Seat",
+			"WHI_Par_Fire_Back",
+			"WHI_Par_Fire_Breast",
+			"WHI_Par_Fire_Hearth",
+			"WHI_Par_Fire_Log0",
+			"WHI_Par_Fire_Log1",
+			"WHI_Par_Fire_Log2",
+			"WHI_Par_Fire_Mantel",
+			"WHI_Par_Rocker_Back",
+			"WHI_Par_Rocker_Seat",
+			"WHI_Par_SideTable_ApronX1",
+			"WHI_Par_SideTable_ApronX2",
+			"WHI_Par_SideTable_Leg-1-1",
+			"WHI_Par_SideTable_Leg-11",
+			"WHI_Par_SideTable_Leg1-1",
+			"WHI_Par_SideTable_Leg11",
+			"WHI_Par_SideTable_Top",
+			"WHI_Ritual_Altar_Body",
+			"WHI_Ritual_Altar_Bowl",
+			"WHI_Ritual_Altar_BowlBrew",
+			"WHI_Ritual_Altar_Dagger",
+			"WHI_Ritual_Altar_DaggerHilt",
+			"WHI_Ritual_Altar_Panel-1",
+			"WHI_Ritual_Altar_Panel1",
+			"WHI_Ritual_Altar_Top",
+			"WHI_Ritual_Brazier1_Bowl",
+			"WHI_Ritual_Brazier1_Fire",
+			"WHI_Ritual_Brazier1_Leg0",
+			"WHI_Ritual_Brazier1_Leg1",
+			"WHI_Ritual_Brazier1_Leg2",
+			"WHI_Ritual_Brazier2_Bowl",
+			"WHI_Ritual_Brazier2_Fire",
+			"WHI_Ritual_Brazier2_Leg0",
+			"WHI_Ritual_Brazier2_Leg1",
+			"WHI_Ritual_Brazier2_Leg2",
+			"WHI_Ritual_Throne_Arm-1",
+			"WHI_Ritual_Throne_Arm1",
+			"WHI_Ritual_Throne_Back",
+			"WHI_Ritual_Throne_BackLeg-1",
+			"WHI_Ritual_Throne_BackLeg1",
+			"WHI_Ritual_Throne_BackPanel",
+			"WHI_Ritual_Throne_Finial",
+			"WHI_Ritual_Throne_FrontLeg-1",
+			"WHI_Ritual_Throne_FrontLeg1",
+			"WHI_Ritual_Throne_Seat",
+			"WHI_Study_Arm_Arm-1",
+			"WHI_Study_Arm_Arm1",
+			"WHI_Study_Arm_Back",
+			"WHI_Study_Arm_BackCushion",
+			"WHI_Study_Arm_Cushion",
+			"WHI_Study_Arm_Seat",
+			"WHI_Study_Chair_Back",
+			"WHI_Study_Chair_BackTop",
+			"WHI_Study_Chair_Cushion",
+			"WHI_Study_Chair_Leg-1-1",
+			"WHI_Study_Chair_Leg-11",
+			"WHI_Study_Chair_Leg1-1",
+			"WHI_Study_Chair_Leg11",
+			"WHI_Study_Chair_Seat",
+			"WHI_Study_Desk_Drawer",
+			"WHI_Study_Desk_DrawerFace",
+			"WHI_Study_Desk_Leg-1-1",
+			"WHI_Study_Desk_Leg-11",
+			"WHI_Study_Desk_Leg1-1",
+			"WHI_Study_Desk_Leg11",
+			"WHI_Study_Desk_Top",
+			"WHI_Study_Globe_Ball",
+			"WHI_Study_Globe_Base",
+			"WHI_Study_Globe_Ring",
+			"WHI_Study_Globe_Stand"
+		],
+		"obstaculos": [
+			"WHI_Attic_Trunk_Body",
+			"WHI_Attic_Trunk_Foot-1-1",
+			"WHI_Attic_Trunk_Foot-11",
+			"WHI_Attic_Trunk_Foot1-1",
+			"WHI_Attic_Trunk_Foot11",
+			"WHI_Attic_Trunk_Lid",
+			"WHI_Attic_Trunk_Lock",
+			"WHI_Attic_Trunk_Strap-1",
+			"WHI_Attic_Trunk_Strap1",
+			"WHI_Child_Trunk_Body",
+			"WHI_Child_Trunk_Foot-1-1",
+			"WHI_Child_Trunk_Foot-11",
+			"WHI_Child_Trunk_Foot1-1",
+			"WHI_Child_Trunk_Foot11",
+			"WHI_Child_Trunk_Lid",
+			"WHI_Child_Trunk_Lock",
+			"WHI_Child_Trunk_Strap-1",
+			"WHI_Child_Trunk_Strap1",
+			"WHI_Collar_0",
+			"WHI_Collar_1",
+			"WHI_Collar_2",
+			"WHI_Collar_3",
+			"WHI_Collar_4",
+			"WHI_Guest_Trunk_Body",
+			"WHI_Guest_Trunk_Foot-1-1",
+			"WHI_Guest_Trunk_Foot-11",
+			"WHI_Guest_Trunk_Foot1-1",
+			"WHI_Guest_Trunk_Foot11",
+			"WHI_Guest_Trunk_Lid",
+			"WHI_Guest_Trunk_Lock",
+			"WHI_Guest_Trunk_Strap-1",
+			"WHI_Guest_Trunk_Strap1",
+			"WHI_Master_Trunk_Body",
+			"WHI_Master_Trunk_Foot-1-1",
+			"WHI_Master_Trunk_Foot-11",
+			"WHI_Master_Trunk_Foot1-1",
+			"WHI_Master_Trunk_Foot11",
+			"WHI_Master_Trunk_Lid",
+			"WHI_Master_Trunk_Lock",
+			"WHI_Master_Trunk_Strap-1",
+			"WHI_Master_Trunk_Strap1"
+		]
+	},
+	"shapes": {},
+	"excludePatterns": [
+		"*bat*",
+		"*murci*",
+		"*web*",
+		"*telar*",
+		"*sign*",
+		"*cartel*",
+		"*text*",
+		"*window*",
+		"*ventana*",
+		"*win_*",
+		"*_win*",
+		"*glass*",
+		"*crystal*",
+		"*path*",
+		"*camino*",
+		"*field*",
+		"*campo*",
+		"*yard*",
+		"*patio*",
+		"*pumpkin*",
+		"*calabaza*",
+		"*mushroom*",
+		"*hongo*",
+		"*leaf*",
+		"*leaves*",
+		"*hoja*",
+		"*grass*",
+		"*hierba*",
+		"*flower*",
+		"*flor*",
+		"*lamp*",
+		"*light*",
+		"*flame*",
+		"*glow*",
+		"*candle*",
+		"*vela*",
+		"*candelabra*",
+		"*chandelier*",
+		"*candelabro*",
+		"*candelier*",
+		"*rug*",
+		"*alfombra*",
+		"*cat*",
+		"*mirror*",
+		"*espejo*",
+		"*portrait*",
+		"*retrato*",
+		"*clock*",
+		"*reloj*",
+		"*circle_star*",
+		"*fx*",
+		"*vfx*",
+		"*particle*",
+		"*smoke*",
+		"*cloud*",
+		"*sky*",
+		"*water*",
+		"*river*",
+		"*blood*",
+		"*decal*",
+		"*poster*",
+		"*picture*",
+		"*painting*",
+		"*cuadro*",
+		"*curtain*",
+		"*cloth*",
+		"*rope*",
+		"*cable*",
+		"*wire*",
+		"*trigger*",
+		"*collider*",
+		"*nav*",
+		"*spawn*",
+		"*volume*",
+		"*zone*",
+		"*hitbox*",
+		"*book*",
+		"*libro*",
+		"*skull*",
+		"*craneo*",
+		"*bone*",
+		"*hueso*",
+		"*skeleton*",
+		"*ghost*",
+		"*fantasma*",
+		"*character*",
+		"*npc*",
+		"*monster*",
+		"*mummy*",
+		"*mommy*"
+	],
+	"forceInclude": [],
+	"review": [
+		{
+			"name": "WHI_Attic_Cage_Bar0",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 20,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Attic_Cage_Bar1",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 20,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Attic_Cage_Bar2",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 20,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Attic_Cage_Bar3",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 20,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Attic_Cage_Bar4",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 20,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Attic_Cage_Bar5",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 20,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Attic_Cage_Bottom",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 168,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Attic_Cage_Chain",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 20,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Attic_Cage_Top",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 168,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Attic_Eye_Iris",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 80,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Attic_Eye_Pupil",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 20,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Attic_Hand_Palm",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 80,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Attic_Herbs_Herb0",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 16,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Attic_Herbs_Herb1",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 16,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Attic_Herbs_Herb2",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 16,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Attic_Herbs_Herb3",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 16,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Attic_Herbs_Herb4",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 16,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Attic_Herbs_Herb5",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 16,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Attic_Herbs_Herb6",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 16,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Attic_Noose_Knot",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 20,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Attic_Noose_Loop",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 192,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Attic_Pile_0",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 12,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Attic_Pile_1",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 12,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Attic_Pile_2",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 12,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Attic_Pile_3",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 12,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Attic_Pile_4",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 12,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Attic_Pile_5",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 12,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Attic_SconceS_Back",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 12,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Attic_SconceS_Cup",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 12,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Attic_SconceW_Back",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 12,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Attic_SconceW_Cup",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 12,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Base_Cage_Bar0",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 20,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Base_Cage_Bar1",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 20,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Base_Cage_Bar2",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 20,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Base_Cage_Bar3",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 20,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Base_Cage_Bar4",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 20,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Base_Cage_Bar5",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 20,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Base_Cage_Bottom",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 168,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Base_Cage_Chain",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 20,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Base_Cage_Top",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 168,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Base_Eye_Iris",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 80,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Base_Eye_Pupil",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 20,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Base_Hand_Palm",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 80,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Base_Herbs_Herb0",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 16,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Base_Herbs_Herb1",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 16,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Base_Herbs_Herb2",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 16,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Base_Herbs_Herb3",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 16,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Base_Herbs_Herb4",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 16,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Base_Herbs_Herb5",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 16,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Base_Jar0_Content",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 36,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Base_Jar0_Lid",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 36,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Base_Jar1_Content",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 36,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Base_Jar1_Lid",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 36,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Base_Jar2_Content",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 36,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Base_Jar2_Lid",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 36,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Base_Jar3_Content",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 36,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Base_Jar3_Lid",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 36,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Base_Jar4_Content",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 36,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Base_Jar4_Lid",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 36,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Base_Lantern_Bottom",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 12,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Base_Lantern_Chain",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 20,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Base_Lantern_Post-1-1",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 12,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Base_Lantern_Post-11",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 12,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Base_Lantern_Post1-1",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 12,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Base_Lantern_Post11",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 12,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Base_Lantern_Top",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 12,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Base_Noose_Knot",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 20,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Base_Noose_Loop",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 192,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Base_Sack1_Tie",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 28,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Base_Sack2_Tie",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 28,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Child_Doll_Arm-1",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 20,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Child_Doll_Arm1",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 20,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Child_Doll_Dress",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 28,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Child_Doll_Hair",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 80,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Child_Doll_Head",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 80,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Child_Doll_Leg-1",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 20,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Child_Doll_Leg1",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 20,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Child_Draw1_Paper",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 12,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Child_Draw2_Paper",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 12,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Child_Hand_Palm",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 80,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Child_Rocker_LegB-1",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 12,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Child_Rocker_LegB1",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 12,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Child_Rocker_LegF-1",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 12,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Child_Rocker_LegF1",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 12,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Child_Rocker_Rocker-1",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 12,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Child_Rocker_Rocker1",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 12,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Child_Sconce_Back",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 12,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Child_Sconce_Cup",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 12,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Din_Bottle1_Body",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 28,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Din_Bottle1_Cork",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 28,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Din_Bottle1_Neck",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 28,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Din_Bottle2_Body",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 28,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Din_Bottle2_Cork",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 28,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Din_Bottle2_Neck",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 28,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Din_Plate1_Food",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 36,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Din_Plate1_Plate",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 44,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Din_Plate2_Food",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 36,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Din_Plate2_Plate",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 44,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Din_Sconce_Back",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 12,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Din_Sconce_Cup",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 12,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Guard_F3_E_Mid",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 12,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Guard_F3_N_Mid",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 12,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Guard_F3_N_Top",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 12,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Guard_F3_W_Mid",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 12,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Guard_G_E_Mid",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 12,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Guard_G_E_Top",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 12,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Guard_G_W_Mid",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 12,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Guard_G_W_Top",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 12,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Guest_Sconce_Back",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 12,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Guest_Sconce_Cup",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 12,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Hall_Hand_Palm",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 80,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Hall_Sconce_Back",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 12,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Hall_Sconce_Cup",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 12,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Kit_Herbs_Herb0",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 16,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Kit_Herbs_Herb1",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 16,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Kit_Herbs_Herb2",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 16,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Kit_Herbs_Herb3",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 16,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Kit_Herbs_Herb4",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 16,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Kit_Herbs_Herb5",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 16,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Kit_Jar1_Content",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 36,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Kit_Jar1_Lid",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 36,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Kit_Jar2_Content",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 36,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Kit_Jar2_Lid",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 36,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Kit_Jar3_Content",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 36,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Kit_Jar3_Lid",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 36,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Kit_Plate1_Food",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 36,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Kit_Plate1_Plate",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 44,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Kit_Plate2_Food",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 36,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Kit_Plate2_Plate",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 44,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Kit_Sconce_Back",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 12,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Kit_Sconce_Cup",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 12,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Master_Doll_Arm-1",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 20,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Master_Doll_Arm1",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 20,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Master_Doll_Dress",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 28,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Master_Doll_Hair",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 80,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Master_Doll_Head",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 80,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Master_Doll_Leg-1",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 20,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Master_Doll_Leg1",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 20,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Master_Sconce_Back",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 12,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Master_Sconce_Cup",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 12,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Pan_Herbs1_Herb0",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 16,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Pan_Herbs1_Herb1",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 16,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Pan_Herbs1_Herb2",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 16,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Pan_Herbs1_Herb3",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 16,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Pan_Herbs1_Herb4",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 16,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Pan_Herbs1_Herb5",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 16,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Pan_Herbs2_Herb0",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 16,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Pan_Herbs2_Herb1",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 16,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Pan_Herbs2_Herb2",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 16,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Pan_Herbs2_Herb3",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 16,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Pan_Herbs2_Herb4",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 16,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Pan_Jar0_Content",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 36,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Pan_Jar0_Lid",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 36,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Pan_Jar1_Content",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 36,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Pan_Jar1_Lid",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 36,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Pan_Jar2_Content",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 36,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Pan_Jar2_Lid",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 36,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Pan_Jar3_Content",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 36,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Pan_Jar3_Lid",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 36,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Pan_Jar4_Content",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 36,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Pan_Jar4_Lid",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 36,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Pan_Jar5_Content",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 36,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Pan_Jar5_Lid",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 36,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Pan_Sack1_Tie",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 28,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Pan_Sack2_Tie",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 28,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Pan_Sack3_Tie",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 28,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Pan_Sconce_Back",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 12,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Pan_Sconce_Cup",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 12,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Par_Arm1_Leg-1-1",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 12,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Par_Arm1_Leg-11",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 12,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Par_Arm1_Leg1-1",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 12,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Par_Arm1_Leg11",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 12,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Par_Arm2_Leg-1-1",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 12,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Par_Arm2_Leg-11",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 12,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Par_Arm2_Leg1-1",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 12,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Par_Arm2_Leg11",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 12,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Par_Rocker_LegB-1",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 12,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Par_Rocker_LegB1",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 12,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Par_Rocker_LegF-1",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 12,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Par_Rocker_LegF1",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 12,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Par_Rocker_Rocker-1",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 12,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Par_Rocker_Rocker1",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 12,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Par_Sconce_Back",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 12,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Par_Sconce_Cup",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 12,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Porch_Lantern_Bottom",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 12,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Porch_Lantern_Chain",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 20,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Porch_Lantern_Post-1-1",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 12,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Porch_Lantern_Post-11",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 12,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Porch_Lantern_Post1-1",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 12,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Porch_Lantern_Post11",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 12,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Porch_Lantern_Top",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 12,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Ritual_Banner_Rod",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 12,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Ritual_Banner_Sigil",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 12,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Ritual_Banner_Tatter-1",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 12,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Ritual_Banner_Tatter1",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 12,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Ritual_Cage1_Bar0",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 20,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Ritual_Cage1_Bar1",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 20,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Ritual_Cage1_Bar2",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 20,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Ritual_Cage1_Bar3",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 20,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Ritual_Cage1_Bar4",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 20,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Ritual_Cage1_Bar5",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 20,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Ritual_Cage1_Bottom",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 168,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Ritual_Cage1_Chain",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 20,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Ritual_Cage1_Top",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 168,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Ritual_Cage2_Bar0",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 20,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Ritual_Cage2_Bar1",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 20,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Ritual_Cage2_Bar2",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 20,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Ritual_Cage2_Bar3",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 20,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Ritual_Cage2_Bar4",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 20,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Ritual_Cage2_Bar5",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 20,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Ritual_Cage2_Bottom",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 168,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Ritual_Cage2_Chain",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 20,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Ritual_Cage2_Top",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 168,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Ritual_Eye_Iris",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 80,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Ritual_Eye_Pupil",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 20,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Ritual_Hand_Palm",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 80,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Ritual_Herbs_Herb0",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 16,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Ritual_Herbs_Herb1",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 16,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Ritual_Herbs_Herb2",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 16,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Ritual_Herbs_Herb3",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 16,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Ritual_Herbs_Herb4",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 16,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Ritual_Herbs_Herb5",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 16,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Study_Arm_Leg-1-1",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 12,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Study_Arm_Leg-11",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 12,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Study_Arm_Leg1-1",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 12,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Study_Arm_Leg11",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 12,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Study_Pile_0",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 12,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Study_Pile_1",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 12,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Study_Pile_2",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 12,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Study_Pile_3",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 12,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Study_Pile_4",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 12,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Study_Sconce_Back",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 12,
+			"reason": "sin señal suficiente"
+		},
+		{
+			"name": "WHI_Study_Sconce_Cup",
+			"category": null,
+			"confidence": 0.3,
+			"triangles": 12,
+			"reason": "sin señal suficiente"
+		}
+	],
+	"clusters": [
+		{
+			"name": "WHI_Attic_Altar",
+			"category": "muebles",
+			"shape": "convexHull",
+			"triangles": 160,
+			"names": [
+				"WHI_Attic_Altar_Body",
+				"WHI_Attic_Altar_Bowl",
+				"WHI_Attic_Altar_BowlBrew",
+				"WHI_Attic_Altar_Dagger",
+				"WHI_Attic_Altar_DaggerHilt",
+				"WHI_Attic_Altar_Panel-1",
+				"WHI_Attic_Altar_Panel1",
+				"WHI_Attic_Altar_Top"
+			]
+		},
+		{
+			"name": "WHI_Attic_Bed",
+			"category": "muebles",
+			"shape": "convexHull",
+			"triangles": 228,
+			"names": [
+				"WHI_Attic_Bed_Blanket",
+				"WHI_Attic_Bed_CPost-1-1",
+				"WHI_Attic_Bed_CPost-11",
+				"WHI_Attic_Bed_CPost1-1",
+				"WHI_Attic_Bed_CPost11",
+				"WHI_Attic_Bed_CRailX1",
+				"WHI_Attic_Bed_CRailX2",
+				"WHI_Attic_Bed_CRailY1",
+				"WHI_Attic_Bed_CRailY2",
+				"WHI_Attic_Bed_CTop",
+				"WHI_Attic_Bed_Footboard",
+				"WHI_Attic_Bed_Frame",
+				"WHI_Attic_Bed_Headboard",
+				"WHI_Attic_Bed_Mattress",
+				"WHI_Attic_Bed_Pillow",
+				"WHI_Attic_Bed_Post-1-1",
+				"WHI_Attic_Bed_Post-11",
+				"WHI_Attic_Bed_Post1-1",
+				"WHI_Attic_Bed_Post11"
+			]
+		},
+		{
+			"name": "WHI_Attic_Cage",
+			"category": "suelo",
+			"shape": "trimesh",
+			"triangles": 52,
+			"names": ["WHI_Attic_Cage_Floor"]
+		},
+		{
+			"name": "WHI_Attic_Chair",
+			"category": "muebles",
+			"shape": "convexHull",
+			"triangles": 96,
+			"names": [
+				"WHI_Attic_Chair_Back",
+				"WHI_Attic_Chair_BackTop",
+				"WHI_Attic_Chair_Cushion",
+				"WHI_Attic_Chair_Leg-1-1",
+				"WHI_Attic_Chair_Leg-11",
+				"WHI_Attic_Chair_Leg1-1",
+				"WHI_Attic_Chair_Leg11",
+				"WHI_Attic_Chair_Seat"
+			]
+		},
+		{
+			"name": "WHI_Attic_Desk",
+			"category": "muebles",
+			"shape": "convexHull",
+			"triangles": 84,
+			"names": [
+				"WHI_Attic_Desk_Drawer",
+				"WHI_Attic_Desk_DrawerFace",
+				"WHI_Attic_Desk_Leg-1-1",
+				"WHI_Attic_Desk_Leg-11",
+				"WHI_Attic_Desk_Leg1-1",
+				"WHI_Attic_Desk_Leg11",
+				"WHI_Attic_Desk_Top"
+			]
+		},
+		{
+			"name": "WHI_Attic_Trunk",
+			"category": "obstaculos",
+			"shape": "convexHull",
+			"triangles": 108,
+			"names": [
+				"WHI_Attic_Trunk_Body",
+				"WHI_Attic_Trunk_Foot-1-1",
+				"WHI_Attic_Trunk_Foot-11",
+				"WHI_Attic_Trunk_Foot1-1",
+				"WHI_Attic_Trunk_Foot11",
+				"WHI_Attic_Trunk_Lid",
+				"WHI_Attic_Trunk_Lock",
+				"WHI_Attic_Trunk_Strap-1",
+				"WHI_Attic_Trunk_Strap1"
+			]
+		},
+		{
+			"name": "WHI_Attic_Tub",
+			"category": "muebles",
+			"shape": "convexHull",
+			"triangles": 108,
+			"names": [
+				"WHI_Attic_Tub_Body",
+				"WHI_Attic_Tub_Foot0",
+				"WHI_Attic_Tub_Foot1",
+				"WHI_Attic_Tub_Foot2",
+				"WHI_Attic_Tub_Foot3"
+			]
+		},
+		{
+			"name": "WHI_Attic_Wardrobe",
+			"category": "muebles",
+			"shape": "convexHull",
+			"triangles": 152,
+			"names": [
+				"WHI_Attic_Wardrobe_Base",
+				"WHI_Attic_Wardrobe_Body",
+				"WHI_Attic_Wardrobe_DoorL",
+				"WHI_Attic_Wardrobe_DoorR",
+				"WHI_Attic_Wardrobe_Eye-1",
+				"WHI_Attic_Wardrobe_Eye1",
+				"WHI_Attic_Wardrobe_HandleL",
+				"WHI_Attic_Wardrobe_HandleR",
+				"WHI_Attic_Wardrobe_InnerDark",
+				"WHI_Attic_Wardrobe_Top"
+			]
+		},
+		{
+			"name": "WHI_Barge_N",
+			"category": "paredes",
+			"shape": "trimesh",
+			"triangles": 24,
+			"names": ["WHI_Barge_N_E", "WHI_Barge_N_W"]
+		},
+		{
+			"name": "WHI_Barge_S",
+			"category": "paredes",
+			"shape": "trimesh",
+			"triangles": 24,
+			"names": ["WHI_Barge_S_E", "WHI_Barge_S_W"]
+		},
+		{
+			"name": "WHI_Base_Altar",
+			"category": "muebles",
+			"shape": "convexHull",
+			"triangles": 160,
+			"names": [
+				"WHI_Base_Altar_Body",
+				"WHI_Base_Altar_Bowl",
+				"WHI_Base_Altar_BowlBrew",
+				"WHI_Base_Altar_Dagger",
+				"WHI_Base_Altar_DaggerHilt",
+				"WHI_Base_Altar_Panel-1",
+				"WHI_Base_Altar_Panel1",
+				"WHI_Base_Altar_Top"
+			]
+		},
+		{
+			"name": "WHI_Base_Barrel1",
+			"category": "muebles",
+			"shape": "convexHull",
+			"triangles": 208,
+			"names": [
+				"WHI_Base_Barrel1_Band18",
+				"WHI_Base_Barrel1_Band62",
+				"WHI_Base_Barrel1_Body",
+				"WHI_Base_Barrel1_Top"
+			]
+		},
+		{
+			"name": "WHI_Base_Barrel2",
+			"category": "muebles",
+			"shape": "convexHull",
+			"triangles": 208,
+			"names": [
+				"WHI_Base_Barrel2_Band18",
+				"WHI_Base_Barrel2_Band48",
+				"WHI_Base_Barrel2_Body",
+				"WHI_Base_Barrel2_Top"
+			]
+		},
+		{
+			"name": "WHI_Base_Barrel3",
+			"category": "muebles",
+			"shape": "convexHull",
+			"triangles": 208,
+			"names": [
+				"WHI_Base_Barrel3_Band18",
+				"WHI_Base_Barrel3_Band54",
+				"WHI_Base_Barrel3_Body",
+				"WHI_Base_Barrel3_Top"
+			]
+		},
+		{
+			"name": "WHI_Base_BeamX",
+			"category": "paredes",
+			"shape": "trimesh",
+			"triangles": 60,
+			"names": [
+				"WHI_Base_BeamX_00",
+				"WHI_Base_BeamX_01",
+				"WHI_Base_BeamX_02",
+				"WHI_Base_BeamX_03",
+				"WHI_Base_BeamX_04"
+			]
+		},
+		{
+			"name": "WHI_Base_Brazier",
+			"category": "muebles",
+			"shape": "convexHull",
+			"triangles": 164,
+			"names": [
+				"WHI_Base_Brazier_Bowl",
+				"WHI_Base_Brazier_Fire",
+				"WHI_Base_Brazier_Leg0",
+				"WHI_Base_Brazier_Leg1",
+				"WHI_Base_Brazier_Leg2"
+			]
+		},
+		{
+			"name": "WHI_Base_Cage",
+			"category": "suelo",
+			"shape": "trimesh",
+			"triangles": 52,
+			"names": ["WHI_Base_Cage_Floor"]
+		},
+		{
+			"name": "WHI_Base_Col",
+			"category": "paredes",
+			"shape": "trimesh",
+			"triangles": 48,
+			"names": ["WHI_Base_Col_0", "WHI_Base_Col_1", "WHI_Base_Col_2", "WHI_Base_Col_3"]
+		},
+		{
+			"name": "WHI_Base_ColCap",
+			"category": "muebles",
+			"shape": "convexHull",
+			"triangles": 48,
+			"names": ["WHI_Base_ColCap_0", "WHI_Base_ColCap_1", "WHI_Base_ColCap_2", "WHI_Base_ColCap_3"]
+		},
+		{
+			"name": "WHI_Base_Crate1",
+			"category": "muebles",
+			"shape": "convexHull",
+			"triangles": 48,
+			"names": [
+				"WHI_Base_Crate1_Body",
+				"WHI_Base_Crate1_Brace1",
+				"WHI_Base_Crate1_Brace2",
+				"WHI_Base_Crate1_Lid"
+			]
+		},
+		{
+			"name": "WHI_Base_Crate2",
+			"category": "muebles",
+			"shape": "convexHull",
+			"triangles": 48,
+			"names": [
+				"WHI_Base_Crate2_Body",
+				"WHI_Base_Crate2_Brace1",
+				"WHI_Base_Crate2_Brace2",
+				"WHI_Base_Crate2_Lid"
+			]
+		},
+		{
+			"name": "WHI_Base_E",
+			"category": "paredes",
+			"shape": "trimesh",
+			"triangles": 12,
+			"names": ["WHI_Base_E_01"]
+		},
+		{
+			"name": "WHI_Base_N",
+			"category": "paredes",
+			"shape": "trimesh",
+			"triangles": 12,
+			"names": ["WHI_Base_N_01"]
+		},
+		{
+			"name": "WHI_Base_S",
+			"category": "paredes",
+			"shape": "trimesh",
+			"triangles": 12,
+			"names": ["WHI_Base_S_01"]
+		},
+		{
+			"name": "WHI_Base_Sack1",
+			"category": "muebles",
+			"shape": "convexHull",
+			"triangles": 80,
+			"names": ["WHI_Base_Sack1_Body"]
+		},
+		{
+			"name": "WHI_Base_Sack2",
+			"category": "muebles",
+			"shape": "convexHull",
+			"triangles": 80,
+			"names": ["WHI_Base_Sack2_Body"]
+		},
+		{
+			"name": "WHI_Base_ShelfE",
+			"category": "muebles",
+			"shape": "convexHull",
+			"triangles": 108,
+			"names": [
+				"WHI_Base_ShelfE_Board0",
+				"WHI_Base_ShelfE_Board1",
+				"WHI_Base_ShelfE_Board2",
+				"WHI_Base_ShelfE_Bracket0-1",
+				"WHI_Base_ShelfE_Bracket01",
+				"WHI_Base_ShelfE_Bracket1-1",
+				"WHI_Base_ShelfE_Bracket11",
+				"WHI_Base_ShelfE_Bracket2-1",
+				"WHI_Base_ShelfE_Bracket21"
+			]
+		},
+		{
+			"name": "WHI_Base_ShelfN",
+			"category": "muebles",
+			"shape": "convexHull",
+			"triangles": 108,
+			"names": [
+				"WHI_Base_ShelfN_Board0",
+				"WHI_Base_ShelfN_Board1",
+				"WHI_Base_ShelfN_Board2",
+				"WHI_Base_ShelfN_Bracket0-1",
+				"WHI_Base_ShelfN_Bracket01",
+				"WHI_Base_ShelfN_Bracket1-1",
+				"WHI_Base_ShelfN_Bracket11",
+				"WHI_Base_ShelfN_Bracket2-1",
+				"WHI_Base_ShelfN_Bracket21"
+			]
+		},
+		{
+			"name": "WHI_Base_W",
+			"category": "paredes",
+			"shape": "trimesh",
+			"triangles": 12,
+			"names": ["WHI_Base_W_01"]
+		},
+		{
+			"name": "WHI_Base_Well",
+			"category": "muebles",
+			"shape": "convexHull",
+			"triangles": 328,
+			"names": [
+				"WHI_Base_Well_Bucket",
+				"WHI_Base_Well_BucketDark",
+				"WHI_Base_Well_Cross",
+				"WHI_Base_Well_Hole",
+				"WHI_Base_Well_Post-1",
+				"WHI_Base_Well_Post1",
+				"WHI_Base_Well_Stone0",
+				"WHI_Base_Well_Stone1",
+				"WHI_Base_Well_Stone10",
+				"WHI_Base_Well_Stone11",
+				"WHI_Base_Well_Stone2",
+				"WHI_Base_Well_Stone3",
+				"WHI_Base_Well_Stone4",
+				"WHI_Base_Well_Stone5",
+				"WHI_Base_Well_Stone6",
+				"WHI_Base_Well_Stone7",
+				"WHI_Base_Well_Stone8",
+				"WHI_Base_Well_Stone9"
+			]
+		},
+		{
+			"name": "WHI_Cauldron",
+			"category": "muebles",
+			"shape": "convexHull",
+			"triangles": 972,
+			"names": ["WHI_Cauldron"]
+		},
+		{
+			"name": "WHI_Child_Bed",
+			"category": "muebles",
+			"shape": "convexHull",
+			"triangles": 120,
+			"names": [
+				"WHI_Child_Bed_Blanket",
+				"WHI_Child_Bed_Footboard",
+				"WHI_Child_Bed_Frame",
+				"WHI_Child_Bed_Headboard",
+				"WHI_Child_Bed_Mattress",
+				"WHI_Child_Bed_Pillow",
+				"WHI_Child_Bed_Post-1-1",
+				"WHI_Child_Bed_Post-11",
+				"WHI_Child_Bed_Post1-1",
+				"WHI_Child_Bed_Post11"
+			]
+		},
+		{
+			"name": "WHI_Child_Rocker",
+			"category": "muebles",
+			"shape": "convexHull",
+			"triangles": 24,
+			"names": ["WHI_Child_Rocker_Back", "WHI_Child_Rocker_Seat"]
+		},
+		{
+			"name": "WHI_Child_Trunk",
+			"category": "obstaculos",
+			"shape": "convexHull",
+			"triangles": 108,
+			"names": [
+				"WHI_Child_Trunk_Body",
+				"WHI_Child_Trunk_Foot-1-1",
+				"WHI_Child_Trunk_Foot-11",
+				"WHI_Child_Trunk_Foot1-1",
+				"WHI_Child_Trunk_Foot11",
+				"WHI_Child_Trunk_Lid",
+				"WHI_Child_Trunk_Lock",
+				"WHI_Child_Trunk_Strap-1",
+				"WHI_Child_Trunk_Strap1"
+			]
+		},
+		{
+			"name": "WHI_Child_Wardrobe",
+			"category": "muebles",
+			"shape": "convexHull",
+			"triangles": 152,
+			"names": [
+				"WHI_Child_Wardrobe_Base",
+				"WHI_Child_Wardrobe_Body",
+				"WHI_Child_Wardrobe_DoorL",
+				"WHI_Child_Wardrobe_DoorR",
+				"WHI_Child_Wardrobe_Eye-1",
+				"WHI_Child_Wardrobe_Eye1",
+				"WHI_Child_Wardrobe_HandleL",
+				"WHI_Child_Wardrobe_HandleR",
+				"WHI_Child_Wardrobe_InnerDark",
+				"WHI_Child_Wardrobe_Top"
+			]
+		},
+		{
+			"name": "WHI_Chimney",
+			"category": "paredes",
+			"shape": "trimesh",
+			"triangles": 12,
+			"names": ["WHI_Chimney"]
+		},
+		{
+			"name": "WHI_ChimneyCap",
+			"category": "paredes",
+			"shape": "trimesh",
+			"triangles": 12,
+			"names": ["WHI_ChimneyCap"]
+		},
+		{
+			"name": "WHI_Collar_0",
+			"category": "obstaculos",
+			"shape": "convexHull",
+			"triangles": 12,
+			"names": ["WHI_Collar_0"]
+		},
+		{
+			"name": "WHI_Collar_1",
+			"category": "obstaculos",
+			"shape": "convexHull",
+			"triangles": 12,
+			"names": ["WHI_Collar_1"]
+		},
+		{
+			"name": "WHI_Collar_2",
+			"category": "obstaculos",
+			"shape": "convexHull",
+			"triangles": 12,
+			"names": ["WHI_Collar_2"]
+		},
+		{
+			"name": "WHI_Collar_3",
+			"category": "obstaculos",
+			"shape": "convexHull",
+			"triangles": 12,
+			"names": ["WHI_Collar_3"]
+		},
+		{
+			"name": "WHI_Collar_4",
+			"category": "obstaculos",
+			"shape": "convexHull",
+			"triangles": 12,
+			"names": ["WHI_Collar_4"]
+		},
+		{
+			"name": "WHI_Din_Chair1",
+			"category": "muebles",
+			"shape": "convexHull",
+			"triangles": 96,
+			"names": [
+				"WHI_Din_Chair1_Back",
+				"WHI_Din_Chair1_BackTop",
+				"WHI_Din_Chair1_Cushion",
+				"WHI_Din_Chair1_Leg-1-1",
+				"WHI_Din_Chair1_Leg-11",
+				"WHI_Din_Chair1_Leg1-1",
+				"WHI_Din_Chair1_Leg11",
+				"WHI_Din_Chair1_Seat"
+			]
+		},
+		{
+			"name": "WHI_Din_Chair2",
+			"category": "muebles",
+			"shape": "convexHull",
+			"triangles": 96,
+			"names": [
+				"WHI_Din_Chair2_Back",
+				"WHI_Din_Chair2_BackTop",
+				"WHI_Din_Chair2_Cushion",
+				"WHI_Din_Chair2_Leg-1-1",
+				"WHI_Din_Chair2_Leg-11",
+				"WHI_Din_Chair2_Leg1-1",
+				"WHI_Din_Chair2_Leg11",
+				"WHI_Din_Chair2_Seat"
+			]
+		},
+		{
+			"name": "WHI_Din_Chair3",
+			"category": "muebles",
+			"shape": "convexHull",
+			"triangles": 96,
+			"names": [
+				"WHI_Din_Chair3_Back",
+				"WHI_Din_Chair3_BackTop",
+				"WHI_Din_Chair3_Cushion",
+				"WHI_Din_Chair3_Leg-1-1",
+				"WHI_Din_Chair3_Leg-11",
+				"WHI_Din_Chair3_Leg1-1",
+				"WHI_Din_Chair3_Leg11",
+				"WHI_Din_Chair3_Seat"
+			]
+		},
+		{
+			"name": "WHI_Din_Chair4",
+			"category": "muebles",
+			"shape": "convexHull",
+			"triangles": 96,
+			"names": [
+				"WHI_Din_Chair4_Back",
+				"WHI_Din_Chair4_BackTop",
+				"WHI_Din_Chair4_Cushion",
+				"WHI_Din_Chair4_Leg-1-1",
+				"WHI_Din_Chair4_Leg-11",
+				"WHI_Din_Chair4_Leg1-1",
+				"WHI_Din_Chair4_Leg11",
+				"WHI_Din_Chair4_Seat"
+			]
+		},
+		{
+			"name": "WHI_Din_Sideboard",
+			"category": "muebles",
+			"shape": "convexHull",
+			"triangles": 72,
+			"names": [
+				"WHI_Din_Sideboard_Base",
+				"WHI_Din_Sideboard_Door0",
+				"WHI_Din_Sideboard_Door1",
+				"WHI_Din_Sideboard_Door2",
+				"WHI_Din_Sideboard_Kick",
+				"WHI_Din_Sideboard_Top"
+			]
+		},
+		{
+			"name": "WHI_Din_Table",
+			"category": "muebles",
+			"shape": "convexHull",
+			"triangles": 84,
+			"names": [
+				"WHI_Din_Table_ApronX1",
+				"WHI_Din_Table_ApronX2",
+				"WHI_Din_Table_Leg-1-1",
+				"WHI_Din_Table_Leg-11",
+				"WHI_Din_Table_Leg1-1",
+				"WHI_Din_Table_Leg11",
+				"WHI_Din_Table_Top"
+			]
+		},
+		{
+			"name": "WHI_Door_Child",
+			"category": "paredes",
+			"shape": "trimesh",
+			"triangles": 68,
+			"names": [
+				"WHI_Door_Child_FrameL",
+				"WHI_Door_Child_FrameR",
+				"WHI_Door_Child_FrameT",
+				"WHI_Door_Child_Knob",
+				"WHI_Door_Child_Slab"
+			]
+		},
+		{
+			"name": "WHI_Door_Ensuite",
+			"category": "paredes",
+			"shape": "trimesh",
+			"triangles": 68,
+			"names": [
+				"WHI_Door_Ensuite_FrameL",
+				"WHI_Door_Ensuite_FrameR",
+				"WHI_Door_Ensuite_FrameT",
+				"WHI_Door_Ensuite_Knob",
+				"WHI_Door_Ensuite_Slab"
+			]
+		},
+		{
+			"name": "WHI_Door_Front",
+			"category": "paredes",
+			"shape": "trimesh",
+			"triangles": 68,
+			"names": [
+				"WHI_Door_Front_FrameL",
+				"WHI_Door_Front_FrameR",
+				"WHI_Door_Front_FrameT",
+				"WHI_Door_Front_Knob",
+				"WHI_Door_Front_Slab"
+			]
+		},
+		{
+			"name": "WHI_Door_Guest",
+			"category": "paredes",
+			"shape": "trimesh",
+			"triangles": 68,
+			"names": [
+				"WHI_Door_Guest_FrameL",
+				"WHI_Door_Guest_FrameR",
+				"WHI_Door_Guest_FrameT",
+				"WHI_Door_Guest_Knob",
+				"WHI_Door_Guest_Slab"
+			]
+		},
+		{
+			"name": "WHI_Door_Kitchen",
+			"category": "paredes",
+			"shape": "trimesh",
+			"triangles": 68,
+			"names": [
+				"WHI_Door_Kitchen_FrameL",
+				"WHI_Door_Kitchen_FrameR",
+				"WHI_Door_Kitchen_FrameT",
+				"WHI_Door_Kitchen_Knob",
+				"WHI_Door_Kitchen_Slab"
+			]
+		},
+		{
+			"name": "WHI_Door_KitchenPantry",
+			"category": "paredes",
+			"shape": "trimesh",
+			"triangles": 68,
+			"names": [
+				"WHI_Door_KitchenPantry_FrameL",
+				"WHI_Door_KitchenPantry_FrameR",
+				"WHI_Door_KitchenPantry_FrameT",
+				"WHI_Door_KitchenPantry_Knob",
+				"WHI_Door_KitchenPantry_Slab"
+			]
+		},
+		{
+			"name": "WHI_Door_Master",
+			"category": "paredes",
+			"shape": "trimesh",
+			"triangles": 68,
+			"names": [
+				"WHI_Door_Master_FrameL",
+				"WHI_Door_Master_FrameR",
+				"WHI_Door_Master_FrameT",
+				"WHI_Door_Master_Knob",
+				"WHI_Door_Master_Slab"
+			]
+		},
+		{
+			"name": "WHI_Door_Pantry",
+			"category": "paredes",
+			"shape": "trimesh",
+			"triangles": 68,
+			"names": [
+				"WHI_Door_Pantry_FrameL",
+				"WHI_Door_Pantry_FrameR",
+				"WHI_Door_Pantry_FrameT",
+				"WHI_Door_Pantry_Knob",
+				"WHI_Door_Pantry_Slab"
+			]
+		},
+		{
+			"name": "WHI_Door_Study",
+			"category": "paredes",
+			"shape": "trimesh",
+			"triangles": 68,
+			"names": [
+				"WHI_Door_Study_FrameL",
+				"WHI_Door_Study_FrameR",
+				"WHI_Door_Study_FrameT",
+				"WHI_Door_Study_Knob",
+				"WHI_Door_Study_Slab"
+			]
+		},
+		{
+			"name": "WHI_Ext_E",
+			"category": "paredes",
+			"shape": "trimesh",
+			"triangles": 264,
+			"names": [
+				"WHI_Ext_E_F1_01",
+				"WHI_Ext_E_F1_02",
+				"WHI_Ext_E_F1_03",
+				"WHI_Ext_E_F1_04",
+				"WHI_Ext_E_F1_05",
+				"WHI_Ext_E_F1_06",
+				"WHI_Ext_E_F1_07",
+				"WHI_Ext_E_F2_01",
+				"WHI_Ext_E_F2_02",
+				"WHI_Ext_E_F2_03",
+				"WHI_Ext_E_F2_04",
+				"WHI_Ext_E_F2_05",
+				"WHI_Ext_E_F2_06",
+				"WHI_Ext_E_F2_07",
+				"WHI_Ext_E_F3_01",
+				"WHI_Ext_E_F3_02",
+				"WHI_Ext_E_F3_03",
+				"WHI_Ext_E_F3_04",
+				"WHI_Ext_E_G_01",
+				"WHI_Ext_E_G_02",
+				"WHI_Ext_E_G_03",
+				"WHI_Ext_E_G_04"
+			]
+		},
+		{
+			"name": "WHI_Ext_N",
+			"category": "paredes",
+			"shape": "trimesh",
+			"triangles": 336,
+			"names": [
+				"WHI_Ext_N_F1_01",
+				"WHI_Ext_N_F1_02",
+				"WHI_Ext_N_F1_03",
+				"WHI_Ext_N_F1_04",
+				"WHI_Ext_N_F1_05",
+				"WHI_Ext_N_F1_06",
+				"WHI_Ext_N_F1_07",
+				"WHI_Ext_N_F2_01",
+				"WHI_Ext_N_F2_02",
+				"WHI_Ext_N_F2_03",
+				"WHI_Ext_N_F2_04",
+				"WHI_Ext_N_F2_05",
+				"WHI_Ext_N_F2_06",
+				"WHI_Ext_N_F2_07",
+				"WHI_Ext_N_F3_01",
+				"WHI_Ext_N_F3_02",
+				"WHI_Ext_N_F3_03",
+				"WHI_Ext_N_F3_04",
+				"WHI_Ext_N_F3_05",
+				"WHI_Ext_N_F3_06",
+				"WHI_Ext_N_F3_07",
+				"WHI_Ext_N_G_01",
+				"WHI_Ext_N_G_02",
+				"WHI_Ext_N_G_03",
+				"WHI_Ext_N_G_04",
+				"WHI_Ext_N_G_05",
+				"WHI_Ext_N_G_06",
+				"WHI_Ext_N_G_07"
+			]
+		},
+		{
+			"name": "WHI_Ext_S",
+			"category": "paredes",
+			"shape": "trimesh",
+			"triangles": 360,
+			"names": [
+				"WHI_Ext_S_F1_01",
+				"WHI_Ext_S_F1_02",
+				"WHI_Ext_S_F1_03",
+				"WHI_Ext_S_F1_04",
+				"WHI_Ext_S_F1_05",
+				"WHI_Ext_S_F1_06",
+				"WHI_Ext_S_F1_07",
+				"WHI_Ext_S_F2_01",
+				"WHI_Ext_S_F2_02",
+				"WHI_Ext_S_F2_03",
+				"WHI_Ext_S_F2_04",
+				"WHI_Ext_S_F2_05",
+				"WHI_Ext_S_F2_06",
+				"WHI_Ext_S_F2_07",
+				"WHI_Ext_S_F3_01",
+				"WHI_Ext_S_F3_02",
+				"WHI_Ext_S_F3_03",
+				"WHI_Ext_S_F3_04",
+				"WHI_Ext_S_F3_05",
+				"WHI_Ext_S_F3_06",
+				"WHI_Ext_S_F3_07",
+				"WHI_Ext_S_G_01",
+				"WHI_Ext_S_G_02",
+				"WHI_Ext_S_G_03",
+				"WHI_Ext_S_G_04",
+				"WHI_Ext_S_G_05",
+				"WHI_Ext_S_G_06",
+				"WHI_Ext_S_G_07",
+				"WHI_Ext_S_G_08",
+				"WHI_Ext_S_G_09"
+			]
+		},
+		{
+			"name": "WHI_Ext_W",
+			"category": "paredes",
+			"shape": "trimesh",
+			"triangles": 156,
+			"names": [
+				"WHI_Ext_W_F1_01",
+				"WHI_Ext_W_F2_01",
+				"WHI_Ext_W_F2_02",
+				"WHI_Ext_W_F2_03",
+				"WHI_Ext_W_F2_04",
+				"WHI_Ext_W_F3_01",
+				"WHI_Ext_W_F3_02",
+				"WHI_Ext_W_F3_03",
+				"WHI_Ext_W_F3_04",
+				"WHI_Ext_W_G_01",
+				"WHI_Ext_W_G_02",
+				"WHI_Ext_W_G_03",
+				"WHI_Ext_W_G_04"
+			]
+		},
+		{
+			"name": "WHI_F1_BeamX",
+			"category": "paredes",
+			"shape": "trimesh",
+			"triangles": 72,
+			"names": [
+				"WHI_F1_BeamX_00",
+				"WHI_F1_BeamX_01",
+				"WHI_F1_BeamX_02",
+				"WHI_F1_BeamX_03_A",
+				"WHI_F1_BeamX_03_B",
+				"WHI_F1_BeamX_04"
+			]
+		},
+		{
+			"name": "WHI_F2_BeamX",
+			"category": "paredes",
+			"shape": "trimesh",
+			"triangles": 72,
+			"names": [
+				"WHI_F2_BeamX_00",
+				"WHI_F2_BeamX_01",
+				"WHI_F2_BeamX_02",
+				"WHI_F2_BeamX_03_A",
+				"WHI_F2_BeamX_03_B",
+				"WHI_F2_BeamX_04"
+			]
+		},
+		{
+			"name": "WHI_Floor_Basement",
+			"category": "suelo",
+			"shape": "trimesh",
+			"triangles": 12,
+			"names": ["WHI_Floor_Basement_01"]
+		},
+		{
+			"name": "WHI_Floor_F1",
+			"category": "suelo",
+			"shape": "trimesh",
+			"triangles": 48,
+			"names": ["WHI_Floor_F1_01", "WHI_Floor_F1_02", "WHI_Floor_F1_03", "WHI_Floor_F1_04"]
+		},
+		{
+			"name": "WHI_Floor_F2",
+			"category": "suelo",
+			"shape": "trimesh",
+			"triangles": 48,
+			"names": ["WHI_Floor_F2_01", "WHI_Floor_F2_02", "WHI_Floor_F2_03", "WHI_Floor_F2_04"]
+		},
+		{
+			"name": "WHI_Floor_F3",
+			"category": "suelo",
+			"shape": "trimesh",
+			"triangles": 48,
+			"names": ["WHI_Floor_F3_01", "WHI_Floor_F3_02", "WHI_Floor_F3_03", "WHI_Floor_F3_04"]
+		},
+		{
+			"name": "WHI_Floor_Ground",
+			"category": "suelo",
+			"shape": "trimesh",
+			"triangles": 48,
+			"names": [
+				"WHI_Floor_Ground_01",
+				"WHI_Floor_Ground_02",
+				"WHI_Floor_Ground_03",
+				"WHI_Floor_Ground_04"
+			]
+		},
+		{
+			"name": "WHI_Ground_BeamX",
+			"category": "paredes",
+			"shape": "trimesh",
+			"triangles": 72,
+			"names": [
+				"WHI_Ground_BeamX_00",
+				"WHI_Ground_BeamX_01",
+				"WHI_Ground_BeamX_02",
+				"WHI_Ground_BeamX_03_A",
+				"WHI_Ground_BeamX_03_B",
+				"WHI_Ground_BeamX_04"
+			]
+		},
+		{
+			"name": "WHI_Guard_F3",
+			"category": "paredes",
+			"shape": "trimesh",
+			"triangles": 120,
+			"names": [
+				"WHI_Guard_F3_E_Post_0",
+				"WHI_Guard_F3_E_Post_1",
+				"WHI_Guard_F3_E_Post_2",
+				"WHI_Guard_F3_E_Top",
+				"WHI_Guard_F3_N_Post_0",
+				"WHI_Guard_F3_N_Post_1",
+				"WHI_Guard_F3_W_Post_0",
+				"WHI_Guard_F3_W_Post_1",
+				"WHI_Guard_F3_W_Post_2",
+				"WHI_Guard_F3_W_Top"
+			]
+		},
+		{
+			"name": "WHI_Guard_G",
+			"category": "paredes",
+			"shape": "trimesh",
+			"triangles": 48,
+			"names": [
+				"WHI_Guard_G_E_Post_0",
+				"WHI_Guard_G_E_Post_1",
+				"WHI_Guard_G_W_Post_0",
+				"WHI_Guard_G_W_Post_1"
+			]
+		},
+		{
+			"name": "WHI_Guest_Bed",
+			"category": "muebles",
+			"shape": "convexHull",
+			"triangles": 120,
+			"names": [
+				"WHI_Guest_Bed_Blanket",
+				"WHI_Guest_Bed_Footboard",
+				"WHI_Guest_Bed_Frame",
+				"WHI_Guest_Bed_Headboard",
+				"WHI_Guest_Bed_Mattress",
+				"WHI_Guest_Bed_Pillow",
+				"WHI_Guest_Bed_Post-1-1",
+				"WHI_Guest_Bed_Post-11",
+				"WHI_Guest_Bed_Post1-1",
+				"WHI_Guest_Bed_Post11"
+			]
+		},
+		{
+			"name": "WHI_Guest_Table",
+			"category": "muebles",
+			"shape": "convexHull",
+			"triangles": 84,
+			"names": [
+				"WHI_Guest_Table_ApronX1",
+				"WHI_Guest_Table_ApronX2",
+				"WHI_Guest_Table_Leg-1-1",
+				"WHI_Guest_Table_Leg-11",
+				"WHI_Guest_Table_Leg1-1",
+				"WHI_Guest_Table_Leg11",
+				"WHI_Guest_Table_Top"
+			]
+		},
+		{
+			"name": "WHI_Guest_Trunk",
+			"category": "obstaculos",
+			"shape": "convexHull",
+			"triangles": 108,
+			"names": [
+				"WHI_Guest_Trunk_Body",
+				"WHI_Guest_Trunk_Foot-1-1",
+				"WHI_Guest_Trunk_Foot-11",
+				"WHI_Guest_Trunk_Foot1-1",
+				"WHI_Guest_Trunk_Foot11",
+				"WHI_Guest_Trunk_Lid",
+				"WHI_Guest_Trunk_Lock",
+				"WHI_Guest_Trunk_Strap-1",
+				"WHI_Guest_Trunk_Strap1"
+			]
+		},
+		{
+			"name": "WHI_Guest_Wardrobe",
+			"category": "muebles",
+			"shape": "convexHull",
+			"triangles": 112,
+			"names": [
+				"WHI_Guest_Wardrobe_Base",
+				"WHI_Guest_Wardrobe_Body",
+				"WHI_Guest_Wardrobe_DoorL",
+				"WHI_Guest_Wardrobe_DoorR",
+				"WHI_Guest_Wardrobe_HandleL",
+				"WHI_Guest_Wardrobe_HandleR",
+				"WHI_Guest_Wardrobe_InnerDark",
+				"WHI_Guest_Wardrobe_Top"
+			]
+		},
+		{
+			"name": "WHI_Int_DiningParlor",
+			"category": "paredes",
+			"shape": "trimesh",
+			"triangles": 36,
+			"names": ["WHI_Int_DiningParlor_01", "WHI_Int_DiningParlor_02", "WHI_Int_DiningParlor_03"]
+		},
+		{
+			"name": "WHI_Int_HallE",
+			"category": "paredes",
+			"shape": "trimesh",
+			"triangles": 156,
+			"names": [
+				"WHI_Int_HallE_F1_01",
+				"WHI_Int_HallE_F1_02",
+				"WHI_Int_HallE_F1_03",
+				"WHI_Int_HallE_F1_04",
+				"WHI_Int_HallE_F1_05",
+				"WHI_Int_HallE_F2_01",
+				"WHI_Int_HallE_F2_02",
+				"WHI_Int_HallE_F2_03",
+				"WHI_Int_HallE_G_01",
+				"WHI_Int_HallE_G_02",
+				"WHI_Int_HallE_G_03",
+				"WHI_Int_HallE_G_04",
+				"WHI_Int_HallE_G_05"
+			]
+		},
+		{
+			"name": "WHI_Int_HallW",
+			"category": "paredes",
+			"shape": "trimesh",
+			"triangles": 156,
+			"names": [
+				"WHI_Int_HallW_F1_01",
+				"WHI_Int_HallW_F1_02",
+				"WHI_Int_HallW_F1_03",
+				"WHI_Int_HallW_F2_01",
+				"WHI_Int_HallW_F2_02",
+				"WHI_Int_HallW_F2_03",
+				"WHI_Int_HallW_F2_04",
+				"WHI_Int_HallW_F2_05",
+				"WHI_Int_HallW_G_01",
+				"WHI_Int_HallW_G_02",
+				"WHI_Int_HallW_G_03",
+				"WHI_Int_HallW_G_04",
+				"WHI_Int_HallW_G_05"
+			]
+		},
+		{
+			"name": "WHI_Int_KitchenPantry",
+			"category": "paredes",
+			"shape": "trimesh",
+			"triangles": 36,
+			"names": ["WHI_Int_KitchenPantry_01", "WHI_Int_KitchenPantry_02", "WHI_Int_KitchenPantry_03"]
+		},
+		{
+			"name": "WHI_Kit_Chair1",
+			"category": "muebles",
+			"shape": "convexHull",
+			"triangles": 96,
+			"names": [
+				"WHI_Kit_Chair1_Back",
+				"WHI_Kit_Chair1_BackTop",
+				"WHI_Kit_Chair1_Cushion",
+				"WHI_Kit_Chair1_Leg-1-1",
+				"WHI_Kit_Chair1_Leg-11",
+				"WHI_Kit_Chair1_Leg1-1",
+				"WHI_Kit_Chair1_Leg11",
+				"WHI_Kit_Chair1_Seat"
+			]
+		},
+		{
+			"name": "WHI_Kit_Chair2",
+			"category": "muebles",
+			"shape": "convexHull",
+			"triangles": 96,
+			"names": [
+				"WHI_Kit_Chair2_Back",
+				"WHI_Kit_Chair2_BackTop",
+				"WHI_Kit_Chair2_Cushion",
+				"WHI_Kit_Chair2_Leg-1-1",
+				"WHI_Kit_Chair2_Leg-11",
+				"WHI_Kit_Chair2_Leg1-1",
+				"WHI_Kit_Chair2_Leg11",
+				"WHI_Kit_Chair2_Seat"
+			]
+		},
+		{
+			"name": "WHI_Kit_Counter",
+			"category": "muebles",
+			"shape": "convexHull",
+			"triangles": 72,
+			"names": [
+				"WHI_Kit_Counter_Base",
+				"WHI_Kit_Counter_Door0",
+				"WHI_Kit_Counter_Door1",
+				"WHI_Kit_Counter_Door2",
+				"WHI_Kit_Counter_Kick",
+				"WHI_Kit_Counter_Top"
+			]
+		},
+		{
+			"name": "WHI_Kit_Shelf",
+			"category": "muebles",
+			"shape": "convexHull",
+			"triangles": 72,
+			"names": [
+				"WHI_Kit_Shelf_Board0",
+				"WHI_Kit_Shelf_Board1",
+				"WHI_Kit_Shelf_Bracket0-1",
+				"WHI_Kit_Shelf_Bracket01",
+				"WHI_Kit_Shelf_Bracket1-1",
+				"WHI_Kit_Shelf_Bracket11"
+			]
+		},
+		{
+			"name": "WHI_Kit_Stove",
+			"category": "muebles",
+			"shape": "convexHull",
+			"triangles": 348,
+			"names": [
+				"WHI_Kit_Stove_Body",
+				"WHI_Kit_Stove_Burner-1-1",
+				"WHI_Kit_Stove_Burner-11",
+				"WHI_Kit_Stove_Burner1-1",
+				"WHI_Kit_Stove_Burner11",
+				"WHI_Kit_Stove_Foot-1-1",
+				"WHI_Kit_Stove_Foot-11",
+				"WHI_Kit_Stove_Foot1-1",
+				"WHI_Kit_Stove_Foot11",
+				"WHI_Kit_Stove_Knob0",
+				"WHI_Kit_Stove_Knob1",
+				"WHI_Kit_Stove_Knob2",
+				"WHI_Kit_Stove_OvenDoor",
+				"WHI_Kit_Stove_Pipe",
+				"WHI_Kit_Stove_Top"
+			]
+		},
+		{
+			"name": "WHI_Kit_Table",
+			"category": "muebles",
+			"shape": "convexHull",
+			"triangles": 84,
+			"names": [
+				"WHI_Kit_Table_ApronX1",
+				"WHI_Kit_Table_ApronX2",
+				"WHI_Kit_Table_Leg-1-1",
+				"WHI_Kit_Table_Leg-11",
+				"WHI_Kit_Table_Leg1-1",
+				"WHI_Kit_Table_Leg11",
+				"WHI_Kit_Table_Top"
+			]
+		},
+		{
+			"name": "WHI_Master_Bed",
+			"category": "muebles",
+			"shape": "convexHull",
+			"triangles": 228,
+			"names": [
+				"WHI_Master_Bed_Blanket",
+				"WHI_Master_Bed_CPost-1-1",
+				"WHI_Master_Bed_CPost-11",
+				"WHI_Master_Bed_CPost1-1",
+				"WHI_Master_Bed_CPost11",
+				"WHI_Master_Bed_CRailX1",
+				"WHI_Master_Bed_CRailX2",
+				"WHI_Master_Bed_CRailY1",
+				"WHI_Master_Bed_CRailY2",
+				"WHI_Master_Bed_CTop",
+				"WHI_Master_Bed_Footboard",
+				"WHI_Master_Bed_Frame",
+				"WHI_Master_Bed_Headboard",
+				"WHI_Master_Bed_Mattress",
+				"WHI_Master_Bed_Pillow",
+				"WHI_Master_Bed_Post-1-1",
+				"WHI_Master_Bed_Post-11",
+				"WHI_Master_Bed_Post1-1",
+				"WHI_Master_Bed_Post11"
+			]
+		},
+		{
+			"name": "WHI_Master_Nightstand",
+			"category": "muebles",
+			"shape": "convexHull",
+			"triangles": 84,
+			"names": [
+				"WHI_Master_Nightstand_ApronX1",
+				"WHI_Master_Nightstand_ApronX2",
+				"WHI_Master_Nightstand_Leg-1-1",
+				"WHI_Master_Nightstand_Leg-11",
+				"WHI_Master_Nightstand_Leg1-1",
+				"WHI_Master_Nightstand_Leg11",
+				"WHI_Master_Nightstand_Top"
+			]
+		},
+		{
+			"name": "WHI_Master_Trunk",
+			"category": "obstaculos",
+			"shape": "convexHull",
+			"triangles": 108,
+			"names": [
+				"WHI_Master_Trunk_Body",
+				"WHI_Master_Trunk_Foot-1-1",
+				"WHI_Master_Trunk_Foot-11",
+				"WHI_Master_Trunk_Foot1-1",
+				"WHI_Master_Trunk_Foot11",
+				"WHI_Master_Trunk_Lid",
+				"WHI_Master_Trunk_Lock",
+				"WHI_Master_Trunk_Strap-1",
+				"WHI_Master_Trunk_Strap1"
+			]
+		},
+		{
+			"name": "WHI_Master_Wardrobe",
+			"category": "muebles",
+			"shape": "convexHull",
+			"triangles": 152,
+			"names": [
+				"WHI_Master_Wardrobe_Base",
+				"WHI_Master_Wardrobe_Body",
+				"WHI_Master_Wardrobe_DoorL",
+				"WHI_Master_Wardrobe_DoorR",
+				"WHI_Master_Wardrobe_Eye-1",
+				"WHI_Master_Wardrobe_Eye1",
+				"WHI_Master_Wardrobe_HandleL",
+				"WHI_Master_Wardrobe_HandleR",
+				"WHI_Master_Wardrobe_InnerDark",
+				"WHI_Master_Wardrobe_Top"
+			]
+		},
+		{
+			"name": "WHI_Pan_Barrel1",
+			"category": "muebles",
+			"shape": "convexHull",
+			"triangles": 208,
+			"names": [
+				"WHI_Pan_Barrel1_Band18",
+				"WHI_Pan_Barrel1_Band62",
+				"WHI_Pan_Barrel1_Body",
+				"WHI_Pan_Barrel1_Top"
+			]
+		},
+		{
+			"name": "WHI_Pan_Barrel2",
+			"category": "muebles",
+			"shape": "convexHull",
+			"triangles": 208,
+			"names": [
+				"WHI_Pan_Barrel2_Band18",
+				"WHI_Pan_Barrel2_Band48",
+				"WHI_Pan_Barrel2_Body",
+				"WHI_Pan_Barrel2_Top"
+			]
+		},
+		{
+			"name": "WHI_Pan_Crate1",
+			"category": "muebles",
+			"shape": "convexHull",
+			"triangles": 48,
+			"names": [
+				"WHI_Pan_Crate1_Body",
+				"WHI_Pan_Crate1_Brace1",
+				"WHI_Pan_Crate1_Brace2",
+				"WHI_Pan_Crate1_Lid"
+			]
+		},
+		{
+			"name": "WHI_Pan_Crate2",
+			"category": "muebles",
+			"shape": "convexHull",
+			"triangles": 48,
+			"names": [
+				"WHI_Pan_Crate2_Body",
+				"WHI_Pan_Crate2_Brace1",
+				"WHI_Pan_Crate2_Brace2",
+				"WHI_Pan_Crate2_Lid"
+			]
+		},
+		{
+			"name": "WHI_Pan_Sack1",
+			"category": "muebles",
+			"shape": "convexHull",
+			"triangles": 80,
+			"names": ["WHI_Pan_Sack1_Body"]
+		},
+		{
+			"name": "WHI_Pan_Sack2",
+			"category": "muebles",
+			"shape": "convexHull",
+			"triangles": 80,
+			"names": ["WHI_Pan_Sack2_Body"]
+		},
+		{
+			"name": "WHI_Pan_Sack3",
+			"category": "muebles",
+			"shape": "convexHull",
+			"triangles": 80,
+			"names": ["WHI_Pan_Sack3_Body"]
+		},
+		{
+			"name": "WHI_Pan_Shelf",
+			"category": "muebles",
+			"shape": "convexHull",
+			"triangles": 108,
+			"names": [
+				"WHI_Pan_Shelf_Board0",
+				"WHI_Pan_Shelf_Board1",
+				"WHI_Pan_Shelf_Board2",
+				"WHI_Pan_Shelf_Bracket0-1",
+				"WHI_Pan_Shelf_Bracket01",
+				"WHI_Pan_Shelf_Bracket1-1",
+				"WHI_Pan_Shelf_Bracket11",
+				"WHI_Pan_Shelf_Bracket2-1",
+				"WHI_Pan_Shelf_Bracket21"
+			]
+		},
+		{
+			"name": "WHI_Par_Arm1",
+			"category": "muebles",
+			"shape": "convexHull",
+			"triangles": 72,
+			"names": [
+				"WHI_Par_Arm1_Arm-1",
+				"WHI_Par_Arm1_Arm1",
+				"WHI_Par_Arm1_Back",
+				"WHI_Par_Arm1_BackCushion",
+				"WHI_Par_Arm1_Cushion",
+				"WHI_Par_Arm1_Seat"
+			]
+		},
+		{
+			"name": "WHI_Par_Arm2",
+			"category": "muebles",
+			"shape": "convexHull",
+			"triangles": 72,
+			"names": [
+				"WHI_Par_Arm2_Arm-1",
+				"WHI_Par_Arm2_Arm1",
+				"WHI_Par_Arm2_Back",
+				"WHI_Par_Arm2_BackCushion",
+				"WHI_Par_Arm2_Cushion",
+				"WHI_Par_Arm2_Seat"
+			]
+		},
+		{
+			"name": "WHI_Par_Fire",
+			"category": "muebles",
+			"shape": "convexHull",
+			"triangles": 168,
+			"names": [
+				"WHI_Par_Fire_Back",
+				"WHI_Par_Fire_Breast",
+				"WHI_Par_Fire_FireFloor",
+				"WHI_Par_Fire_Hearth",
+				"WHI_Par_Fire_Log0",
+				"WHI_Par_Fire_Log1",
+				"WHI_Par_Fire_Log2",
+				"WHI_Par_Fire_Mantel",
+				"WHI_Par_Fire_Pillar-1",
+				"WHI_Par_Fire_Pillar1"
+			]
+		},
+		{
+			"name": "WHI_Par_Rocker",
+			"category": "muebles",
+			"shape": "convexHull",
+			"triangles": 24,
+			"names": ["WHI_Par_Rocker_Back", "WHI_Par_Rocker_Seat"]
+		},
+		{
+			"name": "WHI_Par_SideTable",
+			"category": "muebles",
+			"shape": "convexHull",
+			"triangles": 84,
+			"names": [
+				"WHI_Par_SideTable_ApronX1",
+				"WHI_Par_SideTable_ApronX2",
+				"WHI_Par_SideTable_Leg-1-1",
+				"WHI_Par_SideTable_Leg-11",
+				"WHI_Par_SideTable_Leg1-1",
+				"WHI_Par_SideTable_Leg11",
+				"WHI_Par_SideTable_Top"
+			]
+		},
+		{
+			"name": "WHI_Porch_BeamL",
+			"category": "paredes",
+			"shape": "trimesh",
+			"triangles": 12,
+			"names": ["WHI_Porch_BeamL"]
+		},
+		{
+			"name": "WHI_Porch_BeamR",
+			"category": "paredes",
+			"shape": "trimesh",
+			"triangles": 12,
+			"names": ["WHI_Porch_BeamR"]
+		},
+		{
+			"name": "WHI_Porch_Floor",
+			"category": "suelo",
+			"shape": "trimesh",
+			"triangles": 12,
+			"names": ["WHI_Porch_Floor"]
+		},
+		{
+			"name": "WHI_Porch_Post",
+			"category": "paredes",
+			"shape": "trimesh",
+			"triangles": 12,
+			"names": ["WHI_Porch_Post-1"]
+		},
+		{
+			"name": "WHI_Porch_Post1",
+			"category": "paredes",
+			"shape": "trimesh",
+			"triangles": 12,
+			"names": ["WHI_Porch_Post1"]
+		},
+		{
+			"name": "WHI_Porch_Roof",
+			"category": "paredes",
+			"shape": "trimesh",
+			"triangles": 12,
+			"names": ["WHI_Porch_Roof"]
+		},
+		{
+			"name": "WHI_Porch_Step",
+			"category": "paredes",
+			"shape": "trimesh",
+			"triangles": 12,
+			"names": ["WHI_Porch_Step"]
+		},
+		{
+			"name": "WHI_Rafter_E",
+			"category": "paredes",
+			"shape": "trimesh",
+			"triangles": 60,
+			"names": [
+				"WHI_Rafter_E_0",
+				"WHI_Rafter_E_1",
+				"WHI_Rafter_E_2",
+				"WHI_Rafter_E_3",
+				"WHI_Rafter_E_4"
+			]
+		},
+		{
+			"name": "WHI_Rafter_W",
+			"category": "paredes",
+			"shape": "trimesh",
+			"triangles": 60,
+			"names": [
+				"WHI_Rafter_W_0",
+				"WHI_Rafter_W_1",
+				"WHI_Rafter_W_2",
+				"WHI_Rafter_W_3",
+				"WHI_Rafter_W_4"
+			]
+		},
+		{
+			"name": "WHI_Rail_Base",
+			"category": "paredes",
+			"shape": "trimesh",
+			"triangles": 144,
+			"names": [
+				"WHI_Rail_Base_E_Mid",
+				"WHI_Rail_Base_E_Post_0",
+				"WHI_Rail_Base_E_Post_100",
+				"WHI_Rail_Base_E_Post_33",
+				"WHI_Rail_Base_E_Post_66",
+				"WHI_Rail_Base_E_Top",
+				"WHI_Rail_Base_W_Mid",
+				"WHI_Rail_Base_W_Post_0",
+				"WHI_Rail_Base_W_Post_100",
+				"WHI_Rail_Base_W_Post_33",
+				"WHI_Rail_Base_W_Post_66",
+				"WHI_Rail_Base_W_Top"
+			]
+		},
+		{
+			"name": "WHI_Rail_F1",
+			"category": "paredes",
+			"shape": "trimesh",
+			"triangles": 144,
+			"names": [
+				"WHI_Rail_F1_F2_E_Mid",
+				"WHI_Rail_F1_F2_E_Post_0",
+				"WHI_Rail_F1_F2_E_Post_100",
+				"WHI_Rail_F1_F2_E_Post_33",
+				"WHI_Rail_F1_F2_E_Post_66",
+				"WHI_Rail_F1_F2_E_Top",
+				"WHI_Rail_F1_F2_W_Mid",
+				"WHI_Rail_F1_F2_W_Post_0",
+				"WHI_Rail_F1_F2_W_Post_100",
+				"WHI_Rail_F1_F2_W_Post_33",
+				"WHI_Rail_F1_F2_W_Post_66",
+				"WHI_Rail_F1_F2_W_Top"
+			]
+		},
+		{
+			"name": "WHI_Rail_F2",
+			"category": "paredes",
+			"shape": "trimesh",
+			"triangles": 144,
+			"names": [
+				"WHI_Rail_F2_F3_E_Mid",
+				"WHI_Rail_F2_F3_E_Post_0",
+				"WHI_Rail_F2_F3_E_Post_100",
+				"WHI_Rail_F2_F3_E_Post_33",
+				"WHI_Rail_F2_F3_E_Post_66",
+				"WHI_Rail_F2_F3_E_Top",
+				"WHI_Rail_F2_F3_W_Mid",
+				"WHI_Rail_F2_F3_W_Post_0",
+				"WHI_Rail_F2_F3_W_Post_100",
+				"WHI_Rail_F2_F3_W_Post_33",
+				"WHI_Rail_F2_F3_W_Post_66",
+				"WHI_Rail_F2_F3_W_Top"
+			]
+		},
+		{
+			"name": "WHI_Rail_G",
+			"category": "paredes",
+			"shape": "trimesh",
+			"triangles": 144,
+			"names": [
+				"WHI_Rail_G_F1_E_Mid",
+				"WHI_Rail_G_F1_E_Post_0",
+				"WHI_Rail_G_F1_E_Post_100",
+				"WHI_Rail_G_F1_E_Post_33",
+				"WHI_Rail_G_F1_E_Post_66",
+				"WHI_Rail_G_F1_E_Top",
+				"WHI_Rail_G_F1_W_Mid",
+				"WHI_Rail_G_F1_W_Post_0",
+				"WHI_Rail_G_F1_W_Post_100",
+				"WHI_Rail_G_F1_W_Post_33",
+				"WHI_Rail_G_F1_W_Post_66",
+				"WHI_Rail_G_F1_W_Top"
+			]
+		},
+		{
+			"name": "WHI_RidgeBeam",
+			"category": "paredes",
+			"shape": "trimesh",
+			"triangles": 12,
+			"names": ["WHI_RidgeBeam"]
+		},
+		{
+			"name": "WHI_Ritual_Altar",
+			"category": "muebles",
+			"shape": "convexHull",
+			"triangles": 160,
+			"names": [
+				"WHI_Ritual_Altar_Body",
+				"WHI_Ritual_Altar_Bowl",
+				"WHI_Ritual_Altar_BowlBrew",
+				"WHI_Ritual_Altar_Dagger",
+				"WHI_Ritual_Altar_DaggerHilt",
+				"WHI_Ritual_Altar_Panel-1",
+				"WHI_Ritual_Altar_Panel1",
+				"WHI_Ritual_Altar_Top"
+			]
+		},
+		{
+			"name": "WHI_Ritual_Brazier1",
+			"category": "muebles",
+			"shape": "convexHull",
+			"triangles": 164,
+			"names": [
+				"WHI_Ritual_Brazier1_Bowl",
+				"WHI_Ritual_Brazier1_Fire",
+				"WHI_Ritual_Brazier1_Leg0",
+				"WHI_Ritual_Brazier1_Leg1",
+				"WHI_Ritual_Brazier1_Leg2"
+			]
+		},
+		{
+			"name": "WHI_Ritual_Brazier2",
+			"category": "muebles",
+			"shape": "convexHull",
+			"triangles": 164,
+			"names": [
+				"WHI_Ritual_Brazier2_Bowl",
+				"WHI_Ritual_Brazier2_Fire",
+				"WHI_Ritual_Brazier2_Leg0",
+				"WHI_Ritual_Brazier2_Leg1",
+				"WHI_Ritual_Brazier2_Leg2"
+			]
+		},
+		{
+			"name": "WHI_Ritual_Cage1",
+			"category": "suelo",
+			"shape": "trimesh",
+			"triangles": 52,
+			"names": ["WHI_Ritual_Cage1_Floor"]
+		},
+		{
+			"name": "WHI_Ritual_Cage2",
+			"category": "suelo",
+			"shape": "trimesh",
+			"triangles": 52,
+			"names": ["WHI_Ritual_Cage2_Floor"]
+		},
+		{
+			"name": "WHI_Ritual_Throne",
+			"category": "muebles",
+			"shape": "convexHull",
+			"triangles": 128,
+			"names": [
+				"WHI_Ritual_Throne_Arm-1",
+				"WHI_Ritual_Throne_Arm1",
+				"WHI_Ritual_Throne_Back",
+				"WHI_Ritual_Throne_BackLeg-1",
+				"WHI_Ritual_Throne_BackLeg1",
+				"WHI_Ritual_Throne_BackPanel",
+				"WHI_Ritual_Throne_Finial",
+				"WHI_Ritual_Throne_FrontLeg-1",
+				"WHI_Ritual_Throne_FrontLeg1",
+				"WHI_Ritual_Throne_Seat"
+			]
+		},
+		{
+			"name": "WHI_Roof_E",
+			"category": "paredes",
+			"shape": "trimesh",
+			"triangles": 12,
+			"names": ["WHI_Roof_E"]
+		},
+		{
+			"name": "WHI_Roof_Ridge",
+			"category": "paredes",
+			"shape": "trimesh",
+			"triangles": 12,
+			"names": ["WHI_Roof_Ridge"]
+		},
+		{
+			"name": "WHI_Roof_W",
+			"category": "paredes",
+			"shape": "trimesh",
+			"triangles": 12,
+			"names": ["WHI_Roof_W"]
+		},
+		{
+			"name": "WHI_Stair_Base",
+			"category": "paredes",
+			"shape": "trimesh",
+			"triangles": 336,
+			"names": [
+				"WHI_Stair_Base_Riser_01",
+				"WHI_Stair_Base_Riser_02",
+				"WHI_Stair_Base_Riser_03",
+				"WHI_Stair_Base_Riser_04",
+				"WHI_Stair_Base_Riser_05",
+				"WHI_Stair_Base_Riser_06",
+				"WHI_Stair_Base_Riser_07",
+				"WHI_Stair_Base_Riser_08",
+				"WHI_Stair_Base_Riser_09",
+				"WHI_Stair_Base_Riser_10",
+				"WHI_Stair_Base_Riser_11",
+				"WHI_Stair_Base_Riser_12",
+				"WHI_Stair_Base_Riser_13",
+				"WHI_Stair_Base_StringerE",
+				"WHI_Stair_Base_StringerW",
+				"WHI_Stair_Base_Tread_01",
+				"WHI_Stair_Base_Tread_02",
+				"WHI_Stair_Base_Tread_03",
+				"WHI_Stair_Base_Tread_04",
+				"WHI_Stair_Base_Tread_05",
+				"WHI_Stair_Base_Tread_06",
+				"WHI_Stair_Base_Tread_07",
+				"WHI_Stair_Base_Tread_08",
+				"WHI_Stair_Base_Tread_09",
+				"WHI_Stair_Base_Tread_10",
+				"WHI_Stair_Base_Tread_11",
+				"WHI_Stair_Base_Tread_12",
+				"WHI_Stair_Base_Tread_13"
+			]
+		},
+		{
+			"name": "WHI_Stair_F1",
+			"category": "paredes",
+			"shape": "trimesh",
+			"triangles": 336,
+			"names": [
+				"WHI_Stair_F1_F2_Riser_01",
+				"WHI_Stair_F1_F2_Riser_02",
+				"WHI_Stair_F1_F2_Riser_03",
+				"WHI_Stair_F1_F2_Riser_04",
+				"WHI_Stair_F1_F2_Riser_05",
+				"WHI_Stair_F1_F2_Riser_06",
+				"WHI_Stair_F1_F2_Riser_07",
+				"WHI_Stair_F1_F2_Riser_08",
+				"WHI_Stair_F1_F2_Riser_09",
+				"WHI_Stair_F1_F2_Riser_10",
+				"WHI_Stair_F1_F2_Riser_11",
+				"WHI_Stair_F1_F2_Riser_12",
+				"WHI_Stair_F1_F2_Riser_13",
+				"WHI_Stair_F1_F2_StringerE",
+				"WHI_Stair_F1_F2_StringerW",
+				"WHI_Stair_F1_F2_Tread_01",
+				"WHI_Stair_F1_F2_Tread_02",
+				"WHI_Stair_F1_F2_Tread_03",
+				"WHI_Stair_F1_F2_Tread_04",
+				"WHI_Stair_F1_F2_Tread_05",
+				"WHI_Stair_F1_F2_Tread_06",
+				"WHI_Stair_F1_F2_Tread_07",
+				"WHI_Stair_F1_F2_Tread_08",
+				"WHI_Stair_F1_F2_Tread_09",
+				"WHI_Stair_F1_F2_Tread_10",
+				"WHI_Stair_F1_F2_Tread_11",
+				"WHI_Stair_F1_F2_Tread_12",
+				"WHI_Stair_F1_F2_Tread_13"
+			]
+		},
+		{
+			"name": "WHI_Stair_F2",
+			"category": "paredes",
+			"shape": "trimesh",
+			"triangles": 336,
+			"names": [
+				"WHI_Stair_F2_F3_Riser_01",
+				"WHI_Stair_F2_F3_Riser_02",
+				"WHI_Stair_F2_F3_Riser_03",
+				"WHI_Stair_F2_F3_Riser_04",
+				"WHI_Stair_F2_F3_Riser_05",
+				"WHI_Stair_F2_F3_Riser_06",
+				"WHI_Stair_F2_F3_Riser_07",
+				"WHI_Stair_F2_F3_Riser_08",
+				"WHI_Stair_F2_F3_Riser_09",
+				"WHI_Stair_F2_F3_Riser_10",
+				"WHI_Stair_F2_F3_Riser_11",
+				"WHI_Stair_F2_F3_Riser_12",
+				"WHI_Stair_F2_F3_Riser_13",
+				"WHI_Stair_F2_F3_StringerE",
+				"WHI_Stair_F2_F3_StringerW",
+				"WHI_Stair_F2_F3_Tread_01",
+				"WHI_Stair_F2_F3_Tread_02",
+				"WHI_Stair_F2_F3_Tread_03",
+				"WHI_Stair_F2_F3_Tread_04",
+				"WHI_Stair_F2_F3_Tread_05",
+				"WHI_Stair_F2_F3_Tread_06",
+				"WHI_Stair_F2_F3_Tread_07",
+				"WHI_Stair_F2_F3_Tread_08",
+				"WHI_Stair_F2_F3_Tread_09",
+				"WHI_Stair_F2_F3_Tread_10",
+				"WHI_Stair_F2_F3_Tread_11",
+				"WHI_Stair_F2_F3_Tread_12",
+				"WHI_Stair_F2_F3_Tread_13"
+			]
+		},
+		{
+			"name": "WHI_Stair_G",
+			"category": "paredes",
+			"shape": "trimesh",
+			"triangles": 336,
+			"names": [
+				"WHI_Stair_G_F1_Riser_01",
+				"WHI_Stair_G_F1_Riser_02",
+				"WHI_Stair_G_F1_Riser_03",
+				"WHI_Stair_G_F1_Riser_04",
+				"WHI_Stair_G_F1_Riser_05",
+				"WHI_Stair_G_F1_Riser_06",
+				"WHI_Stair_G_F1_Riser_07",
+				"WHI_Stair_G_F1_Riser_08",
+				"WHI_Stair_G_F1_Riser_09",
+				"WHI_Stair_G_F1_Riser_10",
+				"WHI_Stair_G_F1_Riser_11",
+				"WHI_Stair_G_F1_Riser_12",
+				"WHI_Stair_G_F1_Riser_13",
+				"WHI_Stair_G_F1_StringerE",
+				"WHI_Stair_G_F1_StringerW",
+				"WHI_Stair_G_F1_Tread_01",
+				"WHI_Stair_G_F1_Tread_02",
+				"WHI_Stair_G_F1_Tread_03",
+				"WHI_Stair_G_F1_Tread_04",
+				"WHI_Stair_G_F1_Tread_05",
+				"WHI_Stair_G_F1_Tread_06",
+				"WHI_Stair_G_F1_Tread_07",
+				"WHI_Stair_G_F1_Tread_08",
+				"WHI_Stair_G_F1_Tread_09",
+				"WHI_Stair_G_F1_Tread_10",
+				"WHI_Stair_G_F1_Tread_11",
+				"WHI_Stair_G_F1_Tread_12",
+				"WHI_Stair_G_F1_Tread_13"
+			]
+		},
+		{
+			"name": "WHI_Study_Arm",
+			"category": "muebles",
+			"shape": "convexHull",
+			"triangles": 72,
+			"names": [
+				"WHI_Study_Arm_Arm-1",
+				"WHI_Study_Arm_Arm1",
+				"WHI_Study_Arm_Back",
+				"WHI_Study_Arm_BackCushion",
+				"WHI_Study_Arm_Cushion",
+				"WHI_Study_Arm_Seat"
+			]
+		},
+		{
+			"name": "WHI_Study_Chair",
+			"category": "muebles",
+			"shape": "convexHull",
+			"triangles": 96,
+			"names": [
+				"WHI_Study_Chair_Back",
+				"WHI_Study_Chair_BackTop",
+				"WHI_Study_Chair_Cushion",
+				"WHI_Study_Chair_Leg-1-1",
+				"WHI_Study_Chair_Leg-11",
+				"WHI_Study_Chair_Leg1-1",
+				"WHI_Study_Chair_Leg11",
+				"WHI_Study_Chair_Seat"
+			]
+		},
+		{
+			"name": "WHI_Study_Desk",
+			"category": "muebles",
+			"shape": "convexHull",
+			"triangles": 84,
+			"names": [
+				"WHI_Study_Desk_Drawer",
+				"WHI_Study_Desk_DrawerFace",
+				"WHI_Study_Desk_Leg-1-1",
+				"WHI_Study_Desk_Leg-11",
+				"WHI_Study_Desk_Leg1-1",
+				"WHI_Study_Desk_Leg11",
+				"WHI_Study_Desk_Top"
+			]
+		},
+		{
+			"name": "WHI_Study_Globe",
+			"category": "muebles",
+			"shape": "convexHull",
+			"triangles": 312,
+			"names": [
+				"WHI_Study_Globe_Ball",
+				"WHI_Study_Globe_Base",
+				"WHI_Study_Globe_Ring",
+				"WHI_Study_Globe_Stand"
+			]
+		}
+	],
+	"stats": {
+		"nodes": 2509,
+		"meshes": 2509,
+		"triangles": 46522,
+		"colliderNodes": 887,
+		"colliderTriangles": 14240,
+		"colliders": 133,
+		"mode": "merged"
+	}
+}

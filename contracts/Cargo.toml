@@ -1,0 +1,13 @@
+[workspace]
+resolver = "3"
+members = ["nft", "market"]
+
+[profile.release]
+codegen-units = 1
+# Optimize for small WASM size.
+opt-level = "z"
+lto = true
+debug = false
+panic = "abort"
+# Extra safety checks on arithmetic operations.
+overflow-checks = true

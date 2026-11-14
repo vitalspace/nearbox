@@ -1,0 +1,55 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Local assets / sources
+assets/fonts/
+blender/
+
+# Build output
+build/
+dist/
+.svelte-kit/
+.output/
+.vercel/
+.netlify/
+.wrangler/
+.build/
+*.tsbuildinfo
+
+# Rust / NEAR contracts
+contracts/target/
+**/target/
+
+# Environment / secrets
+.env
+.env.*
+*.pem
+*.key
+secrets/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editors
+.vscode/*
+!.vscode/extensions.json
+.idea/
+
+# Blender backups
+*.blend1
+*.blend2
+
+# Archives and traces
+*.zip
+*.tar.gz
+*.tgz
+*.trace

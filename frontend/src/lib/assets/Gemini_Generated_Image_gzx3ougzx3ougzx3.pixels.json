@@ -1,0 +1,40 @@
+{
+	"meta": {
+		"generator": "spritecreator",
+		"version": 1,
+		"image": "Gemini_Generated_Image_gzx3ougzx3ougzx3.jpeg",
+		"imageWidth": 1408,
+		"imageHeight": 768
+	},
+	"animations": {
+		"idle": {
+			"duration": 100,
+			"frames": [
+				{
+					"x": 26,
+					"y": 43,
+					"w": 38,
+					"h": 86
+				},
+				{
+					"x": 88,
+					"y": 43,
+					"w": 38,
+					"h": 86
+				},
+				{
+					"x": 151,
+					"y": 43,
+					"w": 37,
+					"h": 86
+				},
+				{
+					"x": 213,
+					"y": 43,
+					"w": 38,
+					"h": 86
+				}
+			]
+		}
+	}
+}

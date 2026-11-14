@@ -1,0 +1,85 @@
+{
+	"rooms": [
+		{
+			"type": "lobby",
+			"file": "src/server/rooms/LobbyRoom.ts",
+			"singleton": true,
+			"config": {
+				"maxPlayers": 32,
+				"allowReconnect": true,
+				"reconnectTimeout": 30,
+				"idleTimeout": 600
+			}
+		},
+		{
+			"type": "crypt",
+			"file": "src/server/rooms/CryptRoom.ts",
+			"config": {
+				"maxPlayers": 8,
+				"allowReconnect": true,
+				"reconnectTimeout": 20,
+				"idleTimeout": 120
+			}
+		},
+		{
+			"type": "race",
+			"file": "src/server/rooms/RaceRoom.ts",
+			"config": {
+				"maxPlayers": 6,
+				"allowReconnect": true,
+				"reconnectTimeout": 20,
+				"idleTimeout": 120
+			}
+		},
+		{
+			"type": "roadmap",
+			"file": "src/server/rooms/RaceRoom.ts",
+			"config": {
+				"maxPlayers": 6,
+				"allowReconnect": true,
+				"reconnectTimeout": 20,
+				"idleTimeout": 120
+			}
+		},
+		{
+			"type": "waves",
+			"file": "src/server/rooms/WavesRoom.ts",
+			"config": {
+				"maxPlayers": 12,
+				"allowReconnect": true,
+				"reconnectTimeout": 20,
+				"idleTimeout": 120
+			}
+		},
+		{
+			"type": "deathmatch",
+			"file": "src/server/rooms/DeathmatchRoom.ts",
+			"config": {
+				"maxPlayers": 12,
+				"allowReconnect": true,
+				"reconnectTimeout": 20,
+				"idleTimeout": 120
+			}
+		},
+		{
+			"type": "parkour",
+			"file": "src/server/rooms/ParkourRoom.ts",
+			"config": {
+				"maxPlayers": 12,
+				"allowReconnect": true,
+				"reconnectTimeout": 20,
+				"idleTimeout": 120
+			}
+		},
+		{
+			"type": "royale",
+			"file": "src/server/rooms/RoyaleRoom.ts",
+			"config": {
+				"maxPlayers": 12,
+				"allowReconnect": true,
+				"reconnectTimeout": 20,
+				"idleTimeout": 120
+			}
+		}
+	]
+}

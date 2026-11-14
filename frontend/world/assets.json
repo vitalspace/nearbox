@@ -1,0 +1,170 @@
+{
+	"version": 1,
+	"defaults": {
+		"resampleTolerance": 0.0001
+	},
+	"exclude": ["characters/Scarecrow.glb", "_unused/**"],
+	"assets": [
+		{
+			"id": "pistol",
+			"glb": "weapons/pistol.glb",
+			"category": "weapons",
+			"pipeline": "static",
+			"loaders": []
+		},
+		{
+			"id": "pistol-gold",
+			"glb": "weapons/pistol_gold.glb",
+			"category": "weapons",
+			"pipeline": "static",
+			"loaders": []
+		},
+		{
+			"id": "coin-pistol",
+			"glb": "weapons/coin_pistol.glb",
+			"category": "weapons",
+			"pipeline": "static",
+			"loaders": []
+		},
+		{
+			"id": "mp5",
+			"glb": "weapons/mp5.glb",
+			"category": "weapons",
+			"pipeline": "static",
+			"loaders": []
+		},
+		{
+			"id": "mp5-gold",
+			"glb": "weapons/mp5_gold.glb",
+			"category": "weapons",
+			"pipeline": "static",
+			"loaders": []
+		},
+		{
+			"id": "shotgun",
+			"glb": "weapons/shotgun.glb",
+			"category": "weapons",
+			"pipeline": "static",
+			"loaders": []
+		},
+		{
+			"id": "shotgun-gold",
+			"glb": "weapons/shotgun_gold.glb",
+			"category": "weapons",
+			"pipeline": "static",
+			"loaders": []
+		},
+		{
+			"id": "sniper-rifle",
+			"glb": "weapons/sniper_rifle.glb",
+			"category": "weapons",
+			"pipeline": "static",
+			"loaders": []
+		},
+		{
+			"id": "sniper-rifle-gold",
+			"glb": "weapons/sniper_rifle_gold.glb",
+			"category": "weapons",
+			"pipeline": "static",
+			"loaders": []
+		},
+		{
+			"id": "bazooka",
+			"glb": "weapons/bazooka.glb",
+			"category": "weapons",
+			"pipeline": "static",
+			"loaders": []
+		},
+		{
+			"id": "bazooka-gold",
+			"glb": "weapons/bazooka_gold.glb",
+			"category": "weapons",
+			"pipeline": "static",
+			"loaders": []
+		},
+		{
+			"id": "coche-calabaza",
+			"glb": "vehicles/coche_calabaza.glb",
+			"category": "vehicles",
+			"pipeline": "static",
+			"loaders": ["src/lib/components/cars/CarModel.svelte"]
+		},
+		{
+			"id": "coche-halloween",
+			"glb": "vehicles/coche_halloween.glb",
+			"category": "vehicles",
+			"pipeline": "static",
+			"loaders": ["src/lib/components/cars/CarModel.svelte"]
+		},
+		{
+			"id": "coche-momia",
+			"glb": "vehicles/coche_momia.glb",
+			"category": "vehicles",
+			"pipeline": "static",
+			"loaders": ["src/lib/components/cars/CarModel.svelte"]
+		},
+		{
+			"id": "gato",
+			"glb": "props/gato.glb",
+			"category": "props",
+			"pipeline": "static",
+			"loaders": ["src/lib/components/world/Cat.svelte"]
+		},
+		{
+			"id": "balloon",
+			"glb": "props/balloon.glb",
+			"category": "props",
+			"pipeline": "static",
+			"loaders": ["src/lib/components/world/Balloon.svelte"]
+		},
+		{
+			"id": "zeppelin",
+			"glb": "props/zeppelin.glb",
+			"category": "props",
+			"pipeline": "static",
+			"loaders": ["src/lib/components/world/Zeppelin.svelte"]
+		},
+		{
+			"id": "crown",
+			"glb": "props/crown.glb",
+			"category": "props",
+			"pipeline": "static",
+			"loaders": []
+		},
+		{
+			"id": "magic-broom",
+			"glb": "props/magic_broom.glb",
+			"category": "props",
+			"pipeline": "static",
+			"loaders": []
+		},
+		{
+			"id": "skateboard",
+			"glb": "props/skateboard.glb",
+			"category": "props",
+			"pipeline": "static",
+			"loaders": []
+		},
+		{
+			"id": "ammo-kit",
+			"glb": "props/ammo_kit.glb",
+			"category": "props",
+			"pipeline": "static",
+			"loaders": []
+		},
+		{
+			"id": "med-kit",
+			"glb": "props/med_kit.glb",
+			"category": "props",
+			"pipeline": "static",
+			"loaders": []
+		},
+		{
+			"id": "grenade",
+			"glb": "props/grenade.glb",
+			"category": "props",
+			"pipeline": "static",
+			"loaders": []
+		}
+	]
+}

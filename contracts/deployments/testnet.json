@@ -1,0 +1,399 @@
+{
+  "network": "testnet",
+  "rpcUrl": "https://rpc.testnet.fastnear.com",
+  "status": "deployed",
+  "deployerAccountId": "runworld-nep245.testnet",
+  "deployedAt": "2026-11-13",
+  "credentials": {
+    "note": "Las credenciales del deployer viven fuera del repo, en ~/.near-credentials/testnet/. NO commitear claves.",
+    "dir": "~/.near-credentials/testnet",
+    "accounts": [
+      "runworld-nep245.testnet",
+      "nft.runworld-nep245.testnet",
+      "market.runworld-nep245.testnet"
+    ]
+  },
+  "nft": {
+    "accountId": "nft.runworld-nep245.testnet",
+    "wasm": "contracts/target/near/nft/nft.wasm",
+    "wasmBytes": 271290,
+    "wasmSha256": "034384449fe59b1af23f042c50f061b4d4e54f3a69d61e69a8aeea981f5c1ca5",
+    "deployTx": "6wNK9ZBLZjptS3KJmZMy8J8BLFrSwv9RjkRH1brj1tif",
+    "init": {
+      "name": "RunWorld Collection",
+      "owner_id": "runworld-nep245.testnet",
+      "catalog_caps": [
+        {
+          "catalog_id": "pistol-gold",
+          "cap": 25,
+          "per_account_cap": 3
+        },
+        {
+          "catalog_id": "shotgun-gold",
+          "cap": 25,
+          "per_account_cap": 3
+        },
+        {
+          "catalog_id": "mp5-gold",
+          "cap": 25,
+          "per_account_cap": 3
+        },
+        {
+          "catalog_id": "sniper-gold",
+          "cap": 25,
+          "per_account_cap": 3
+        },
+        {
+          "catalog_id": "bazooka-gold",
+          "cap": 25,
+          "per_account_cap": 3
+        },
+        {
+          "catalog_id": "crown",
+          "cap": 50,
+          "per_account_cap": 5
+        },
+        {
+          "catalog_id": "coin-pistol",
+          "cap": 50,
+          "per_account_cap": 5
+        },
+        {
+          "catalog_id": "skateboard",
+          "cap": 25,
+          "per_account_cap": 3
+        },
+        {
+          "catalog_id": "magic-broom",
+          "cap": 25,
+          "per_account_cap": 3
+        }
+      ],
+      "catalog_metadata": [
+        {
+          "catalog_id": "pistol-gold",
+          "title": "Golden Pistol",
+          "description": "A gold-plated sidearm that catches every barn light.",
+          "media": "",
+          "reference": "runworld://catalog/pistol-gold",
+          "extra": "{\"catalogId\":\"pistol-gold\",\"model\":\"weapons/pistol_gold.glb\",\"accent\":\"#fbbf24\",\"badge\":\"Gold\",\"hot\":true,\"kind\":\"weapons\"}"
+        },
+        {
+          "catalog_id": "shotgun-gold",
+          "title": "Golden Shotgun",
+          "description": "The close-range classic, polished until the barrel glows.",
+          "media": "",
+          "reference": "runworld://catalog/shotgun-gold",
+          "extra": "{\"catalogId\":\"shotgun-gold\",\"model\":\"weapons/shotgun_gold.glb\",\"accent\":\"#facc15\",\"badge\":\"Gold\",\"hot\":true,\"kind\":\"weapons\"}"
+        },
+        {
+          "catalog_id": "mp5-gold",
+          "title": "Golden SMG",
+          "description": "A compact gold SMG with a chrome magazine.",
+          "media": "",
+          "reference": "runworld://catalog/mp5-gold",
+          "extra": "{\"catalogId\":\"mp5-gold\",\"model\":\"weapons/mp5_gold.glb\",\"accent\":\"#f59e0b\",\"badge\":\"Gold\",\"hot\":true,\"kind\":\"weapons\"}"
+        },
+        {
+          "catalog_id": "sniper-gold",
+          "title": "Golden Sniper",
+          "description": "A long-range rifle wrapped in gold leaf.",
+          "media": "",
+          "reference": "runworld://catalog/sniper-gold",
+          "extra": "{\"catalogId\":\"sniper-gold\",\"model\":\"weapons/sniper_rifle_gold.glb\",\"accent\":\"#fcd34d\",\"badge\":\"Gold\",\"hot\":true,\"kind\":\"weapons\"}"
+        },
+        {
+          "catalog_id": "bazooka-gold",
+          "title": "Golden Bazooka",
+          "description": "The loudest item in the village, finished in polished gold.",
+          "media": "",
+          "reference": "runworld://catalog/bazooka-gold",
+          "extra": "{\"catalogId\":\"bazooka-gold\",\"model\":\"weapons/bazooka_gold.glb\",\"accent\":\"#fbbf24\",\"badge\":\"Gold\",\"hot\":true,\"kind\":\"weapons\"}"
+        },
+        {
+          "catalog_id": "crown",
+          "title": "Crown",
+          "description": "A jewel-encrusted crown for the ruler of the plaza.",
+          "media": "",
+          "reference": "runworld://catalog/crown",
+          "extra": "{\"catalogId\":\"crown\",\"model\":\"props/crown.glb\",\"accent\":\"#fbbf24\",\"badge\":\"Cosmetic\",\"hot\":true,\"kind\":\"assets\"}"
+        },
+        {
+          "catalog_id": "coin-pistol",
+          "title": "Coin Pistol",
+          "description": "A sidearm that fires shiny coins instead of bullets.",
+          "media": "",
+          "reference": "runworld://catalog/coin-pistol",
+          "extra": "{\"catalogId\":\"coin-pistol\",\"model\":\"weapons/coin_pistol.glb\",\"accent\":\"#f59e0b\",\"badge\":\"Weapon skin\",\"hot\":true,\"kind\":\"assets\"}"
+        },
+        {
+          "catalog_id": "skateboard",
+          "title": "Skateboard",
+          "description": "A graffiti-covered deck with glowing wheels.",
+          "media": "",
+          "reference": "runworld://catalog/skateboard",
+          "extra": "{\"catalogId\":\"skateboard\",\"model\":\"props/skateboard.glb\",\"accent\":\"#22d3ee\",\"badge\":\"Hot ride\",\"hot\":true,\"kind\":\"vehicles\"}"
+        },
+        {
+          "catalog_id": "magic-broom",
+          "title": "Magic Broom",
+          "description": "A witch broom that hovers just above the ground.",
+          "media": "",
+          "reference": "runworld://catalog/magic-broom",
+          "extra": "{\"catalogId\":\"magic-broom\",\"model\":\"props/magic_broom.glb\",\"accent\":\"#a855f7\",\"badge\":\"Flying ride\",\"hot\":true,\"kind\":\"vehicles\"}"
+        }
+      ]
+    },
+    "storageUsage": 279092,
+    "balanceNear": "2.8124928499764316",
+    "verified": {
+      "mt_metadata_contract": {
+        "spec": "mt-1.0.0",
+        "name": "RunWorld Collection"
+      },
+      "catalogCaps": 9,
+      "catalogMintedAtDeploy": 0
+    }
+  },
+  "market": {
+    "accountId": "market.runworld-nep245.testnet",
+    "wasm": "contracts/target/near/market/market.wasm",
+    "wasmBytes": 201401,
+    "wasmSha256": "44607bfe60195a8f6d5cef40c961d4f35cbd297d6914df20dbb3c271f8df696d",
+    "deployTx": "m4dvTB5LCRMpS9SPiPjVqT7oT92TLyCYxDJsjr4Uuk7",
+    "init": {
+      "owner_id": "runworld-nep245.testnet",
+      "token_contracts": [
+        "nft.runworld-nep245.testnet"
+      ]
+    },
+    "storageUsage": 201840,
+    "balanceNear": "2.3183281800246692",
+    "verified": {
+      "get_token_contracts": [
+        "nft.runworld-nep245.testnet"
+      ]
+    }
+  },
+  "balances": {
+    "deployerNear": "4.1169759472028175",
+    "nftNear": "2.8724928499764316",
+    "marketNear": "2.3183281800246692",
+    "buyerSmokeTestNear": "0.4829728504808839",
+    "nftStorageBufferNear": "0.0243",
+    "marketStorageBufferNear": "0.2999",
+    "ensureAccountTestNear": "0.05 (x2: t-nearbox-b5d836eacc, t-nearbox-f0334fe4fc)"
+  },
+  "accountCreationTxs": {
+    "runworld-nep245.testnet": "faucet (near create-account --useFaucet)",
+    "nft.runworld-nep245.testnet": "CXdq6KgwuyCvj812TvbC7mm7ShjDk9QgMCT6jxf8Hsip",
+    "market.runworld-nep245.testnet": "4kvdXoa3RowmxVF7dpwYgMbbjm1YZK9wRncUrPRuCEBf",
+    "buyer.runworld-nep245.testnet": "5F1zU5vdA9raVGZe4KjDfczWnYWt2EcK3VKUDcZyqGPE"
+  },
+  "fundingTxs": {
+    "nftRefundToDeployer": "CFJ1BQv7HXHSvWZm1n5UP4oRQpGkSg6cAtszfAfTrATq",
+    "marketBufferFromDeployer": "2mJSUQWMqea9z95p7pcomiE2Zp7TBKFfirPmZqho72Lq",
+    "buyerExtraFunding": "AkFRYVpNJNvJR6sYWAJmPwajbneM8oXxF48M133uUApo"
+  },
+  "limits": {
+    "totalSupply": 825,
+    "nftStorageBufferNear": "0.02",
+    "marketStorageBufferNear": "0.30"
+  },
+  "smokeTests": [
+    {
+      "step": "mint pistol-gold",
+      "account": "runworld-nep245.testnet",
+      "tokenId": "pistol-gold#1",
+      "tx": "8Qoyjw74XjVxPYoiTmhdSnFgoNPyxq7X9Z6pKYXKHwF7"
+    },
+    {
+      "step": "list pistol-gold#1 at 0.1 NEAR",
+      "account": "runworld-nep245.testnet",
+      "tx": "DKaJQCFz9UUiXHzGfrXN6toynzm71CoKfiDymn9ABbpz"
+    },
+    {
+      "step": "buy pistol-gold#1",
+      "account": "buyer.runworld-nep245.testnet",
+      "tx": "G8ZZjk29Ggtnd6jdFMNfvF5y3PymCxtx5ie6Y2BULmnU"
+    },
+    {
+      "step": "mint pistol-gold (segundo serial)",
+      "account": "runworld-nep245.testnet",
+      "tokenId": "pistol-gold#2",
+      "tx": "6Dj1RPUiMn8q4j3uZVMTJx8pU2hrDnCfWkyyiCTsfXwK"
+    },
+    {
+      "step": "list pistol-gold#2 at 0.05 NEAR",
+      "account": "runworld-nep245.testnet",
+      "tx": "FimWyt8izJtDMGdKsaqJUFpUbP8aZCZ3RpYvbV77skK"
+    },
+    {
+      "step": "cancel listing pistol-gold#2",
+      "account": "runworld-nep245.testnet",
+      "tx": "ByVvZxGVAYDDPSus2TXcjvy8LZqZ4H4oCua48kMvizHB"
+    },
+    {
+      "step": "mint skateboard (1/3 por cuenta)",
+      "account": "buyer.runworld-nep245.testnet",
+      "tokenId": "skateboard#1",
+      "tx": "9FdP9A9FMZdDwP3Wy1TdrJ4tA7AX7xz8fQLh7q5PRkNe"
+    },
+    {
+      "step": "mint skateboard (2/3 por cuenta)",
+      "account": "buyer.runworld-nep245.testnet",
+      "tokenId": "skateboard#2",
+      "tx": "2coxszGHo5x84Sbi2Pw3yWTsxaqS527KhM3krbt5zK6J"
+    },
+    {
+      "step": "mint skateboard (3/3 por cuenta)",
+      "account": "buyer.runworld-nep245.testnet",
+      "tokenId": "skateboard#3",
+      "tx": "3SsaKbck4kV6ZMZEuS39oDDmr2QUDaaJ9VEiEDpRdUjD"
+    },
+    {
+      "step": "mint skateboard (4º intento rechazado)",
+      "account": "buyer.runworld-nep245.testnet",
+      "result": "panic: Account mint limit reached",
+      "tx": null
+    }
+  ],
+  "sponsoredMints": [],
+  "explorer": {
+    "nft": "https://testnet.nearblocks.io/address/nft.runworld-nep245.testnet",
+    "market": "https://testnet.nearblocks.io/address/market.runworld-nep245.testnet"
+  },
+  "notes": [
+    "El deploy usa la cuenta nueva runworld-nep245.testnet fondeada por el faucet de testnet (10 NEAR).",
+    "La cuenta anterior nep245-market-98a72698.testnet y el proyecto de referencia quedaron intactos.",
+    "Tras el smoke test quedan 2 unidades de pistol-gold minteadas: pistol-gold#1 (buyer) y pistol-gold#2 (deployer).",
+    "Smoke test de tope por cuenta: el cuarto skateboard de buyer.runworld-nep245.testnet falla con \"Account mint limit reached\".",
+    "El relayer runworld-nep245.testnet creó y fondeó una cuenta t-nearbox-* con 0.05 NEAR vía el registrar de testnet; el flujo de mint patrocinado queda a la espera de una sesión real de Auth0.",
+    "Las 11 skins se agregaron on-chain con set_catalog_cap(50,5) y set_catalog_metadata; el supply total pasa a 825 NFTs. Se enviaron 0.01 NEAR al NFT para mantener el buffer storage + 0.02 tras escribir la metadata nueva."
+  ],
+  "supplySnapshot": {
+    "pistol-gold": 2,
+    "skateboard": 3,
+    "hero": 0,
+    "crow-warden": 0,
+    "witch": 0,
+    "demon": 0,
+    "frankenstein": 0,
+    "ghost": 0,
+    "golem": 0,
+    "mummy": 0,
+    "pumpkin-king": 0,
+    "skeleton": 0,
+    "vampire": 0
+  },
+  "relayerSmokeTests": [
+    {
+      "step": "ensure-account (relayer de prueba en :4010)",
+      "account": "t-nearbox-b5d836eacc.testnet",
+      "result": "created: true, funded: true, balance 0.05 NEAR"
+    },
+    {
+      "step": "sponsor-mint con JWT inválido",
+      "result": "HTTP 401, sin transacción ni cuenta creada"
+    },
+    {
+      "step": "sponsor-mint con request_id no UUID",
+      "result": "HTTP 400, sin transacción"
+    },
+    {
+      "step": "sign-tx con receiver no permitido",
+      "result": "HTTP 403 'Transactions to buyer.runworld-nep245.testnet are not allowed'"
+    },
+    {
+      "step": "sign-tx con guard_id inválido",
+      "result": "HTTP 400 'Invalid guard_id'"
+    },
+    {
+      "step": "sign-tx con JWT falso",
+      "result": "HTTP 502 'NEAR Auth rejected the Google token'"
+    },
+    {
+      "step": "fund-account con publicKey ajena",
+      "result": "HTTP 403 'That public key does not belong to the account'"
+    },
+    {
+      "step": "fund-account de cuenta ya fondeada",
+      "result": "HTTP 200 alreadyFunded=true, amountYocto=0"
+    },
+    {
+      "step": "fund-account repetido / rate limit",
+      "result": "HTTP 429 con mensaje legible"
+    },
+    {
+      "step": "fund-account con RELAYER_RESERVE_NEAR=100 (simulado)",
+      "result": "HTTP 503 'Testnet funds are running low. Try again later.'"
+    },
+    {
+      "step": "ensure-account con RELAYER_RESERVE_NEAR=100 (simulado)",
+      "result": "HTTP 503, no crea cuenta"
+    }
+  ],
+  "catalogUpdates": {
+    "reason": "Skins incluidas en el catálogo mintable (11 catálogos, 50/5 cada uno) sin redeploy.",
+    "method": "set_catalog_cap + set_catalog_metadata desde runworld-nep245.testnet",
+    "fundingTx": "J1V3T98F5xEiD2Kj3XRu7jvAT3uALr86eQWj3G2RyNbB",
+    "fundingNear": "0.01",
+    "items": [
+      {
+        "catalogId": "hero",
+        "capTx": "8RpeSzNzjpfFQGFUvbVhwSSz2VHhwJFRJxag4Zj3KHFY",
+        "metadataTx": "B3BttvNBx4tzTi4i5ZuCuCQYBz7pdmvhShMx1DFcy1jN"
+      },
+      {
+        "catalogId": "crow-warden",
+        "capTx": "9kfbrzTMZvWAz3QPm6ecCjUJ1qVcJNE3MsmhuYfaYFvx",
+        "metadataTx": "3ViKZCcvLWcpvQrUZCTbnAYBUix3kCcj6qf7hHfk67qh"
+      },
+      {
+        "catalogId": "witch",
+        "capTx": "DwRoChPw9o3Nr1r5X6sVCBTy1GEty7pDP3pknhMu3dTp",
+        "metadataTx": "bWPYft2u2CKKyCUvLJaoqXwL3rRbxF84tmnCFFSttoU"
+      },
+      {
+        "catalogId": "demon",
+        "capTx": "BnJ1HZt94xSF7X3qbPJZ6WCsUTEaubvdonfCj82n1are",
+        "metadataTx": "2pkcVgTsGBtSNKeju2fTu4Q6qyC4spxLWbRotJ2kB5ZH"
+      },
+      {
+        "catalogId": "frankenstein",
+        "capTx": "8DK65Lvoc5mCVz5rPzcMtb61BFMWPvq5TYqeGpxKykTP",
+        "metadataTx": "2fayxnhwPAJzewDW7kmA14yWwxz4PsShXCEoRcKem9tQ"
+      },
+      {
+        "catalogId": "ghost",
+        "capTx": "5kUwv4dQeEdQRy75STYN4X3AH7VSse1pvPBeztELFSr2",
+        "metadataTx": "5CxeZkLsCKr4fsjygqH6JTmNfa4yVLwhchHeYGwfyQgK"
+      },
+      {
+        "catalogId": "golem",
+        "capTx": "5vbgRWP6W2qNjAYYetptRxPSni2MU2w4E5mV4TZkwX93",
+        "metadataTx": "A5pvPsuZUXMpVYYnESn9ndGEpnQ1FnDr7aZHG8xtH1Ps"
+      },
+      {
+        "catalogId": "mummy",
+        "capTx": "BkPCfBLtsbwW9AVPPuwdqYayAxvTNVUCW1HiStNvJR6h",
+        "metadataTx": "Bc5SdycJE8vPHCPCmnk4ckTkHGLo3tobJqiMi32NCjnh"
+      },
+      {
+        "catalogId": "pumpkin-king",
+        "capTx": "H4MMzSU9rFnNHQcS2NQRJsS3buXFyoa6U6tKAoAUeRmV",
+        "metadataTx": "8ge8SJQYeAZRS7cXUY3H3TotPykPCcPRxTwgACHwi5CK"
+      },
+      {
+        "catalogId": "skeleton",
+        "capTx": "7wk5Fb2ANRUGrVn51ysWn2pgvkzwBKHVEQhQzb9VCTaK",
+        "metadataTx": "9ZhydKQrebRfJ31hrqbav6AVzd7FJhMYE1RW2AWdQM6q"
+      },
+      {
+        "catalogId": "vampire",
+        "capTx": "CYS1TkKnSevL7u9PN9BM5vk7saySXgx7NsJRudswPcvw",
+        "metadataTx": "A79sEtETPaGi9ftEVrkSyWgs2F1UYHKXjhq9tQPrd3E7"
+      }
+    ]
+  }
+}

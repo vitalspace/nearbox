@@ -1,0 +1,24 @@
+{
+  "name": "nearbox-backend",
+  "version": "1.0.50",
+  "license": "MIT",
+  "scripts": {
+    "test": "bun test",
+    "test:stats": "bun test tests/stats.test.ts",
+    "dev": "bun run --watch src/index.ts",
+    "rewards:sync": "bun run scripts/rewards-sync.ts"
+  },
+  "dependencies": {
+    "@elysiajs/cors": "^1.4.2",
+    "@elysiajs/jwt": "^1.4.2",
+    "@elysiajs/static": "^1.4.10",
+    "elysia": "latest",
+    "mongoose": "^9.12.1",
+    "near-api-js": "5.1.1",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "bun-types": "latest"
+  },
+  "module": "src/index.js"
+}

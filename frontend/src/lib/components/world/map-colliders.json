@@ -1,0 +1,57 @@
+{
+	"maxColliderTriangles": 60000,
+	"groups": {
+		"suelo": ["Circle", "area1", "area2", "area3", "area4"],
+		"vallas": [
+			"WHH_Fence",
+			"DRC_Fence",
+			"DRC_Gate",
+			"PFM_Fence",
+			"PFM_Gate",
+			"CCC_Fence",
+			"CCC_Gate"
+		],
+		"edificios": [
+			"WHH_House",
+			"WHH_Roof",
+			"WHH_Tower",
+			"WHH_Chimney",
+			"WHH_Porch",
+			"DRC_Castle",
+			"PFM_Farmhouse",
+			"PFM_Barn",
+			"PFM_Silo",
+			"CCC_Chapel",
+			"CCC_Mausoleum"
+		],
+		"obstaculos": ["TREE_Trunk"]
+	},
+	"excludePatterns": [
+		"TREE_Branches",
+		"TREE_Canopy*",
+		"TREE_Decor_*",
+		"TREE_GroundLeaves",
+		"*_Bats",
+		"*_Webs",
+		"*_SignText",
+		"*_Windows",
+		"*_Path",
+		"*_Fields",
+		"*_Yard",
+		"*_Patio",
+		"*_Courtyard",
+		"*_Props",
+		"*_Pumpkins",
+		"*_GiantPumpkin",
+		"*_Mushrooms",
+		"*_Cat",
+		"*_Campfire",
+		"*_Cauldron",
+		"*_Graveyard",
+		"*_Graves",
+		"*_Trees",
+		"*_DeadTrees",
+		"Scarecrow*",
+		"SC_*"
+	]
+}

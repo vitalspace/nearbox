@@ -1,0 +1,32 @@
+@import 'tailwindcss' source(none);
+
+@source '../../src';
+
+/*
+ * Tipografías del juego, empaquetadas en el build (sin CDN ni CSP externa).
+ * `Creepster` es la voz de la aldea; `IM Fell English` acompaña los textos
+ * largos con aire de novela gótica.
+ */
+@font-face {
+	font-family: 'Creepster';
+	font-style: normal;
+	font-weight: 400;
+	font-display: swap;
+	src: url('../lib/assets/fonts/creepster-latin.woff2') format('woff2');
+}
+
+@font-face {
+	font-family: 'IM Fell English';
+	font-style: normal;
+	font-weight: 400;
+	font-display: swap;
+	src: url('../lib/assets/fonts/im-fell-english-latin.woff2') format('woff2');
+}
+
+@font-face {
+	font-family: 'IM Fell English';
+	font-style: italic;
+	font-weight: 400;
+	font-display: swap;
+	src: url('../lib/assets/fonts/im-fell-english-italic-latin.woff2') format('woff2');
+}
