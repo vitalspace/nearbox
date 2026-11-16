@@ -15,7 +15,7 @@ import {
 	rewardMint,
 	type RewardMintResult
 } from '../server/relayer';
-import { verifyAuth0Jwt } from '../server/auth0';
+import { verifySessionToken } from '../server/sessionToken';
 import { ensureStatsOwnership } from '../stats/service';
 import type { TokenVerifier } from '../stats/identity';
 import {
@@ -46,7 +46,8 @@ export type RewardClaimInput = {
 	/** Identidad de progresión; para cuentas es el propio `accountId`. */
 	playerId: string;
 	accountId: string;
-	publicKey: string;
+	/** Obligatoria en FastAuth; en modo wallet la prueba es el token NEP-413. */
+	publicKey?: string;
 	missionId: string;
 	token: string;
 	requestId: string;
@@ -240,13 +241,13 @@ export async function claimReward(
 	options: RewardOptions = {}
 ): Promise<RewardClaimResult> {
 	const now = options.now ?? Date.now;
-	const verifyToken = options.verifyToken ?? verifyAuth0Jwt;
+	const verifyToken = options.verifyToken ?? verifySessionToken;
 	const mint = options.mint ?? rewardMint;
 	const loadOwnedTokens = options.loadOwnedTokens ?? ownedRewardTokens;
 	const assertOwned = options.assertOwned ?? assertOwnedAccount;
 
-	if (!input.accountId || !input.publicKey || !input.missionId) {
-		throw new RewardRequestError('accountId, publicKey and missionId are required');
+	if (!input.accountId || !input.missionId) {
+		throw new RewardRequestError('accountId and missionId are required');
 	}
 
 	if (!input.requestId) {
@@ -254,16 +255,34 @@ export async function claimReward(
 	}
 
 	let subject: string;
+	/** Cuenta demostrada con NEP-413; `null` en sesiones FastAuth. */
+	let walletAccountId: string | null = null;
 
 	try {
 		const claims = await verifyToken(input.token);
+
 		subject = claims.sub;
 
 		if (!subject) {
 			throw new RewardAuthError('The session has no subject');
 		}
+
+		walletAccountId = claims.walletAccountId ?? null;
 	} catch (cause) {
 		throw authError(cause);
+	}
+
+	// En modo wallet la prueba de propiedad viaja en el token: el accountId
+	// tiene que ser exactamente el que firmó el NEP-413.
+	if (walletAccountId && walletAccountId !== input.accountId) {
+		throw new RewardForbiddenError(
+			'The wallet session does not own this account',
+			'REWARD_ACCOUNT_MISMATCH'
+		);
+	}
+
+	if (!walletAccountId && !input.publicKey) {
+		throw new RewardRequestError('publicKey is required for FastAuth sessions');
 	}
 
 	const mission = missionById(input.missionId);
@@ -292,28 +311,31 @@ export async function claimReward(
 
 	const perAccountCap = rewardCap?.perAccountCap ?? 1;
 
-	const derived = new Set([
-		deriveAccountId(input.publicKey),
-		deriveAutoAccountId(input.publicKey)
-	]);
+	// En FastAuth la cuenta debe existir y contener la clave del jugador. En
+	// modo wallet la propiedad ya la probó la firma NEP-413 del token, así que
+	// solo se valida el formato del accountId (el relayer mintea a esa cuenta).
+	if (!walletAccountId) {
+		const derived = new Set([
+			deriveAccountId(input.publicKey!),
+			deriveAutoAccountId(input.publicKey!)
+		]);
 
-	// La cuenta debe existir y contener la clave del jugador. Un `accountId`
-	// ajeno o con una public key que no le pertenece no llega al mint.
-	try {
-		await assertOwned(input.accountId, input.publicKey);
-	} catch (cause) {
-		const status = (cause as { status?: number }).status;
-		const message =
-			cause instanceof Error ? cause.message : 'Could not verify the account';
+		try {
+			await assertOwned(input.accountId, input.publicKey!);
+		} catch (cause) {
+			const status = (cause as { status?: number }).status;
+			const message =
+				cause instanceof Error ? cause.message : 'Could not verify the account';
 
-		if (status === 403 && !derived.has(input.accountId)) {
-			throw new RewardForbiddenError(
-				`${message}. accountId must be derived from publicKey or be an existing account owned by it.`,
-				'REWARD_ACCOUNT_MISMATCH'
-			);
+			if (status === 403 && !derived.has(input.accountId)) {
+				throw new RewardForbiddenError(
+					`${message}. accountId must be derived from publicKey or be an existing account owned by it.`,
+					'REWARD_ACCOUNT_MISMATCH'
+				);
+			}
+
+			throw new RewardForbiddenError(message, 'REWARD_ACCOUNT_MISMATCH');
 		}
-
-		throw new RewardForbiddenError(message, 'REWARD_ACCOUNT_MISMATCH');
 	}
 
 	await ensureStatsOwnership(input.playerId, subject);

@@ -1,5 +1,6 @@
-import { verifyAuth0Jwt } from './auth0';
 import { assertOwnedAccount } from './relayer';
+import { verifySessionToken } from './sessionToken';
+import { isWalletToken } from './wallet';
 
 /**
  * Identidad de la sesión de juego.
@@ -8,6 +9,9 @@ import { assertOwnedAccount } from './relayer';
  * Solo si el token es válido y la `publicKey` pertenece a la cuenta se vincula
  * el `ws.id` (efímero) con el `accountId` que después recibe los NFTs. Sin
  * vínculo, la sesión sigue siendo anónima y no recibe atestaciones.
+ *
+ * En modo wallet el token (`wbs1.…`) ya prueba que el jugador controla una
+ * access key de la cuenta, así que no hace falta repetir la comprobación.
  */
 
 export type JoinIdentity = {
@@ -23,7 +27,7 @@ export type BoundSession = {
 };
 
 export type IdentityDeps = {
-	verifyToken: (token: string) => Promise<{ sub: string }>;
+	verifyToken: (token: string) => Promise<{ sub: string; walletAccountId?: string }>;
 	/** Comprueba on-chain que la publicKey pertenece a la cuenta. */
 	assertOwnership: (accountId: string, publicKey: string) => Promise<void>;
 	now?: () => number;
@@ -36,7 +40,7 @@ const PUBLIC_KEY_PATTERN = /^ed25519:[1-9A-HJ-NP-Za-km-z]{40,60}$/;
 const sessions = new Map<string, BoundSession>();
 
 const defaultDeps: IdentityDeps = {
-	verifyToken: verifyAuth0Jwt,
+	verifyToken: verifySessionToken,
 	assertOwnership: assertOwnedAccount
 };
 
@@ -66,7 +70,7 @@ export async function bindSession(
 	payload: JoinIdentity,
 	deps: Partial<IdentityDeps> = {}
 ): Promise<BoundSession | null> {
-	if (!isValidPayload(payload)) {
+	if (!payload || typeof payload.token !== 'string' || payload.token.length === 0) {
 		return null;
 	}
 
@@ -80,11 +84,30 @@ export async function bindSession(
 			return null;
 		}
 
-		await resolved.assertOwnership(payload.accountId, payload.publicKey);
+		let accountId: string;
+
+		if (claims.walletAccountId || isWalletToken(payload.token)) {
+			// La firma NEP-413 ya probó que el jugador controla la cuenta.
+			if (!claims.walletAccountId) return null;
+
+			if (payload.accountId && payload.accountId !== claims.walletAccountId) {
+				console.warn(`[identity] ${wsId}: wallet token does not match accountId`);
+				return null;
+			}
+
+			accountId = claims.walletAccountId;
+		} else {
+			if (!isValidPayload(payload)) {
+				return null;
+			}
+
+			await resolved.assertOwnership(payload.accountId, payload.publicKey);
+			accountId = payload.accountId;
+		}
 
 		const session: BoundSession = {
 			sub: claims.sub,
-			accountId: payload.accountId,
+			accountId,
 			expiresAt: nowMs(resolved) + DEFAULT_TTL_MS
 		};
 

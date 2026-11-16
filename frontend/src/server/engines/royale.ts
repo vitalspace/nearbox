@@ -15,6 +15,8 @@ import type {
 	Mg8Positions,
 	Mg8Snapshot,
 	Mg8Storm,
+	Mg8VehiclePose,
+	Mg8VehicleState,
 	SkinId
 } from '../protocol';
 import { DEFAULT_SKIN } from '../protocol';
@@ -34,6 +36,7 @@ import {
 	ROYALE_JUMP_WINDOW_MS,
 	ROYALE_KILL_CREDIT_MS,
 	ROYALE_KILL_Y,
+	ROYALE_LAG_COMPENSATION_MS,
 	ROYALE_LOOT_ANCHORS,
 	ROYALE_LOOT_RADIUS,
 	ROYALE_LOOT_VERTICAL,
@@ -60,9 +63,31 @@ import {
 	ROYALE_WEAPON_SLOT_BY_ID,
 	ROYALE_WEAPON_BY_SLOT,
 	ROYALE_MAP_BOUNDS,
+	ROYALE_BALLOON_BOUNDS_MARGIN,
+	ROYALE_BALLOON_LIFT_SPEED,
+	ROYALE_BALLOON_MAX_SPEED,
+	ROYALE_BALLOON_MAX_Y,
+	ROYALE_BALLOON_SEAT_OFFSET,
+	ROYALE_CAR_MAX_SPEED,
+	ROYALE_CAR_SEAT_OFFSET,
+	ROYALE_VEHICLE_BLAST_DAMAGE,
+	ROYALE_VEHICLE_BLAST_EDGE_DAMAGE,
+	ROYALE_VEHICLE_BLAST_RADIUS,
+	ROYALE_VEHICLE_ENTER_MAX_DY,
+	ROYALE_VEHICLE_ENTER_RADIUS,
+	ROYALE_VEHICLE_EXIT_DISTANCE,
+	ROYALE_VEHICLE_HEALTH,
+	ROYALE_VEHICLE_RAM_COOLDOWN_MS,
+	ROYALE_VEHICLE_RAM_DAMAGE,
+	ROYALE_VEHICLE_RAM_SPEED,
+	ROYALE_VEHICLE_SPAWNS,
+	ROYALE_VEHICLE_TELEPORT_TOL,
+	ROYALE_WATER_RESCUE_Y,
+	royaleArcHit,
 	royaleBotId,
 	royaleBotName,
 	royaleBotStormMargin,
+	royaleFallDamage,
 	royaleJumpPosition,
 	royaleRollLoot,
 	royaleSafePoint,
@@ -72,6 +97,7 @@ import {
 	type RoyaleMode,
 	type RoyaleStormState,
 	type RoyaleVec3,
+	type RoyaleVehicleKind,
 	type RoyaleWeaponId
 } from '../../lib/state/royaleConfig';
 import {
@@ -119,6 +145,8 @@ type RoyalePlayer = {
 	vy: number;
 	seat: number;
 	jumped: boolean;
+	/** Altura de la barquilla al salir de un globo en vuelo; null en cualquier otro caso. */
+	fallStartY: number | null;
 	lastPositionAt: number;
 	lastShotAt: number;
 	lastReloadAt: number;
@@ -129,7 +157,17 @@ type RoyalePlayer = {
 	disconnectedAt: number | null;
 	placement: number | null;
 	seq: number;
+	/** Posiciones recientes para compensar el retardo de render del cliente. */
+	track: RoyaleTrack[];
 	bot?: BotMind;
+};
+
+type RoyaleTrack = {
+	at: number;
+	x: number;
+	y: number;
+	z: number;
+	mode: RoyaleMode;
 };
 
 type RoomGrenade = {
@@ -149,6 +187,45 @@ type RoomGrenade = {
 	fuseAt: number;
 	targetX: number;
 	targetZ: number;
+	/** Altura del impacto cuando la parábola choca con un muro. */
+	clipY: number | null;
+};
+
+/**
+ * Coche o globo del battle royale.
+ *
+ * El cliente que conduce simula la física y reporta la pose a 10 Hz; el
+ * servidor valida rangos, velocidad y saltos imposibles, y es dueño de la
+ * vida, la destrucción y la explosión. Los vehículos no respawnean durante
+ * una partida: se restauran al empezar la siguiente.
+ */
+type RoomVehicle = {
+	id: string;
+	kind: RoyaleVehicleKind;
+	name: string;
+	model: string | null;
+	spawnX: number;
+	spawnY: number;
+	spawnZ: number;
+	spawnYaw: number;
+	x: number;
+	y: number;
+	z: number;
+	qx: number;
+	qy: number;
+	qz: number;
+	qw: number;
+	yaw: number;
+	speed: number;
+	health: number;
+	maxHealth: number;
+	destroyed: boolean;
+	driverId: string | null;
+	lastStateAt: number;
+	lastHitAt: number;
+	lastHitBy: string | null;
+	/** Último atropello por víctima; evita daño múltiple en el mismo roce. */
+	ramCooldowns: Map<string, number>;
 };
 
 export type RoyaleDeps = {
@@ -185,6 +262,7 @@ export class Royale {
 	private players = new Map<string, RoyalePlayer>();
 	private loot: BotLoot[] = [];
 	private grenades: RoomGrenade[] = [];
+	private vehicles = new Map<string, RoomVehicle>();
 	private placements = new Map<string, number>();
 	private countdownEndsAt: number | null = null;
 	private matchStartedAt: number | null = null;
@@ -317,6 +395,12 @@ export class Royale {
 			return;
 		}
 
+		const vehicle = this.vehicleDrivenBy(playerId);
+
+		if (vehicle) {
+			this.exitVehicle(vehicle, now, true);
+		}
+
 		this.emitEvent('player-left', now, { playerId });
 
 		if (this.phase === 'idle' || this.phase === 'countdown') {
@@ -382,6 +466,7 @@ export class Royale {
 			vy: 0,
 			seat,
 			jumped: false,
+			fallStartY: null,
 			lastPositionAt: 0,
 			lastShotAt: 0,
 			lastReloadAt: 0,
@@ -391,7 +476,8 @@ export class Royale {
 			lastHurtEventAt: 0,
 			disconnectedAt: null,
 			placement: null,
-			seq: this.nextSeq++
+			seq: this.nextSeq++,
+			track: []
 		};
 	}
 
@@ -509,6 +595,11 @@ export class Royale {
 			return;
 		}
 
+		// Mientras conduce manda la pose del vehículo, no el cuerpo a pie.
+		if (this.vehicleDrivenBy(playerId)) {
+			return;
+		}
+
 		const reason = this.validatePosition(player, x, y, z, mode, now);
 
 		if (reason) {
@@ -531,12 +622,434 @@ export class Royale {
 				player.y = floor;
 			}
 
+			this.applyFallDamage(player, previousMode === 'glide', now);
+
 			this.emitEvent('player-landed', now, {
 				playerId,
 				x: round(player.x),
 				y: round(player.y),
 				z: round(player.z),
 				mode: 'ground'
+			});
+		}
+
+		this.stateDirty = true;
+	}
+
+	// ------------------------------------------------------------------
+	// Vehículos (coches y globos)
+	// ------------------------------------------------------------------
+
+	private spawnVehicles(): void {
+		this.vehicles.clear();
+
+		for (const spawn of ROYALE_VEHICLE_SPAWNS) {
+			const maxHealth = ROYALE_VEHICLE_HEALTH[spawn.kind];
+
+			this.vehicles.set(spawn.id, {
+				id: spawn.id,
+				kind: spawn.kind,
+				name: spawn.name,
+				model: spawn.model,
+				spawnX: spawn.x,
+				spawnY: spawn.y,
+				spawnZ: spawn.z,
+				spawnYaw: spawn.yaw,
+				x: spawn.x,
+				y: spawn.y,
+				z: spawn.z,
+				qx: 0,
+				qy: Math.sin(spawn.yaw / 2),
+				qz: 0,
+				qw: Math.cos(spawn.yaw / 2),
+				yaw: spawn.yaw,
+				speed: 0,
+				health: maxHealth,
+				maxHealth,
+				destroyed: false,
+				driverId: null,
+				lastStateAt: 0,
+				lastHitAt: 0,
+				lastHitBy: null,
+				ramCooldowns: new Map()
+			});
+		}
+	}
+
+	private vehicleDrivenBy(playerId: string): RoomVehicle | null {
+		for (const vehicle of this.vehicles.values()) {
+			if (vehicle.driverId === playerId) return vehicle;
+		}
+
+		return null;
+	}
+
+	private vehicleFeet(vehicle: RoomVehicle): number {
+		return (
+			vehicle.y + (vehicle.kind === 'car' ? ROYALE_CAR_SEAT_OFFSET : ROYALE_BALLOON_SEAT_OFFSET)
+		);
+	}
+
+	private syncDriverToVehicle(vehicle: RoomVehicle, player: RoyalePlayer, now: number): void {
+		player.x = vehicle.x;
+		player.y = this.vehicleFeet(vehicle);
+		player.z = vehicle.z;
+		player.yaw = vehicle.yaw;
+		player.mode = 'ground';
+		player.vy = 0;
+		player.lastPositionAt = now;
+	}
+
+	onVehicleEnter(playerId: string, vehicleId: string, now: number): void {
+		const player = this.players.get(playerId);
+
+		if (!player || player.isBot || this.phase !== 'playing' || !player.alive) return;
+		if (player.mode !== 'ground' || this.vehicleDrivenBy(playerId)) return;
+
+		const vehicle = this.vehicles.get(vehicleId);
+
+		if (!vehicle || vehicle.destroyed || vehicle.driverId !== null) return;
+
+		const distance = Math.hypot(player.x - vehicle.x, player.z - vehicle.z);
+		const feet = this.vehicleFeet(vehicle);
+
+		if (
+			distance > ROYALE_VEHICLE_ENTER_RADIUS ||
+			Math.abs(player.y - feet) > ROYALE_VEHICLE_ENTER_MAX_DY
+		) {
+			return;
+		}
+
+		vehicle.driverId = playerId;
+		vehicle.speed = 0;
+		vehicle.lastStateAt = 0;
+		this.syncDriverToVehicle(vehicle, player, now);
+		this.emitEvent('vehicle-enter', now, {
+			playerId,
+			vehicleId: vehicle.id,
+			vehicleKind: vehicle.kind,
+			x: round(vehicle.x),
+			y: round(vehicle.y),
+			z: round(vehicle.z)
+		});
+		this.stateDirty = true;
+	}
+
+	onVehicleExit(playerId: string, now: number): void {
+		const vehicle = this.vehicleDrivenBy(playerId);
+
+		if (!vehicle || this.phase !== 'playing') return;
+		this.exitVehicle(vehicle, now, true);
+	}
+
+	private exitVehicle(vehicle: RoomVehicle, now: number, emit: boolean): void {
+		const player = vehicle.driverId ? (this.players.get(vehicle.driverId) ?? null) : null;
+		vehicle.driverId = null;
+		vehicle.speed = 0;
+
+		if (!player) return;
+
+		const sideX = Math.sin(vehicle.yaw) * ROYALE_VEHICLE_EXIT_DISTANCE;
+		const sideZ = Math.cos(vehicle.yaw) * ROYALE_VEHICLE_EXIT_DISTANCE;
+		const feet = this.vehicleFeet(vehicle);
+		const ground = floorHeightAt(vehicle.x + sideX, vehicle.z + sideZ);
+
+		if (vehicle.kind === 'balloon' && (ground === null || feet > ground + 2.5)) {
+			// Salir en vuelo deja al jugador planeando desde la barquilla.
+			player.x = vehicle.x + sideX;
+			player.z = vehicle.z + sideZ;
+			player.y = feet;
+			player.mode = 'glide';
+			player.vy = -1;
+			player.fallStartY = feet;
+		} else {
+			const point =
+				nearestWalkable(vehicle.x + sideX, vehicle.z + sideZ, 8, feet) ??
+				nearestWalkable(vehicle.x, vehicle.z, 8, feet);
+
+			player.x = point?.x ?? vehicle.x + sideX;
+			player.y = point?.y ?? Math.max(0, feet);
+			player.z = point?.z ?? vehicle.z + sideZ;
+			player.mode = 'ground';
+			player.vy = 0;
+			player.fallStartY = null;
+		}
+
+		player.lastPositionAt = now;
+
+		if (emit) {
+			this.emitEvent('vehicle-exit', now, {
+				playerId: player.id,
+				vehicleId: vehicle.id,
+				vehicleKind: vehicle.kind,
+				x: round(vehicle.x),
+				y: round(vehicle.y),
+				z: round(vehicle.z),
+				px: round(player.x),
+				py: round(player.y),
+				pz: round(player.z),
+				mode: player.mode
+			});
+		}
+
+		this.stateDirty = true;
+	}
+
+	onVehicleState(
+		playerId: string,
+		vehicleId: string,
+		report: {
+			x: number;
+			y: number;
+			z: number;
+			qx: number;
+			qy: number;
+			qz: number;
+			qw: number;
+			vx: number;
+			vy: number;
+			vz: number;
+			speed: number;
+			steering: number;
+		},
+		now: number
+	): void {
+		const vehicle = this.vehicles.get(vehicleId);
+		const player = this.players.get(playerId);
+
+		if (
+			!vehicle ||
+			!player ||
+			vehicle.driverId !== playerId ||
+			vehicle.destroyed ||
+			this.phase !== 'playing' ||
+			!player.alive
+		) {
+			return;
+		}
+
+		const values = [
+			report.x,
+			report.y,
+			report.z,
+			report.qx,
+			report.qy,
+			report.qz,
+			report.qw,
+			report.speed
+		];
+
+		if (!values.every((value) => Number.isFinite(value))) return;
+
+		const maxSpeed = vehicle.kind === 'car' ? ROYALE_CAR_MAX_SPEED : ROYALE_BALLOON_MAX_SPEED;
+		const clamped = this.clampVehiclePosition(vehicle, report.x, report.y, report.z);
+		const speed = Math.min(maxSpeed, Math.max(0, report.speed));
+
+		if (vehicle.lastStateAt > 0) {
+			const dt = Math.min(1.5, Math.max(0.001, (now - vehicle.lastStateAt) / 1000));
+			const travelled = Math.hypot(clamped.x - vehicle.x, clamped.z - vehicle.z);
+
+			if (travelled > maxSpeed * dt + ROYALE_VEHICLE_TELEPORT_TOL) {
+				this.sendVehicleCorrection(vehicle);
+				return;
+			}
+		}
+
+		let length = Math.hypot(report.qx, report.qy, report.qz, report.qw);
+
+		if (length < 1e-4) {
+			report.qx = 0;
+			report.qy = Math.sin(vehicle.yaw / 2);
+			report.qz = 0;
+			report.qw = Math.cos(vehicle.yaw / 2);
+			length = 1;
+		}
+
+		vehicle.x = clamped.x;
+		vehicle.y = clamped.y;
+		vehicle.z = clamped.z;
+		vehicle.qx = report.qx / length;
+		vehicle.qy = report.qy / length;
+		vehicle.qz = report.qz / length;
+		vehicle.qw = report.qw / length;
+		vehicle.yaw = Math.atan2(
+			2 * (vehicle.qw * vehicle.qy + vehicle.qx * vehicle.qz),
+			1 - 2 * (vehicle.qy * vehicle.qy + vehicle.qx * vehicle.qx)
+		);
+		vehicle.speed = speed;
+		vehicle.lastStateAt = now;
+
+		this.syncDriverToVehicle(vehicle, player, now);
+
+		if (vehicle.kind === 'car' && speed >= ROYALE_VEHICLE_RAM_SPEED) {
+			this.ramPlayers(vehicle, player, now);
+		}
+
+		this.stateDirty = true;
+	}
+
+	private clampVehiclePosition(
+		vehicle: RoomVehicle,
+		x: number,
+		y: number,
+		z: number
+	): { x: number; y: number; z: number } {
+		if (vehicle.kind === 'balloon') {
+			const margin = ROYALE_BALLOON_BOUNDS_MARGIN;
+
+			return {
+				x: clamp(x, ROYALE_MAP_BOUNDS.minX + margin, ROYALE_MAP_BOUNDS.maxX - margin),
+				y: clamp(y, vehicle.spawnY, ROYALE_BALLOON_MAX_Y),
+				z: clamp(z, ROYALE_MAP_BOUNDS.minZ + margin, ROYALE_MAP_BOUNDS.maxZ - margin)
+			};
+		}
+
+		return {
+			x: clamp(x, ROYALE_MAP_BOUNDS.minX - 4, ROYALE_MAP_BOUNDS.maxX + 4),
+			y: clamp(y, -20, ROYALE_MAX_POSITION_Y),
+			z: clamp(z, ROYALE_MAP_BOUNDS.minZ - 4, ROYALE_MAP_BOUNDS.maxZ + 4)
+		};
+	}
+
+	private sendVehicleCorrection(vehicle: RoomVehicle): void {
+		if (!vehicle.driverId) return;
+
+		this.port.sendTo(vehicle.driverId, {
+			type: 'mg8-vehicle-correct',
+			vehicleId: vehicle.id,
+			x: round(vehicle.x),
+			y: round(vehicle.y),
+			z: round(vehicle.z),
+			qx: round(vehicle.qx, 4),
+			qy: round(vehicle.qy, 4),
+			qz: round(vehicle.qz, 4),
+			qw: round(vehicle.qw, 4)
+		});
+	}
+
+	/** Mantiene al conductor pegado a la pose autoritativa del vehículo. */
+	private updateVehicles(now: number): void {
+		for (const vehicle of this.vehicles.values()) {
+			if (vehicle.destroyed) {
+				vehicle.speed = 0;
+				continue;
+			}
+
+			if (!vehicle.driverId) continue;
+
+			const driver = this.players.get(vehicle.driverId);
+
+			if (!driver || !driver.alive || driver.disconnectedAt !== null) {
+				vehicle.driverId = null;
+				vehicle.speed = 0;
+				continue;
+			}
+
+			this.syncDriverToVehicle(vehicle, driver, now);
+		}
+	}
+
+	private ramPlayers(vehicle: RoomVehicle, driver: RoyalePlayer, now: number): void {
+		for (const player of this.players.values()) {
+			if (!player.alive || player.id === driver.id) continue;
+
+			const distance = Math.hypot(player.x - vehicle.x, player.z - vehicle.z);
+
+			if (distance > 2.9 || Math.abs(player.y + 1 - vehicle.y) > 2.8) continue;
+
+			const last = vehicle.ramCooldowns.get(player.id) ?? 0;
+
+			if (now - last < ROYALE_VEHICLE_RAM_COOLDOWN_MS) continue;
+
+			vehicle.ramCooldowns.set(player.id, now);
+			this.damage(player, ROYALE_VEHICLE_RAM_DAMAGE, {
+				attackerId: driver.id,
+				cause: 'combat',
+				now
+			});
+		}
+	}
+
+	private damageVehicle(
+		vehicle: RoomVehicle,
+		amount: number,
+		attackerId: string | null,
+		now: number
+	): void {
+		if (vehicle.destroyed || amount <= 0 || this.phase !== 'playing') return;
+
+		vehicle.health = Math.max(0, vehicle.health - amount);
+		vehicle.lastHitAt = now;
+		vehicle.lastHitBy = attackerId;
+
+		this.emitEvent('vehicle-hit', now, {
+			playerId: attackerId ?? undefined,
+			vehicleId: vehicle.id,
+			vehicleKind: vehicle.kind,
+			amount: Math.round(amount),
+			x: round(vehicle.x),
+			y: round(vehicle.y),
+			z: round(vehicle.z)
+		});
+
+		if (vehicle.health <= 0) {
+			this.destroyVehicle(vehicle, now);
+		}
+
+		this.stateDirty = true;
+	}
+
+	private destroyVehicle(vehicle: RoomVehicle, now: number): void {
+		if (vehicle.destroyed) return;
+
+		vehicle.destroyed = true;
+		vehicle.health = 0;
+		vehicle.speed = 0;
+
+		if (vehicle.driverId) {
+			this.exitVehicle(vehicle, now, false);
+		}
+
+		this.emitEvent('vehicle-destroyed', now, {
+			playerId: vehicle.lastHitBy ?? undefined,
+			vehicleId: vehicle.id,
+			vehicleKind: vehicle.kind,
+			x: round(vehicle.x),
+			y: round(vehicle.y),
+			z: round(vehicle.z)
+		});
+
+		const centerY = vehicle.y + (vehicle.kind === 'car' ? 0.5 : 1.2);
+
+		for (const player of this.players.values()) {
+			if (!player.alive) continue;
+
+			const distance = Math.hypot(player.x - vehicle.x, player.z - vehicle.z);
+
+			if (distance > ROYALE_VEHICLE_BLAST_RADIUS) continue;
+			if (Math.abs(player.y + 1 - centerY) > ROYALE_VEHICLE_BLAST_RADIUS) continue;
+
+			// La explosión tampoco atraviesa muros: la metralla sale del centro
+			// del vehículo y un edificio entre ambos corta el daño. Antes el
+			// estallido hería a través de cualquier pared de la isla.
+			if (
+				!hasLineOfSight(
+					{ x: vehicle.x, y: centerY, z: vehicle.z },
+					{ x: player.x, y: player.y + 1, z: player.z }
+				)
+			) {
+				continue;
+			}
+
+			const ratio = Math.min(1, distance / ROYALE_VEHICLE_BLAST_RADIUS);
+			const damage =
+				ROYALE_VEHICLE_BLAST_DAMAGE +
+				(ROYALE_VEHICLE_BLAST_EDGE_DAMAGE - ROYALE_VEHICLE_BLAST_DAMAGE) * ratio;
+
+			this.damage(player, damage, {
+				attackerId: vehicle.lastHitBy,
+				cause: 'combat',
+				now
 			});
 		}
 
@@ -644,6 +1157,10 @@ export class Royale {
 		player.mode = 'skydive';
 		player.vy = 0;
 		player.jumped = true;
+		// El salto del zepelín es la entrada estándar: se salta con planeo,
+		// así que no se cobra daño. Solo se registra la altura al abandonar
+		// un globo en vuelo, que es una salida improvisada.
+		player.fallStartY = null;
 		player.lastPositionAt = now;
 
 		if (player.bot) {
@@ -678,14 +1195,20 @@ export class Royale {
 			return;
 		}
 
+		// Se puede disparar desde un coche o un globo. El origen se calcula
+		// desde el asiento local, que va por delante del último reporte a
+		// 10 Hz: se amplía el margen solo mientras se conduce.
+		const vehicle = this.vehicleDrivenBy(playerId);
+		const originTolerance = ROYALE_SHOT_ORIGIN_TOL + (vehicle ? 3.5 : 0);
+
 		if (
-			Math.hypot(player.x - origin.x, player.z - origin.z) > ROYALE_SHOT_ORIGIN_TOL ||
+			Math.hypot(player.x - origin.x, player.z - origin.z) > originTolerance ||
 			Math.abs(player.y + 1.2 - origin.y) > 2.5
 		) {
 			return;
 		}
 
-		this.fire(player, weapon, origin, dir, targetId, now);
+		this.fire(player, weapon, origin, dir, targetId, now, now - ROYALE_LAG_COMPENSATION_MS);
 	}
 
 	private fire(
@@ -694,7 +1217,8 @@ export class Royale {
 		origin: RoyaleVec3,
 		dir: RoyaleVec3,
 		targetId: string | undefined,
-		now: number
+		now: number,
+		rewindAt: number | null = null
 	): void {
 		if (!player.alive || player.weapon !== weapon) {
 			return;
@@ -727,14 +1251,23 @@ export class Royale {
 		});
 
 		const locked = targetId
-			? this.selectLockedTarget(player, origin, dir, definition.range, targetId)
+			? this.selectLockedTarget(player, origin, dir, definition.range, targetId, rewindAt)
 			: null;
 		const pellets = definition.pellets;
 
 		for (let pellet = 0; pellet < pellets; pellet += 1) {
 			const angle = definition.spread === 0 ? 0 : (combatRandom() * 2 - 1) * definition.spread;
 			const pelletDir = spreadDirection(dir, definition.spread, angle);
-			this.hitscan(player, origin, pelletDir, definition.range, definition.damage, now, locked);
+			this.hitscan(
+				player,
+				origin,
+				pelletDir,
+				definition.range,
+				definition.damage,
+				now,
+				locked,
+				rewindAt
+			);
 		}
 
 		this.stateDirty = true;
@@ -745,7 +1278,8 @@ export class Royale {
 		origin: RoyaleVec3,
 		dir: RoyaleVec3,
 		range: number,
-		targetId: string
+		targetId: string,
+		rewindAt: number | null
 	): RoyalePlayer | null {
 		const target = this.players.get(targetId);
 
@@ -753,14 +1287,24 @@ export class Royale {
 			return null;
 		}
 
-		const toX = target.x - origin.x;
-		const toZ = target.z - origin.z;
+		const point = this.trackedPosition(target, rewindAt);
+		const toX = point.x - origin.x;
+		const toZ = point.z - origin.z;
 		const distance = Math.hypot(toX, toZ);
 		const flat = Math.hypot(dir.x, dir.z);
 		const lateral = flat > 1e-4 ? Math.abs(toX * dir.z - toZ * dir.x) / flat : Infinity;
 		const facing = toX * dir.x + toZ * dir.z > 0;
 
-		if (distance <= range + 2 && facing && lateral <= 3 && this.hasClearShot(origin, target)) {
+		if (
+			distance <= range + 2 &&
+			facing &&
+			lateral <= 3 &&
+			this.hasClearShot(origin, point) &&
+			// También se exige línea al cuerpo actual: si el objetivo ya se
+			// cubrió tras un muro, no vale apuntar a su silueta rebobinada
+			// para atravesarlo.
+			this.hasClearShot(origin, target)
+		) {
 			return target;
 		}
 
@@ -773,7 +1317,7 @@ export class Royale {
 	 * objetivo estar a la vista. Antes solo se comprobaba el pecho y los
 	 * disparos con mira asistida se descartaban en cuanto un borde lo tapaba.
 	 */
-	private hasClearShot(origin: RoyaleVec3, target: RoyalePlayer): boolean {
+	private hasClearShot(origin: RoyaleVec3, target: { x: number; y: number; z: number }): boolean {
 		for (const height of [1.2, 1.7, 0.7]) {
 			if (hasLineOfSight(origin, { x: target.x, y: target.y + height, z: target.z })) {
 				return true;
@@ -790,11 +1334,15 @@ export class Royale {
 		range: number,
 		damage: number,
 		now: number,
-		locked: RoyalePlayer | null
+		locked: RoyalePlayer | null,
+		rewindAt: number | null
 	): void {
 		if (locked && locked.alive) {
+			const lockedPoint = this.trackedPosition(locked, rewindAt);
+
 			if (
-				Math.hypot(origin.x - locked.x, origin.z - locked.z) <= range + 2 &&
+				Math.hypot(origin.x - lockedPoint.x, origin.z - lockedPoint.z) <= range + 2 &&
+				this.hasClearShot(origin, lockedPoint) &&
 				this.hasClearShot(origin, locked)
 			) {
 				this.damage(locked, damage, {
@@ -814,18 +1362,65 @@ export class Royale {
 		for (const player of this.players.values()) {
 			if (!player.alive || player.id === shooter.id) continue;
 
-			const hit = rayPointDistance2D(origin.x, origin.z, dir.x, dir.z, player.x, player.z);
+			const point = this.trackedPosition(player, rewindAt);
+			const hit = rayPointDistance2D(origin.x, origin.z, dir.x, dir.z, point.x, point.z);
 			if (!hit || hit.along > range || hit.lateral > 0.85) continue;
 
 			const rayY = origin.y + dir.y * hit.along;
-			if (rayY < player.y - 0.35 || rayY > player.y + 2.2) continue;
+			if (rayY < point.y - 0.35 || rayY > point.y + 2.2) continue;
 
-			if (!this.hasClearShot(origin, player)) continue;
+			if (!this.hasClearShot(origin, point) || !this.hasClearShot(origin, player)) continue;
 
 			if (hit.along < bestAlong) {
 				bestAlong = hit.along;
 				best = player;
 			}
+		}
+
+		// Los vehículos son blancos válidos: se comparan por distancia con el
+		// jugador más cercano para que una carrocería tape a quien va detrás.
+		// El vehículo que conduce el tirador se ignora: el cañón está dentro o
+		// pegado a él y, sin esto, cada disparo desde un coche o globo impactaba
+		// en la propia carrocería y nunca llegaba al enemigo.
+		const shooterVehicle = this.vehicleDrivenBy(shooter.id);
+		let bestVehicle: RoomVehicle | null = null;
+		let vehicleAlong = Number.POSITIVE_INFINITY;
+
+		for (const vehicle of this.vehicles.values()) {
+			if (vehicle.destroyed) continue;
+			if (vehicle.id === shooterVehicle?.id) continue;
+
+			const hit = rayPointDistance2D(origin.x, origin.z, dir.x, dir.z, vehicle.x, vehicle.z);
+			if (!hit || hit.along > range || hit.lateral > (vehicle.kind === 'car' ? 1.9 : 2.4)) {
+				continue;
+			}
+
+			const rayY = origin.y + dir.y * hit.along;
+			const minY = vehicle.y + (vehicle.kind === 'car' ? -1.1 : -0.2);
+			const maxY = vehicle.y + (vehicle.kind === 'car' ? 1.6 : 3.2);
+
+			if (rayY < minY || rayY > maxY) continue;
+
+			if (
+				!this.hasClearShot(origin, {
+					x: vehicle.x,
+					y: clamp(rayY, minY, maxY),
+					z: vehicle.z
+				})
+			) {
+				continue;
+			}
+
+			if (hit.along < vehicleAlong) {
+				vehicleAlong = hit.along;
+				bestVehicle = vehicle;
+			}
+		}
+
+		// La carrocería tapa al conductor: a igual distancia gana el vehículo.
+		if (bestVehicle && vehicleAlong <= bestAlong) {
+			this.damageVehicle(bestVehicle, damage, shooter.id, now);
+			return;
 		}
 
 		if (best) {
@@ -852,8 +1447,11 @@ export class Royale {
 			return;
 		}
 
+		const vehicle = this.vehicleDrivenBy(playerId);
+		const tolerance = ROYALE_SHOT_ORIGIN_TOL + (vehicle ? 4.5 : 1);
+
 		if (
-			Math.hypot(player.x - origin.x, player.z - origin.z) > ROYALE_SHOT_ORIGIN_TOL + 1 ||
+			Math.hypot(player.x - origin.x, player.z - origin.z) > tolerance ||
 			Math.abs(player.y + 1.2 - origin.y) > 2.5
 		) {
 			return;
@@ -910,6 +1508,14 @@ export class Royale {
 		const floor = floorHeightAt(target.x, target.z) ?? 0.5;
 		const vy = (floor - origin.y) / flight + (GRENADE_GRAVITY * flight) / 2;
 
+		// La granada no atraviesa paredes: si la parábola corta un muro antes de
+		// llegar, estalla contra él. Antes el cliente mandaba un destino plano y
+		// el servidor solo lo recortaba a los límites del mapa, así que una
+		// granada tirada contra un edificio explotaba al otro lado.
+		const clip = royaleArcHit(origin, { x: vx, y: vy, z: vz }, flight, GRENADE_GRAVITY);
+		const landing = clip ? { x: clip.x, z: clip.z } : target;
+		const flightMs = flight * (clip ? clip.t : 1) * 1000;
+
 		this.grenades.push({
 			id: nextGrenadeId(),
 			ownerId: player.id,
@@ -923,10 +1529,11 @@ export class Royale {
 			originY: origin.y,
 			originZ: origin.z,
 			launchedAt: now,
-			flightMs: flight * 1000,
+			flightMs,
 			fuseAt: now + ROYALE_GRENADE_FUSE_MS,
-			targetX: target.x,
-			targetZ: target.z
+			targetX: landing.x,
+			targetZ: landing.z,
+			clipY: clip ? clip.y : null
 		});
 
 		this.emitEvent('grenade-thrown', now, { playerId: player.id });
@@ -937,6 +1544,12 @@ export class Royale {
 		const player = this.players.get(playerId);
 
 		if (!player || player.isBot || !player.alive) return;
+
+		// También se recarga desde un vehículo: el arma va en la barquilla y el
+		// servidor ya acepta disparos desde coche o globo. Antes el conductor
+		// se quedaba sin poder recargar y el arma quedaba inservible al vaciar
+		// el cargador.
+
 		this.reloadPlayer(player, now);
 	}
 
@@ -963,6 +1576,7 @@ export class Royale {
 		const player = this.players.get(playerId);
 
 		if (!player || player.isBot || !player.alive || this.phase !== 'playing') return;
+		if (this.vehicleDrivenBy(playerId)) return;
 		this.equipPlayer(player, slot);
 	}
 
@@ -989,6 +1603,7 @@ export class Royale {
 
 			if (this.phase === 'playing') {
 				this.updateRiding(now);
+				this.updateVehicles(now);
 				this.updateAutoJump(now);
 				this.updateBots(now);
 				this.updateGrenades(now);
@@ -996,6 +1611,7 @@ export class Royale {
 				this.updateLoot(now);
 				this.updateFalls(now);
 				this.updateEnd(now);
+				this.recordTrack(now);
 			}
 
 			this.broadcast(now);
@@ -1016,6 +1632,13 @@ export class Royale {
 	}
 
 	private removeDisconnected(player: RoyalePlayer, now: number): void {
+		const vehicle = this.vehicleDrivenBy(player.id);
+
+		if (vehicle) {
+			vehicle.driverId = null;
+			vehicle.speed = 0;
+		}
+
 		this.players.delete(player.id);
 
 		if (this.phase === 'playing' && player.alive) {
@@ -1073,6 +1696,7 @@ export class Royale {
 		this.grenades = [];
 		this.lastStormPhase = -1;
 		this.nextStormDamageAt = 0;
+		this.spawnVehicles();
 		this.loot = ROYALE_LOOT_ANCHORS.map((anchor, index) => {
 			const roll = royaleRollLoot((this.seed ^ (index * 2654435761)) >>> 0);
 			return {
@@ -1112,6 +1736,7 @@ export class Royale {
 			player.lastGrenadeAt = 0;
 			player.lastPositionAt = 0;
 			player.seat = index % ROYALE_MAX_PLAYERS;
+			player.track = [];
 
 			if (player.bot) {
 				const anchor = this.botAnchor(player.bot.index);
@@ -1139,6 +1764,41 @@ export class Royale {
 			player.yaw = zeppelin.yaw;
 			player.vy = 0;
 		}
+	}
+
+	/**
+	 * Guarda una muestra de cada jugador para la compensación de retardo.
+	 * Ocho muestras a 10 Hz cubren 800 ms: más que los 200 ms que el cliente
+	 * dibuja en el pasado.
+	 */
+	private recordTrack(now: number): void {
+		for (const player of this.players.values()) {
+			player.track.push({ at: now, x: player.x, y: player.y, z: player.z, mode: player.mode });
+
+			if (player.track.length > 8) {
+				player.track.splice(0, player.track.length - 8);
+			}
+		}
+	}
+
+	/** Posición autoritativa del objetivo en el instante que vio el cliente. */
+	private trackedPosition(player: RoyalePlayer, at: number | null): RoyaleTrack | RoyalePlayer {
+		if (at === null || player.track.length === 0) return player;
+
+		let best = player.track[0];
+
+		for (const sample of player.track) {
+			if (Math.abs(sample.at - at) < Math.abs(best.at - at)) best = sample;
+		}
+
+		if (Math.abs(best.at - at) > ROYALE_LAG_COMPENSATION_MS * 2) return player;
+
+		// Si el objetivo acaba de aterrizar o de saltar, no se rebobina hasta
+		// el zepelín: esa silueta ya no es un objetivo válido.
+		if (player.mode === 'ground' && best.mode !== 'ground') return player;
+		if (best.mode === 'riding' && player.mode !== 'riding') return player;
+
+		return best;
 	}
 
 	private updateAutoJump(now: number): void {
@@ -1217,9 +1877,22 @@ export class Royale {
 				);
 			},
 			jump: (player) => this.jumpPlayer(player as RoyalePlayer, now),
-			shoot: (player, dir) => {
+			shoot: (player, dir, targetId) => {
 				const shooter = player as RoyalePlayer;
 				if (shooter.mode === 'riding') return;
+
+				// El cliente dibuja a los demás 200 ms en el pasado. Si en esa
+				// silueta el bot estaba tapado, no dispara: así no se ven
+				// tiros saliendo de detrás de una pared por desfase visual.
+				const seen = this.trackedPosition(shooter, now - ROYALE_LAG_COMPENSATION_MS);
+				const target = targetId ? (this.players.get(targetId) ?? null) : null;
+
+				if (target && seen.mode === 'ground') {
+					const seenEye = { x: seen.x, y: seen.y + 1.2, z: seen.z };
+
+					if (!this.hasClearShot(seenEye, target)) return;
+				}
+
 				this.fire(
 					shooter,
 					shooter.weapon,
@@ -1230,7 +1903,14 @@ export class Royale {
 				);
 			},
 			throwGrenade: (player, point) => this.throwBotGrenade(player as RoyalePlayer, point, now),
-			emit: (kind, extra) => this.emitEvent(kind, now, extra),
+			emit: (kind, extra) => {
+				if (kind === 'player-landed' && extra.playerId) {
+					const landed = this.players.get(extra.playerId);
+					// Los bots siempre planean antes de tocar suelo.
+					if (landed) this.applyFallDamage(landed, true, now);
+				}
+				this.emitEvent(kind, now, extra);
+			},
 			markDirty: () => {
 				this.stateDirty = true;
 			}
@@ -1258,7 +1938,7 @@ export class Royale {
 				if (elapsed >= flight) {
 					grenade.x = grenade.targetX;
 					grenade.z = grenade.targetZ;
-					grenade.y = floorHeightAt(grenade.targetX, grenade.targetZ) ?? 0.5;
+					grenade.y = grenade.clipY ?? floorHeightAt(grenade.targetX, grenade.targetZ) ?? 0.5;
 				}
 
 				this.explodeGrenade(grenade, now);
@@ -1278,6 +1958,15 @@ export class Royale {
 			const distance = Math.hypot(player.x - grenade.x, player.z - grenade.z);
 			if (distance > ROYALE_GRENADE_RADIUS) continue;
 			if (Math.abs(player.y + 1.2 - grenade.y) > ROYALE_GRENADE_VERTICAL_REACH) continue;
+
+			// La explosión no atraviesa muros: si el cuerpo está tapado por una
+			// pared, la metralla no llega. Antes una granada lanzada al otro
+			// lado de un edificio mataba igual y parecía que los bots veían a
+			// través de las paredes.
+			const blastOrigin = { x: grenade.x, y: grenade.y + 0.4, z: grenade.z };
+			const chest = { x: player.x, y: player.y + 1.2, z: player.z };
+
+			if (!hasLineOfSight(blastOrigin, chest)) continue;
 
 			const damage = grenadeDamageAt(distance);
 			if (damage <= 0) continue;
@@ -1404,16 +2093,74 @@ export class Royale {
 		this.stateDirty = true;
 	}
 
+	/**
+	 * Agua = rescate, no muerte. Por debajo de `ROYALE_WATER_RESCUE_Y` solo
+	 * hay mar; el jugador vuelve a la celda caminable más cercana (la orilla)
+	 * conservando vida y escudo. Si llevaba un vehículo, lo abandona: el coche
+	 * se pierde en el fondo y el conductor reaparece en la costa.
+	 *
+	 * `fell` queda como red de seguridad para posiciones fuera del mapa donde
+	 * no existe ninguna celda caminable.
+	 */
 	private updateFalls(now: number): void {
 		for (const player of this.players.values()) {
 			if (!player.alive) continue;
-			if (player.y >= ROYALE_KILL_Y) continue;
+			if (player.y >= ROYALE_WATER_RESCUE_Y) continue;
 
-			this.damage(player, player.health + player.shield, {
-				attackerId: null,
-				cause: 'fell',
-				now
+			const vehicle = this.vehicleDrivenBy(player.id);
+			const landing = nearestWalkable(vehicle?.x ?? player.x, vehicle?.z ?? player.z, 200);
+
+			if (!landing) {
+				this.damage(player, player.health + player.shield, {
+					attackerId: null,
+					cause: 'fell',
+					now
+				});
+				continue;
+			}
+
+			if (vehicle) {
+				vehicle.driverId = null;
+				vehicle.speed = 0;
+			}
+
+			player.x = landing.x;
+			player.y = landing.y;
+			player.z = landing.z;
+			player.vy = 0;
+			player.fallStartY = null;
+			player.mode = 'ground';
+			player.lastPositionAt = now;
+
+			if (vehicle) {
+				// `vehicle-exit` ya lleva el punto de destino: el cliente deja
+				// de conducir y se coloca en la orilla sin una corrección
+				// extra que pudiera pisar este punto.
+				this.emitEvent('vehicle-exit', now, {
+					playerId: player.id,
+					vehicleId: vehicle.id,
+					vehicleKind: vehicle.kind,
+					x: round(vehicle.x),
+					y: round(vehicle.y),
+					z: round(vehicle.z),
+					px: round(player.x),
+					py: round(player.y),
+					pz: round(player.z),
+					mode: 'ground'
+				});
+			} else {
+				this.sendCorrection(player, 'water-rescue');
+			}
+
+			this.emitEvent('player-landed', now, {
+				playerId: player.id,
+				x: round(player.x),
+				y: round(player.y),
+				z: round(player.z),
+				mode: 'ground'
 			});
+
+			this.stateDirty = true;
 		}
 	}
 
@@ -1481,13 +2228,35 @@ export class Royale {
 		return count;
 	}
 
+	/**
+	 * Daño por caída al tocar suelo. Solo se aplica si el jugador salió de un
+	 * globo en vuelo: el salto del zepelín es la entrada estándar y no registra
+	 * altura. El planeo amortigua pero no anula el daño.
+	 */
+	private applyFallDamage(player: RoyalePlayer, gliding: boolean, now: number): void {
+		const startY = player.fallStartY;
+		player.fallStartY = null;
+
+		if (startY === null || !player.alive) return;
+
+		const amount = royaleFallDamage(startY - player.y, gliding);
+
+		if (amount <= 0) return;
+
+		this.damage(player, amount, {
+			attackerId: null,
+			cause: 'fall',
+			now
+		});
+	}
+
 	private damage(
 		player: RoyalePlayer,
 		amount: number,
 		options: {
 			attackerId: string | null;
 			weapon?: RoyaleWeaponId;
-			cause: 'combat' | 'storm' | 'fell';
+			cause: 'combat' | 'storm' | 'fell' | 'fall';
 			now: number;
 		}
 	): void {
@@ -1534,11 +2303,17 @@ export class Royale {
 
 	private killPlayer(
 		victim: RoyalePlayer,
-		cause: 'combat' | 'storm' | 'fell',
+		cause: 'combat' | 'storm' | 'fell' | 'fall',
 		weapon: RoyaleWeaponId | undefined,
 		now: number
 	): void {
 		if (!victim.alive) return;
+
+		const vehicle = this.vehicleDrivenBy(victim.id);
+
+		if (vehicle) {
+			this.exitVehicle(vehicle, now, true);
+		}
 
 		const aliveBefore = this.aliveCount();
 		victim.alive = false;
@@ -1607,6 +2382,46 @@ export class Royale {
 		};
 	}
 
+	private copyVehicle(vehicle: RoomVehicle): Mg8VehicleState {
+		return {
+			id: vehicle.id,
+			kind: vehicle.kind,
+			name: vehicle.name,
+			model: vehicle.model,
+			x: round(vehicle.x),
+			y: round(vehicle.y),
+			z: round(vehicle.z),
+			qx: round(vehicle.qx, 4),
+			qy: round(vehicle.qy, 4),
+			qz: round(vehicle.qz, 4),
+			qw: round(vehicle.qw, 4),
+			yaw: round(vehicle.yaw, 3),
+			speed: round(vehicle.speed, 2),
+			health: Math.round(vehicle.health),
+			maxHealth: vehicle.maxHealth,
+			destroyed: vehicle.destroyed,
+			driverId: vehicle.driverId
+		};
+	}
+
+	private copyVehiclePose(vehicle: RoomVehicle): Mg8VehiclePose {
+		return {
+			id: vehicle.id,
+			x: round(vehicle.x),
+			y: round(vehicle.y),
+			z: round(vehicle.z),
+			qx: round(vehicle.qx, 4),
+			qy: round(vehicle.qy, 4),
+			qz: round(vehicle.qz, 4),
+			qw: round(vehicle.qw, 4),
+			yaw: round(vehicle.yaw, 3),
+			speed: round(vehicle.speed, 2),
+			health: Math.round(vehicle.health),
+			destroyed: vehicle.destroyed,
+			driverId: vehicle.driverId
+		};
+	}
+
 	private copyPlayer(player: RoyalePlayer): Mg8PlayerState {
 		return {
 			id: player.id,
@@ -1662,6 +2477,7 @@ export class Royale {
 				z: round(loot.z),
 				available: loot.available
 			})),
+			vehicles: [...this.vehicles.values()].map((vehicle) => this.copyVehicle(vehicle)),
 			placements: players
 				.filter((player) => this.placements.has(player.id) || player.placement !== null)
 				.map((player) => ({
@@ -1705,7 +2521,8 @@ export class Royale {
 				x: round(grenade.x),
 				y: round(grenade.y),
 				z: round(grenade.z)
-			}))
+			})),
+			vehicles: [...this.vehicles.values()].map((vehicle) => this.copyVehiclePose(vehicle))
 		};
 
 		this.port.broadcast({ type: 'mg8-positions', ...positions });
@@ -1721,6 +2538,7 @@ export class Royale {
 		this.players.clear();
 		this.loot = [];
 		this.grenades = [];
+		this.vehicles.clear();
 		this.placements.clear();
 		this.countdownEndsAt = null;
 		this.matchStartedAt = null;
@@ -1772,6 +2590,14 @@ export class Royale {
 
 	get rawLoot(): readonly BotLoot[] {
 		return this.loot;
+	}
+
+	get vehicleCount(): number {
+		return this.vehicles.size;
+	}
+
+	get rawVehicles(): RoomVehicle[] {
+		return [...this.vehicles.values()];
 	}
 }
 

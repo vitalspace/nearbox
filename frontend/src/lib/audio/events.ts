@@ -633,6 +633,32 @@ export function consumeMg8(
 				}
 				break;
 
+			case 'vehicle-enter':
+				if (event.vehicleKind !== 'balloon') {
+					cues.push({
+						id: 'car_enter',
+						position: local ? undefined : position,
+						volume: local ? 0.55 : 0.45,
+						priority: 1
+					});
+				}
+				break;
+
+			case 'vehicle-exit':
+				if (event.vehicleKind !== 'balloon') {
+					cues.push({
+						id: 'car_exit',
+						position: local ? undefined : position,
+						volume: local ? 0.5 : 0.4,
+						priority: 1
+					});
+				}
+				break;
+
+			case 'vehicle-destroyed':
+				cues.push({ id: 'car_explosion', position, priority: 3 });
+				break;
+
 			case 'match-ended':
 				if (event.winner === null) {
 					cues.push({ id: 'ui_confirm', priority: 3 });

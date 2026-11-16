@@ -62,7 +62,10 @@ const CLIENT_MESSAGE_TYPES = [
 	'mg8-shoot',
 	'mg8-throw',
 	'mg8-reload',
-	'mg8-equip'
+	'mg8-equip',
+	'mg8-vehicle-enter',
+	'mg8-vehicle-exit',
+	'mg8-vehicle-state'
 ] as const;
 
 const ROLL_SCENES: readonly PaperRollScene[] = ['map', 'crypt'];
@@ -846,6 +849,76 @@ export function parseClientMessage(raw: unknown): ParseResult {
 			}
 
 			return { ok: true, message: { type: 'mg8-equip', slot } };
+		}
+
+		case 'mg8-vehicle-enter': {
+			const vehicleId = raw.vehicleId;
+
+			if (
+				typeof vehicleId !== 'string' ||
+				vehicleId.length < 1 ||
+				vehicleId.length > 48 ||
+				!ID_PATTERN.test(vehicleId)
+			) {
+				return fail('INVALID_MESSAGE', 'Invalid vehicle id');
+			}
+
+			return { ok: true, message: { type: 'mg8-vehicle-enter', vehicleId } };
+		}
+
+		case 'mg8-vehicle-exit':
+			return { ok: true, message: { type: 'mg8-vehicle-exit' } };
+
+		case 'mg8-vehicle-state': {
+			const vehicleId = raw.vehicleId;
+
+			if (
+				typeof vehicleId !== 'string' ||
+				vehicleId.length < 1 ||
+				vehicleId.length > 48 ||
+				!ID_PATTERN.test(vehicleId)
+			) {
+				return fail('INVALID_MESSAGE', 'Invalid vehicle id');
+			}
+
+			if (
+				!allFinite([
+					raw.x,
+					raw.y,
+					raw.z,
+					raw.qx,
+					raw.qy,
+					raw.qz,
+					raw.qw,
+					raw.vx,
+					raw.vy,
+					raw.vz,
+					raw.speed,
+					raw.steering
+				])
+			) {
+				return fail('INVALID_MESSAGE', 'Invalid vehicle state');
+			}
+
+			return {
+				ok: true,
+				message: {
+					type: 'mg8-vehicle-state',
+					vehicleId,
+					x: raw.x as number,
+					y: raw.y as number,
+					z: raw.z as number,
+					qx: raw.qx as number,
+					qy: raw.qy as number,
+					qz: raw.qz as number,
+					qw: raw.qw as number,
+					vx: raw.vx as number,
+					vy: raw.vy as number,
+					vz: raw.vz as number,
+					speed: raw.speed as number,
+					steering: raw.steering as number
+				}
+			};
 		}
 
 		default:

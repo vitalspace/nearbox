@@ -56,7 +56,7 @@ export const CHECKPOINTS: readonly CheckpointDefinition[] = [
 		id: 'minigame-8',
 		name: 'Skyfall Royale',
 		label: 'SKYFALL ROYALE',
-		position: [60.0, 0.4, 60.0],
+		position: [-17.5, 0.4, 6.5],
 		color: '#38bdf8',
 		radius: 2.2
 	}

@@ -5,10 +5,11 @@
 # NearBox
 
 **The economy is the gameplay.** A live 3D multiplayer village on NEAR where
-players sign in with Google, own capped NEP-245 items, trade them in an on-chain
-marketplace, equip them in the world, and take errands from nine NPCs walking the
-same map. No wallet popups, no seed phrase, no gas prompts, and no separate "web3
-mode": the chain is infrastructure, not a feature.
+players sign in with Google, their own NEAR wallet, or as a guest, own capped
+NEP-245 items, trade them in an on-chain marketplace, equip them in the world,
+and take errands from nine NPCs walking the same map. For Google players there is
+no wallet popup, no seed phrase, and no gas prompt: the chain is infrastructure,
+not a feature.
 
 🌐 **Demo:** [nearbox.lol](https://nearbox.lol)
 📄 **Doctrine and economy:** [AGENTS.md](AGENTS.md) · [`/agents`](frontend/src/routes/agents/+page.svelte)
@@ -20,7 +21,7 @@ mode": the chain is infrastructure, not a feature.
 | Piece | Status |
 | --- | --- |
 | 3D multiplayer world | Persistent village, Rapier physics, vehicles, hangouts, cosmetics, procedural audio, mobile controls |
-| Social login | Google via Auth0/FastAuth; NEAR account derived from the MPC key and created by a relayer |
+| Social login | Google via Auth0/FastAuth (NEAR account derived from the MPC key and created by a relayer), own wallet via NEP-413, or guest mode with a local UUID |
 | NEP-245 | Multi-token contract on testnet: one contract for every item type, supply and per-account caps per catalog, metadata, enumeration, `mt_transfer_call` |
 | Marketplace | On-chain escrow and fixed-price sales |
 | Real ownership | Sponsored mint, list, buy, and **equip in-game** |

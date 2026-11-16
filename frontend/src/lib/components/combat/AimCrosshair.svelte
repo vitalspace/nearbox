@@ -35,6 +35,10 @@
 				minigame8.phase === 'playing' &&
 				minigame8.isAlive &&
 				!minigame8.riding &&
+				// El coche se conduce a la vista del jugador: una retícula fija
+				// en el centro estorba y no apunta a nada útil. El globo sí la
+				// conserva porque se dispara apuntando con la cámara.
+				!(minigame8.isDriving && minigame8.drivingKind === 'car') &&
 				!chat.isOpen
 			);
 		}

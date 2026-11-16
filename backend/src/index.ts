@@ -45,6 +45,7 @@ import { parseClientMessage } from './server/validate';
 import { bindSession, clearSession } from './server/identity';
 import { proxySoundCloudAudio, resolveSoundCloudStream } from './server/soundcloudStream';
 import { proxyHlsAsset, toClientSource } from './server/hlsProxy';
+import { authRoutes } from './routes/auth';
 import { relayerRoutes } from './routes/relayer';
 import { statsRoutes } from './routes/stats';
 import { progressionRoutes } from './routes/progression';
@@ -1425,6 +1426,51 @@ const app = new Elysia()
 					royale.onEquip(player.id, message.slot);
 					return;
 				}
+
+				case 'mg8-vehicle-enter': {
+					if (player.lobbyId !== 'minigame-8') {
+						return;
+					}
+
+					royale.onVehicleEnter(player.id, message.vehicleId, Date.now());
+					return;
+				}
+
+				case 'mg8-vehicle-exit': {
+					if (player.lobbyId !== 'minigame-8') {
+						return;
+					}
+
+					royale.onVehicleExit(player.id, Date.now());
+					return;
+				}
+
+				case 'mg8-vehicle-state': {
+					if (player.lobbyId !== 'minigame-8') {
+						return;
+					}
+
+					royale.onVehicleState(
+						player.id,
+						message.vehicleId,
+						{
+							x: message.x,
+							y: message.y,
+							z: message.z,
+							qx: message.qx,
+							qy: message.qy,
+							qz: message.qz,
+							qw: message.qw,
+							vx: message.vx,
+							vy: message.vy,
+							vz: message.vz,
+							speed: message.speed,
+							steering: message.steering
+						},
+						Date.now()
+					);
+					return;
+				}
 			}
 		},
 
@@ -1460,6 +1506,7 @@ const app = new Elysia()
 	// Mini-relayer de FastAuth: crea la cuenta NEAR del jugador (solo
 	// `create_account`, sin fondearla). El cliente lo llama como
 	// `/api/relayer/create-account`; Vite (o el reverse proxy) quita `/api`.
+	.use(authRoutes)
 	.use(statsRoutes)
 	.use(relayerRoutes)
 	.use(progressionRoutes)

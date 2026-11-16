@@ -8,12 +8,14 @@
 	import { playerInput } from '../../state/playerInput';
 	import { playerState } from '../../state/playerState';
 	import {
+		ROYALE_BALLOON_EYE_OFFSET,
 		ROYALE_WEAPON_BY_ID,
 		ROYALE_WEAPON_BY_SLOT,
 		type RoyaleWeaponId
 	} from '../../state/royaleConfig';
 	import { royaleEffects } from '../../state/royaleEffects.svelte';
 	import { royaleInput } from '../../state/royaleInput';
+	import { royaleVehicles } from '../../state/royaleVehicles.svelte';
 	import { sceneState } from '../../state/sceneState.svelte';
 	import { localHeldWeaponMuzzle, playLocalHeldWeaponFire } from '../player/heldWeapon';
 
@@ -28,7 +30,14 @@
 	const { canvas, camera } = useThrelte();
 
 	const EYE_HEIGHT = 1.55;
-	const AIM_ASSIST_RADIUS = 1.3;
+	/**
+	 * Radio de la mira asistida. El cliente dibuja a los rivales 200 ms en el
+	 * pasado (`REMOTE_RENDER_DELAY_MS`), así que a 5.5 m/s el cuerpo visible
+	 * puede estar ~1.1 m lejos de su posición autoritativa. Con 1.3 m el
+	 * enganche fallaba y los disparos se perdían; 2.2 m cubre el retardo sin
+	 * convertir la mira en un aimbot (el servidor sigue validando LOS).
+	 */
+	const AIM_ASSIST_RADIUS = 2.2;
 	const GRENADE_MIN_RANGE = 4;
 	const GRENADE_MAX_RANGE = 34;
 	const GRENADE_DEFAULT_RANGE = 18;
@@ -61,7 +70,9 @@
 			minigame8.phase === 'playing' &&
 			self !== null &&
 			self.alive &&
-			self.mode !== 'riding'
+			// El snapshot va a 1 Hz: tras entrar en un vehículo puede seguir
+			// diciendo `riding` durante un segundo. El estado inmediato manda.
+			(self.mode !== 'riding' || minigame8.isDriving)
 		);
 	}
 
@@ -83,6 +94,13 @@
 		flatForward.normalize();
 
 		eye.set(playerState.x, playerState.y + EYE_HEIGHT, playerState.z);
+
+		// En el globo la cámara de 1ª persona vive en la barquilla: el disparo
+		// sale de la misma altura para que el trazador no aparezca por encima
+		// de la retícula.
+		if (minigame8.isDriving && minigame8.drivingKind === 'balloon') {
+			eye.y = playerState.y + ROYALE_BALLOON_EYE_OFFSET;
+		}
 
 		const players = minigame8.sampleAt()?.players ?? minigame8.latestPlayers();
 
@@ -257,7 +275,14 @@
 
 		flat.normalize();
 
-		const origin = new Vector3(playerState.x, playerState.y + 1.4, playerState.z);
+		const origin = new Vector3(
+			playerState.x,
+			playerState.y +
+				(minigame8.isDriving && minigame8.drivingKind === 'balloon'
+					? ROYALE_BALLOON_EYE_OFFSET
+					: 1.4),
+			playerState.z
+		);
 		const target = new Vector3(
 			origin.x + flat.x * GRENADE_DEFAULT_RANGE,
 			origin.y,
@@ -314,6 +339,25 @@
 		playerInput.requestJump();
 	}
 
+	/**
+	 * `E` es el botón de contexto: salir si conduce, entrar si hay un vehículo
+	 * cerca y, solo si no hay ninguno, saltar. El barco y el globo del mapa
+	 * libre ya usan su propia tecla, así que aquí no hay ambigüedad.
+	 */
+	function interactAction(): void {
+		if (minigame8.isDriving) {
+			royaleVehicles.exit();
+			return;
+		}
+
+		if (royaleVehicles.nearby) {
+			royaleVehicles.enter();
+			return;
+		}
+
+		jumpAction();
+	}
+
 	const onKeyDown = (event: KeyboardEvent) => {
 		if (!sceneState.inRoyale) return;
 
@@ -335,7 +379,7 @@
 		switch (event.code) {
 			case 'KeyE':
 				event.preventDefault();
-				jumpAction();
+				interactAction();
 				return;
 			case 'KeyG':
 				event.preventDefault();
@@ -343,7 +387,13 @@
 				return;
 			case 'KeyR':
 				event.preventDefault();
-				reloadWeapon();
+
+				// Mientras se conduce un coche, `R` lo endereza (lo maneja
+				// `RoyaleVehicleControls`). En el globo y a pie recarga.
+				if (!(minigame8.isDriving && minigame8.drivingKind === 'car')) {
+					reloadWeapon();
+				}
+
 				return;
 			case 'Digit1':
 			case 'Numpad1':

@@ -1,7 +1,7 @@
 import { Elysia } from 'elysia';
 import { STATS_EVENTS_TTL_DAYS } from '../db/models/statsEvent';
 import { ensureMongo, isMongoReady, mongoStateName } from '../db/mongo';
-import { verifyAuth0Jwt } from '../server/auth0';
+import { verifySessionToken } from '../server/sessionToken';
 import {
 	StatsAuthError,
 	StatsForbiddenError,
@@ -74,7 +74,7 @@ function parsePlayerId(raw: string) {
 	return statsPlayerIdSchema.safeParse(raw);
 }
 
-export function createStatsRoutes(verifyToken: StatsTokenVerifier = verifyAuth0Jwt) {
+export function createStatsRoutes(verifyToken: StatsTokenVerifier = verifySessionToken) {
 	return new Elysia({ prefix: '/stats' })
 		.get('/health', async ({ set }) => {
 			const connected = await ensureMongo();

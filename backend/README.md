@@ -628,16 +628,55 @@ En desarrollo el cliente llama a `/api/relayer/create-account` y Vite reescribe
 `/api` → `` contra el backend (`frontend/vite.config.ts`). En producción el
 reverse proxy debe hacer el mismo mapeo.
 
+## Login con wallet NEAR y modo invitado — `/auth`
+
+Además de Google/FastAuth, el jugador puede entrar con Meteor Wallet o como
+invitado. El modo wallet no crea cuentas ni mueve fondos al entrar: el jugador
+firma un mensaje NEP-413, el backend valida la firma y la access key en cadena,
+y emite un token de sesión que stats, progresión, recompensas y el WebSocket
+aceptan igual que el JWT de Auth0.
+
+Variables (ver `.env.example`):
+
+| Variable                  | Por defecto   | Descripción                                                                                                                       |
+| ------------------------- | ------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `WALLET_AUTH_RECIPIENT`   | `nearbox.lol` | Dominio que la wallet muestra al firmar. Debe coincidir con `PUBLIC_WALLET_AUTH_RECIPIENT` del frontend.                          |
+| `WALLET_SESSION_SECRET`   | —             | Secreto HMAC del token `wbs1.…` (mín. 16 caracteres). Si falta, se deriva de `RELAYER_PRIVATE_KEY` o se genera uno efímero.       |
+
+### Endpoints
+
+| Método | Ruta                   | Descripción                                                                 |
+| ------ | ---------------------- | --------------------------------------------------------------------------- |
+| `GET`  | `/auth/wallet/config`  | Red y `recipient` que el cliente debe usar.                                 |
+| `POST` | `/auth/wallet`         | Recibe la prueba NEP-413 y devuelve `{ token, expiresAt, accountId, publicKey }`. |
+
+Reglas de `POST /auth/wallet`:
+
+- Mensaje `NearBox sign-in\n<ISO>` con ±5 minutos de tolerancia.
+- `recipient` exacto; el payload se serializa en Borsh y se firma `sha256`.
+- El nonce de 32 bytes se canjea una sola vez.
+- `view_access_key` en el RPC confirma que la clave pertenece a la cuenta.
+- Rate limit de 10 intentos por IP y minuto.
+- El token dura 7 días; `sub = wallet:<accountId>`.
+
+El modo invitado no llama a `/auth`: usa el UUID local como `playerId`, el
+backend lo acepta sin token (igual que el modo legacy de stats) y los reclamos
+de NFT quedan deshabilitados en el cliente.
+
+En desarrollo el cliente llama a `/api/auth/wallet` y Vite reescribe `/api` → ``
+contra el backend. En producción el reverse proxy debe hacer el mismo mapeo.
+
 ## Estadísticas de jugador — `/stats` (MongoDB)
 
 Las estadísticas que el cliente guardaba en `localStorage` (`rw:stats:v1`)
 ahora pueden persistirse en MongoDB. La API replica la forma de `StatsData`
 del frontend, con `createdAt`/`updatedAt` en milisegundos.
 
-La identidad estable es la cuenta NEAR (`t-<handle>.testnet`). Los documentos de
-cuenta se vinculan al `sub` del JWT de Auth0 la primera vez que se usan; los
-UUID antiguos siguen funcionando sin token como modo legacy y se pueden migrar
-a la cuenta con `POST /stats/:playerId/merge`.
+La identidad estable es la cuenta NEAR (`t-<handle>.testnet` o una wallet como
+`alice.testnet`). Los documentos de cuenta se vinculan al `sub` del token de
+sesión (JWT de Auth0 o token de wallet de SPEC-047) la primera vez que se usan;
+los UUID antiguos siguen funcionando sin token como modo legacy y se pueden
+migrar a la cuenta con `POST /stats/:playerId/merge`.
 
 ### Configuración
 
@@ -678,10 +717,12 @@ y cuentas NEAR.
 
 ### Autenticación
 
-- **Cuentas** (`t-<handle>.testnet`): requieren `Authorization: Bearer <jwt>` de
-  Auth0. El JWT se verifica con el JWKS, `iss`, `aud` y `exp` en
-  `src/server/auth0.ts`. El primer uso guarda el `sub` en `player_stats.subject`;
-  otro `sub` sobre la misma cuenta recibe `403 STATS_FORBIDDEN`.
+- **Cuentas** (`t-<handle>.testnet` o una wallet): requieren
+  `Authorization: Bearer <token>`. Se acepta el JWT de Auth0 (verificado con el
+  JWKS, `iss`, `aud` y `exp` en `src/server/auth0.ts`) o el token de wallet
+  `wbs1.…` (`sub = wallet:<accountId>`). El primer uso guarda el `sub` en
+  `player_stats.subject`; otro `sub` sobre la misma cuenta recibe
+  `403 STATS_FORBIDDEN`.
 - **UUID legacy**: se aceptan sin token para no romper clientes antiguos. Nunca
   se vinculan a un `sub` aunque se envíe uno.
 - **Merge**: el destino debe ser una cuenta autenticada y el origen un UUID. Es
@@ -750,11 +791,13 @@ Los contadores son monótonos: `PUT` usa `$max` y los eventos usan `$inc`. Solo
 `max(played, completed + failed)` (o `max(played, finished, won)` en `race`)
 para tolerar clientes que entran a una partida ya empezada.
 
-> **Seguridad**: las cuentas quedan protegidas por el JWT de Auth0, pero la
-> vinculación es por primer uso: el backend no verifica on-chain que
-> `accountId` pertenezca a la publicKey del token. Los UUID legacy siguen sin
-> autenticación por compatibilidad. No usar estos contadores para economía,
-> recompensas ni rankings definitivos sin endurecer esa vinculación.
+> **Seguridad**: las cuentas quedan protegidas por el token de sesión. En
+> FastAuth la vinculación es por primer uso: el backend no verifica on-chain que
+> `accountId` pertenezca a la publicKey del JWT. En modo wallet la access key sí
+> se comprueba on-chain con `view_access_key` antes de emitir el token. Los UUID
+> legacy siguen sin autenticación por compatibilidad. No usar estos contadores
+> para economía, recompensas ni rankings definitivos sin endurecer la
+> vinculación de FastAuth.
 
 ## Progresión, logros y recompensas NFT (SPEC-045)
 
@@ -769,7 +812,7 @@ test `tests/catalogParity.test.ts` importa el catálogo del frontend y falla si
 ambos dejan de ser idénticos; si cambia cualquier misión hay que actualizar el
 `fingerprint` de `tests/progression.test.ts`.
 
-Endpoints autenticados por jugador (mismos JWT/ownership que `/stats`):
+Endpoints autenticados por jugador (mismos tokens/ownership que `/stats`):
 
 | Método | Ruta                                                  | Uso                                             |
 | ------ | ----------------------------------------------------- | ----------------------------------------------- |

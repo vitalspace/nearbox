@@ -21,8 +21,8 @@ const MESSAGES: Array<[RegExp, string]> = [
 	[/Testnet funds are running low/i, 'Testnet funds are running low. Try again later.'],
 	[/sponsored mint budget/i, 'The free mint budget is exhausted. Pay with your own NEAR instead.'],
 	[
-		/USER_NOT_LOGGED_IN|Google session expired/i,
-		'Your Google session expired. Sign in again to continue.'
+		/USER_NOT_LOGGED_IN|session expired|not logged in|invalid or expired/i,
+		'Your session expired. Sign in again to continue.'
 	],
 	[/Failed to fetch|NetworkError|load failed/i, "Couldn't reach the server. Check your connection."]
 ];
@@ -35,9 +35,9 @@ function rawMessage(cause: unknown): string {
 			: JSON.stringify(cause);
 }
 
-/** La sesión de Auth0 se perdió: hay que volver a entrar antes de firmar. */
+/** La sesión de login se perdió: hay que volver a entrar antes de firmar. */
 export function isSessionError(cause: unknown): boolean {
-	return /USER_NOT_LOGGED_IN|Google session expired/i.test(rawMessage(cause));
+	return /USER_NOT_LOGGED_IN|session expired|not logged in|invalid or expired/i.test(rawMessage(cause));
 }
 
 export function describeNftError(cause: unknown): string {

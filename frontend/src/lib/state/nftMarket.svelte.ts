@@ -48,7 +48,7 @@ class NftMarketStore {
 	busy = $state(false);
 	error = $state<string | null>(null);
 	notice = $state<string | null>(null);
-	/** La sesión de Google ya no existe en este navegador: hay que reentrar. */
+	/** La sesión de login ya no existe en este navegador: hay que reentrar. */
 	needsLogin = $state(false);
 	relayerReason = $state<'ok' | 'budget' | 'reserve' | 'disabled' | 'error'>('disabled');
 
@@ -198,7 +198,7 @@ class NftMarketStore {
 		this.busy = false;
 	}
 
-	/** Reabre el popup de Google y revalida la cuenta antes de reintentar. */
+	/** Reabre el popup de Google o la wallet y revalida la cuenta antes de reintentar. */
 	async reconnect(): Promise<void> {
 		if (this.busy) return;
 
@@ -208,7 +208,7 @@ class NftMarketStore {
 		this.needsLogin = false;
 
 		try {
-			await authSession.login();
+			await authSession.reconnect();
 			this.notice = 'Signed in again. You can keep minting.';
 			await this.refresh();
 		} catch (cause) {
@@ -226,7 +226,7 @@ class NftMarketStore {
 		const accountId = authSession.accountId;
 
 		try {
-			if (!accountId) throw new Error('Sign in with Google before minting.');
+			if (!accountId) throw new Error('Sign in before minting.');
 
 			const result = await mintNft(accountId, catalogId);
 			const serial = result.tokenId.includes('#') ? result.tokenId.split('#').pop() : null;
@@ -247,7 +247,7 @@ class NftMarketStore {
 		if (!this.begin()) return;
 
 		try {
-			if (!authSession.accountId) throw new Error('Sign in with Google before selling.');
+			if (!authSession.accountId) throw new Error('Sign in before selling.');
 			await listForSale(authSession.accountId, tokenId, priceYocto);
 			this.notice = `Listed ${tokenId} for ${formatNear(priceYocto)}.`;
 			await this.refresh();
@@ -263,7 +263,7 @@ class NftMarketStore {
 		if (!this.begin()) return;
 
 		try {
-			if (!authSession.accountId) throw new Error('Sign in with Google before buying.');
+			if (!authSession.accountId) throw new Error('Sign in before buying.');
 			await buyNft(authSession.accountId, sale);
 			this.notice = `Bought ${sale.token_id} for ${formatNear(sale.price)}.`;
 			await this.refresh();
@@ -279,7 +279,7 @@ class NftMarketStore {
 		if (!this.begin()) return;
 
 		try {
-			if (!authSession.accountId) throw new Error('Sign in with Google before cancelling.');
+			if (!authSession.accountId) throw new Error('Sign in before cancelling.');
 			await cancelNft(authSession.accountId, sale);
 			this.notice = `Cancelled the listing for ${sale.token_id}.`;
 			await this.refresh();
@@ -296,8 +296,13 @@ class NftMarketStore {
 
 		try {
 			const accountId = authSession.accountId;
+			if (!accountId) throw new Error('Sign in first.');
+
+			// En wallet la clave es la que devolvió `signMessage`; en FastAuth es
+			// la clave MPC. El faucet valida ambas contra la cuenta.
 			const publicKey = authSession.publicKey;
-			if (!accountId || !publicKey) throw new Error('Sign in with Google first.');
+
+			if (!publicKey) throw new Error('Reconnect your wallet to use the faucet.');
 
 			const result = await postJson<{
 				hash: string | null;

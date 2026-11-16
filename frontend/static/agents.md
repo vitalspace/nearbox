@@ -20,11 +20,12 @@ change is wrong or this file must be updated first.
 ## 1. The pitch in one paragraph
 
 NearBox is a **live 3D multiplayer village on NEAR** where players log in with
-Google, own capped NEP-245 items, trade them in an on-chain marketplace, equip
-them in the world, and take errands from nine NPCs who walk the same map. There
-is no wallet popup, no seed phrase, no gas prompt, and no separate "web3 mode."
-The chain is infrastructure, not a feature. We are not pitching a token: we are
-pitching **an economy that already moves inside a game people can play today.**
+Google, their own NEAR wallet, or as a guest, own capped NEP-245 items, trade
+them in an on-chain marketplace, equip them in the world, and take errands from
+nine NPCs who walk the same map. There is no wallet popup, no seed phrase, no gas
+prompt, and no separate "web3 mode." The chain is infrastructure, not a feature.
+We are not pitching a token: we are pitching **an economy that already moves
+inside a game people can play today.**
 
 Public entry point: **nearbox.lol**
 
@@ -51,7 +52,7 @@ the NPCs, the chain, and the economy that connects them.
 | Track requirement | NearBox status today | Evidence |
 | --- | --- | --- |
 | **Agent NPCs** | 9 server-simulated human NPCs walk deterministic routes, pause, gesture, greet, hold dialogue, and assign errands. Sim runs on the backend and is replicated over WebSocket, so every player sees the same town. | `backend/src/lib/npcs/npcAgent.ts`, `backend/src/server/engines/npcs.ts`, `frontend/src/lib/npcs/*`, `specs/SPEC-028`, `SPEC-029`, `SPEC-035` |
-| **Social login** | Google via Auth0/FastAuth. A NEAR account `t-nearbox-<10 hex>.testnet` is derived from the MPC public key and created by a relayer. No seed phrase, no extension, no wallet UI. | `frontend/src/lib/near/*`, `frontend/src/lib/components/Guardian.svelte`, `backend/src/server/relayer.ts`, `specs/SPEC-036` |
+| **Social login** | Three entry modes. Google via Auth0/FastAuth derives a NEAR account `t-nearbox-<10 hex>.testnet` from the MPC public key, created by a relayer. A player with their own wallet (Meteor Wallet) signs a NEP-413 message and gets the same session; mission NFTs mint to that wallet. Guest mode enters the world with a local UUID and no NFTs. No seed phrase, no extension, no wallet UI for Google users. | `frontend/src/lib/near/*`, `frontend/src/lib/components/Guardian.svelte`, `backend/src/server/wallet.ts`, `backend/src/server/relayer.ts`, `specs/SPEC-036`, `specs/SPEC-047` |
 | **NEAR Intents** | Marketplace escrow and fixed-price sale flow are live; the economy layer adds intent-style "I want X at price Y" matching for merchants. | `contracts/market/src/lib.rs`, `frontend/src/lib/nft/market.ts`, `specs/SPEC-038` |
 | **NEP-245** | Deployed multi-token contract on testnet: one contract for every item type, capped supply per catalog, per-account caps, metadata, enumeration, transfers, `mt_transfer_call`. | `contracts/nft/src/lib.rs`, `contracts/deployments/testnet.json`, `SPEC-038` |
 | **On-chain ownership** | Mint (sponsored by relayer), list, buy, and **equip in-game** are implemented end to end. | `SPEC-038`, `SPEC-044`, `frontend/src/lib/nft/equip.ts`, `frontend/src/lib/state/equipment.svelte.ts` |
@@ -127,8 +128,10 @@ working primitives.
 ### 3.1 Design constraints (from the track, non-negotiable)
 
 - Items are **NEP-245 multi tokens**, one contract for every item type.
-- Players sign in with **social/email login**; no seed phrases, wallet popups, or
-  gas prompts in the normal loop.
+- Players sign in with **social/email login by default**; a player who already
+  owns a NEAR wallet can sign a NEP-413 message instead, and a guest can enter
+  without an account. The normal Google loop has no seed phrases, wallet popups,
+  or gas prompts.
 - Merchant pricing rules live in **one readable file**; a merchant's reasoning is
   visible in a tooltip.
 - A **fast-forward** mode simulates a week of trading in about a minute.
@@ -267,7 +270,7 @@ script.
 | Player-owned markets | Players buy, sell, invest, and reopen shops; prices persist | "Economy" stays a UI mock |
 | Economy evolves without a patch | Pricing engine + EMA + restock + bankruptcy, live per tick | Static price table |
 | NEP-245 | One contract, all materials and cosmetics, capped supply | Contract-per-item sprawl |
-| Social login | Google → NEAR account, silent restore | Wallet popup kills the bonus |
+| Social login | Google → NEAR account, silent restore; own wallet via NEP-413; guest mode for zero-friction entry | Wallet popup in the Google loop kills the bonus |
 | NEAR Intents | Escrow market + intent-style merchant matching | Confusing "intents" slideware |
 | Invisible chain | No gas prompts, sponsored mints, chain links only on demand | Judges notice the chain |
 | Legibility | `pricing.ts` + reason strings in tooltips | Black-box economy |
@@ -279,8 +282,10 @@ script.
 
 ### 7.1 Invariants — do not break these
 
-1. **No wallet popups, seed phrases, or gas prompts in the normal loop.** Sponsored
-   or relayed transactions only. Login stays Google/email.
+1. **No wallet popups, seed phrases, or gas prompts in the default loop.** Sponsored
+   or relayed transactions only. Google/email is the default login; own-wallet
+   (NEP-413) and guest are explicit alternates, and only wallet-mode market
+   writes ask the player to sign.
 2. **One NEP-245 contract.** Materials, cosmetics, and rewards share the existing
    collection. Add catalogs with `set_catalog_cap` / `set_catalog_metadata`; do
    not deploy per-item contracts.
@@ -307,6 +312,7 @@ backend/src/lib/economy/        pricing.ts, marketState.ts, simulate.ts
 backend/src/server/engines/     authoritative loops (npcs, waves, …)
 backend/src/routes/             Elysia HTTP/WS surface
 backend/src/lib/npcs/           agent definitions, routes, dialogue
+backend/src/server/wallet.ts    wallet login (NEP-413) + wbs1 session token
 frontend/src/lib/npcs/          client mirror of agent definitions
 frontend/src/lib/nft/           market + equip client
 frontend/src/lib/near/          auth, relayer, RPC
@@ -328,6 +334,8 @@ specs/                          source of truth; every feature gets a SPEC
   engine as live play.
 - End-to-end run: login → gather → trade → price change → mint → equip, with
   zero gas prompts.
+- Google, own-wallet and guest entries all reach the same world; wallet-mode
+  mission claims mint to the player's own account.
 - A SPEC exists for the economy, and this file matches the implementation.
 
 ### 7.4 Anti-patterns — reject on sight

@@ -70,7 +70,8 @@ const UUID_PATTERN =
 
 const claimBodySchema = z.object({
 	accountId: z.string().trim().min(1).max(64),
-	publicKey: z.string().trim().min(1).max(80),
+	/** Obligatoria en FastAuth; el modo wallet usa el token NEP-413. */
+	publicKey: z.string().trim().max(80).optional(),
 	missionId: z.string().trim().min(1).max(64),
 	token: z.string().min(1),
 	request_id: z.string().regex(UUID_PATTERN)

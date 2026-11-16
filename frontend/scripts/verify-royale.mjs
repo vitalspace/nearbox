@@ -25,6 +25,8 @@ import {
 	ROYALE_COUNTDOWN_MS,
 	ROYALE_ENTRY,
 	ROYALE_EXIT,
+	ROYALE_FALL_MAX_DAMAGE,
+	ROYALE_FALL_SAFE_HEIGHT,
 	ROYALE_JUMP_DELAY_MS,
 	ROYALE_JUMP_WINDOW_MS,
 	ROYALE_LOBBY_ID,
@@ -41,17 +43,27 @@ import {
 	ROYALE_STORM_PHASES,
 	ROYALE_STORM_START_MS,
 	ROYALE_WEAPONS,
+	ROYALE_VEHICLE_BAR_HEIGHT,
+	ROYALE_VEHICLE_BLAST_RADIUS,
+	ROYALE_VEHICLE_HEALTH,
+	ROYALE_VEHICLE_SPAWNS,
 	ROYALE_ZEPPELIN_ALTITUDE,
 	ROYALE_ZEPPELIN_LENGTH,
 	ROYALE_ZEPPELIN_PATH,
 	ROYALE_ZEPPELIN_SPEED,
 	royaleDistance,
+	royaleFallDamage,
 	royaleStormCenters,
 	royaleZeppelinAt
 } from '../src/lib/state/royaleConfig.ts';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const root = join(here, '..');
+
+// Checkpoint físico junto a la tienda de Halloween, en la plaza central.
+// Fuente de verdad: ROYALE_CHECKPOINT en royaleConfig.ts (y CHECKPOINTS en
+// checkpoints.svelte.ts). Si se mueve el checkpoint, actualizar estos tres sitios.
+const EXPECTED_CHECKPOINT = { x: -17.5, y: 0.4, z: 6.5 };
 
 function fail(message) {
 	console.error(`royale:check ✗ ${message}`);
@@ -132,18 +144,21 @@ assert(
 		ROYALE_SCENE_ID === 'islas-ciudad',
 	`registro inesperado: ${ROYALE_LOBBY_ID}/${ROYALE_ROOM_ID}/${ROYALE_SCENE_ID}`
 );
+function atExpectedCheckpoint(point) {
+	return (
+		royaleDistance(point.x, point.z, EXPECTED_CHECKPOINT.x, EXPECTED_CHECKPOINT.z) < 0.01 &&
+		Math.abs(point.y - EXPECTED_CHECKPOINT.y) < 0.01
+	);
+}
 assert(
-	ROYALE_CHECKPOINT.x === 60 && ROYALE_CHECKPOINT.y === 0.4 && ROYALE_CHECKPOINT.z === 60,
+	atExpectedCheckpoint(ROYALE_CHECKPOINT),
 	`checkpoint inesperado: ${JSON.stringify(ROYALE_CHECKPOINT)}`
 );
 assert(
-	ROYALE_ENTRY.x === 60 && ROYALE_ENTRY.y === 0.4 && ROYALE_ENTRY.z === 60,
+	atExpectedCheckpoint(ROYALE_ENTRY),
 	`ROYALE_ENTRY inesperado: ${JSON.stringify(ROYALE_ENTRY)}`
 );
-assert(
-	ROYALE_EXIT.x === 60 && ROYALE_EXIT.y === 0.4 && ROYALE_EXIT.z === 60,
-	`ROYALE_EXIT inesperado: ${JSON.stringify(ROYALE_EXIT)}`
-);
+assert(atExpectedCheckpoint(ROYALE_EXIT), `ROYALE_EXIT inesperado: ${JSON.stringify(ROYALE_EXIT)}`);
 assert(ROYALE_MAX_PLAYERS === 12, `maxPlayers=${ROYALE_MAX_PLAYERS}, se esperaban 12`);
 assert(ROYALE_BOT_FILL === 11, `botFill=${ROYALE_BOT_FILL}, se esperaban 11`);
 
@@ -154,8 +169,8 @@ assert(
 	'falta el cartel SKYFALL ROYALE en checkpoints'
 );
 assert(
-	/position:\s*\[60\.0,\s*0\.4,\s*60\.0\]/.test(checkpointsSource),
-	'el checkpoint de minigame-8 no está en (60, 0.4, 60)'
+	/position:\s*\[-17\.5,\s*0\.4,\s*6\.5\]/.test(checkpointsSource),
+	'el checkpoint de minigame-8 no está junto a la tienda (-17.5, 0.4, 6.5)'
 );
 
 const playerStateSource = readFileSync(join(root, 'src/lib/state/playerState.ts'), 'utf8');
@@ -396,6 +411,87 @@ for (let index = 0; index < ROYALE_BOT_ANCHORS.length; index += 1) {
 ok('POI, loot y bots OK — 14 POI, 5 loot/POI, 28 anclas separadas y conectadas');
 
 // ---------------------------------------------------------------------------
+// 4b. Vehículos: coches y globos
+// ---------------------------------------------------------------------------
+
+assert(
+	ROYALE_VEHICLE_SPAWNS.length === 7,
+	`${ROYALE_VEHICLE_SPAWNS.length} vehículos, se esperaban 7`
+);
+assert(
+	ROYALE_VEHICLE_SPAWNS.filter((spawn) => spawn.kind === 'car').length === 4,
+	'deben existir 4 coches'
+);
+assert(
+	ROYALE_VEHICLE_SPAWNS.filter((spawn) => spawn.kind === 'balloon').length === 3,
+	'deben existir 3 globos'
+);
+
+const vehicleIds = new Set();
+
+for (let index = 0; index < ROYALE_VEHICLE_SPAWNS.length; index += 1) {
+	const spawn = ROYALE_VEHICLE_SPAWNS[index];
+	assert(!vehicleIds.has(spawn.id), `vehículo duplicado: ${spawn.id}`);
+	vehicleIds.add(spawn.id);
+	assert(
+		spawn.x >= ROYALE_MAP_BOUNDS.minX && spawn.x <= ROYALE_MAP_BOUNDS.maxX,
+		`${spawn.id} fuera de bounds (x)`
+	);
+	assert(
+		spawn.z >= ROYALE_MAP_BOUNDS.minZ && spawn.z <= ROYALE_MAP_BOUNDS.maxZ,
+		`${spawn.id} fuera de bounds (z)`
+	);
+
+	const { col, row } = cellOf(spawn.x, spawn.z);
+	assert(walkableAt(col, row), `vehículo ${spawn.id} no cae en celda caminable`);
+	assert(
+		component[indexOf(col, row)] === mainComponent,
+		`vehículo ${spawn.id} fuera de la componente`
+	);
+
+	const ground = heightAt(col, row);
+	const expected = spawn.kind === 'car' ? ground + 1 : ground + 0.02;
+	assert(
+		Math.abs(spawn.y - expected) <= 0.08,
+		`vehículo ${spawn.id} y=${spawn.y}, esperado ${round(expected)} (suelo ${round(ground)})`
+	);
+
+	for (const anchor of [...ROYALE_LOOT_ANCHORS, ...ROYALE_BOT_ANCHORS]) {
+		assert(
+			royaleDistance(spawn.x, spawn.z, anchor.x, anchor.z) >= 6 - 0.01,
+			`vehículo ${spawn.id} sobre el ancla ${anchor.id}`
+		);
+	}
+
+	const poi = ROYALE_POIS.reduce((best, entry) => {
+		const distance = royaleDistance(spawn.x, spawn.z, entry.x, entry.z);
+		return !best || distance < best.distance ? { entry, distance } : best;
+	}, null);
+
+	assert(
+		poi && poi.distance <= 30,
+		`vehículo ${spawn.id} a más de 30 m de su POI (${poi ? poi.entry.id : 'sin POI'})`
+	);
+
+	for (let other = 0; other < index; other += 1) {
+		const previous = ROYALE_VEHICLE_SPAWNS[other];
+		assert(
+			royaleDistance(spawn.x, spawn.z, previous.x, previous.z) >= 8 - 0.01,
+			`vehículos ${spawn.id} y ${previous.id} a menos de 8 m`
+		);
+	}
+
+	assert(
+		ROYALE_VEHICLE_HEALTH[spawn.kind] > 0 && ROYALE_VEHICLE_BAR_HEIGHT[spawn.kind] > 0,
+		`vehículo ${spawn.id} sin vida o barra`
+	);
+}
+
+assert(ROYALE_VEHICLE_BLAST_RADIUS > 0, 'radio de explosión inválido');
+
+ok('vehículos OK — 4 coches y 3 globos sobre suelo, lejos de loot y bots');
+
+// ---------------------------------------------------------------------------
 // 5. Oclusores
 // ---------------------------------------------------------------------------
 
@@ -462,6 +558,17 @@ assert(
 	`el path tarda ${travelMs} ms y el boarding dura ${ROYALE_BOARDING_MS} ms`
 );
 
+assert(ROYALE_FALL_SAFE_HEIGHT === 5, `altura segura=${ROYALE_FALL_SAFE_HEIGHT}`);
+assert(ROYALE_FALL_MAX_DAMAGE === 50, `tope de daño por caída=${ROYALE_FALL_MAX_DAMAGE}`);
+assert(royaleFallDamage(ROYALE_FALL_SAFE_HEIGHT, true) === 0, 'la caída segura hace daño');
+assert(royaleFallDamage(ROYALE_FALL_SAFE_HEIGHT, false) === 0, 'la caída libre segura hace daño');
+assert(
+	royaleFallDamage(1_000, true) === ROYALE_FALL_MAX_DAMAGE,
+	'el daño por caída debe toparse, no ser letal de golpe'
+);
+assert(royaleFallDamage(40, true) > 0, 'saltar de un globo en vuelo no hace daño');
+assert(royaleFallDamage(40, false) > royaleFallDamage(40, true), 'el planeo debe amortiguar');
+
 const last = ROYALE_ZEPPELIN_PATH.at(-1);
 const end = royaleZeppelinAt(0, ROYALE_BOARDING_MS);
 assert(
@@ -474,10 +581,10 @@ assert(
 );
 
 const expectedWeapons = {
-	pistol: { damage: 12, rate: 6, range: 55, magSize: 12, pellets: 1 },
-	shotgun: { damage: 6, rate: 1.2, range: 32, magSize: 6, pellets: 8 },
-	smg: { damage: 9, rate: 11, range: 42, magSize: 30, pellets: 1 },
-	rifle: { damage: 46, rate: 1.5, range: 130, magSize: 5, pellets: 1 }
+	pistol: { damage: 17, rate: 6, range: 55, magSize: 12, pellets: 1 },
+	shotgun: { damage: 7, rate: 1.2, range: 32, magSize: 6, pellets: 8 },
+	smg: { damage: 11, rate: 11, range: 42, magSize: 30, pellets: 1 },
+	rifle: { damage: 52, rate: 1.5, range: 130, magSize: 5, pellets: 1 }
 };
 
 for (const [id, expected] of Object.entries(expectedWeapons)) {

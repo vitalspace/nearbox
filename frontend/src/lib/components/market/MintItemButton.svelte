@@ -36,7 +36,7 @@
 
 	const reason = $derived.by(() => {
 		if (!nftMarket.configured) return 'Market is not configured.';
-		if (missingAccount) return 'Sign in with Google to mint this item.';
+		if (missingAccount) return 'Sign in to mint this item.';
 		if (!stats) return 'Reading the on-chain supply…';
 		if (stats.minted >= stats.cap) return 'Sold out.';
 		if (stats.remaining <= 0) return 'You reached your mint limit for this item.';

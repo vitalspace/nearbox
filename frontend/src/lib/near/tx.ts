@@ -1,8 +1,8 @@
 /**
- * Escrituras on-chain firmadas por la cuenta FastAuth del usuario.
+ * Escrituras on-chain firmadas por la cuenta del usuario.
  *
- * La cuenta no tiene clave local: su única access key la controla la MPC. El
- * flujo es:
+ * En modo FastAuth la cuenta no tiene clave local: su única access key la
+ * controla la MPC. El flujo es:
  *   1. armar la Transaction con nonce + blockhash del RPC,
  *   2. `requestTransactionSignature` abre el popup de Auth0 (scope
  *      `transaction:sign`) y el JWT que vuelve trae la tx en el claim `fatxn`,
@@ -10,8 +10,12 @@
  *   4. el mini-relayer llama `sign` en fast-auth.testnet y devuelve la firma
  *      de la MPC,
  *   5. armamos la SignedTransaction con esa firma y la difundimos al RPC.
+ *
+ * En modo wallet la transacción la firma la wallet del jugador y paga él el
+ * gas/depósito: el juego llama al mismo `callMethod` sin saber la diferencia.
  */
 import { errorMessage } from './errors.ts';
+import { authSession } from '../state/auth.svelte.ts';
 import { loadAuthModule } from './auth-loader.ts';
 import { bytesEqual, bytesToBase64 } from './bytes.ts';
 import { AUTH0_SIGNING_AUDIENCE, DEFAULT_GAS, RELAYER_SIGN_TX_URL } from './config.ts';
@@ -78,6 +82,17 @@ export async function callMethod(
 	options: CallOptions = {}
 ): Promise<{ hash: string | null }> {
 	if (!accountId) throw new Error('Your NEAR account is not ready yet');
+
+	// Modo wallet: firma la wallet del jugador (Meteor). El resto del juego no
+	// cambia: mismos contratos, mismos argumentos.
+	if (authSession.isWallet) {
+		const { walletCallMethod } = await import('./wallet.ts');
+
+		return await walletCallMethod(contractId, method, args, {
+			gas: options.gas ?? DEFAULT_GAS,
+			deposit: options.deposit ?? 0n
+		});
+	}
 
 	let step = 'Preparing the signature';
 

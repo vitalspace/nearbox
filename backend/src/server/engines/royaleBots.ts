@@ -166,7 +166,11 @@ export type BotWorld = {
 	floorHeight: (x: number, z: number) => number | null;
 	safePoint: (storm: BotStorm, x: number, z: number) => { x: number; z: number };
 	jump: (player: BotPlayer) => void;
-	shoot: (shooter: BotPlayer, dir: { x: number; y: number; z: number }) => void;
+	shoot: (
+		shooter: BotPlayer,
+		dir: { x: number; y: number; z: number },
+		targetId: string | null
+	) => void;
 	throwGrenade: (shooter: BotPlayer, point: { x: number; z: number }) => void;
 	emit: (
 		kind: 'player-landed',
@@ -288,8 +292,16 @@ function findTarget(world: BotWorld, player: BotPlayer, mind: BotMind): BotPlaye
 	if (retained && retained.alive && now - mind.lastSeenAt <= 2_000) {
 		const distance = distanceTo(player, retained);
 		if (distance <= ROYALE_BOT_VIEW_RANGE * 1.6) {
-			mind.lastSeenX = retained.x;
-			mind.lastSeenZ = retained.z;
+			// La memoria de 2 s solo se refresca con LOS real. Antes el bot
+			// copiaba la posición exacta del objetivo cada tick aunque hubiera
+			// una pared en medio: sabía dónde estabas y lanzaba granadas a
+			// través del edificio.
+			if (hasLos(world, player, retained)) {
+				mind.lastSeenX = retained.x;
+				mind.lastSeenZ = retained.z;
+				mind.lastSeenAt = now;
+			}
+
 			return retained;
 		}
 	}
@@ -1031,12 +1043,25 @@ function thinkGround(world: BotWorld, player: BotPlayer, mind: BotMind): void {
 
 	if (target) {
 		const distance = distanceTo(player, target);
+		const visible = world.hasLineOfSight(eye(player), eye(target));
 		const desiredWeapon = bestWeaponFor(player, distance);
 		equipBotWeapon(player, desiredWeapon);
-		mind.yawTarget = Math.atan2(target.x - player.x, target.z - player.z);
+
+		// Sin LOS solo se persigue el último punto visto, nunca la posición
+		// exacta actual. El servidor también exige LOS para el disparo y la
+		// granada, pero el movimiento tampoco debe ser omnisciente.
+		const aimX = visible ? target.x : mind.lastSeenX;
+		const aimZ = visible ? target.z : mind.lastSeenZ;
+
+		mind.yawTarget = Math.atan2(aimX - player.x, aimZ - player.z);
 
 		const definition = ROYALE_WEAPON_BY_ID.get(player.weapon);
 		const maxRange = definition?.range ?? 40;
+
+		if (!visible) {
+			moveToTarget(world, player, mind, { x: aimX, z: aimZ }, ROYALE_BOT_GROUND_SPEED);
+			return;
+		}
 
 		if (distance <= Math.min(maxRange, ROYALE_BOT_VIEW_RANGE)) {
 			mind.path = null;
@@ -1076,7 +1101,8 @@ function thinkGround(world: BotWorld, player: BotPlayer, mind: BotMind): void {
 	// Sin enemigo: investigar el último daño o buscar loot.
 	if (canFight && player.lastAttackerId && now - player.lastAttackerAt <= 5_000) {
 		const attacker = world.players.find((item) => item.id === player.lastAttackerId);
-		if (attacker && attacker.alive) {
+
+		if (attacker && attacker.alive && world.hasLineOfSight(eye(player), eye(attacker))) {
 			mind.lastSeenX = attacker.x;
 			mind.lastSeenZ = attacker.z;
 			moveToTarget(world, player, mind, { x: attacker.x, z: attacker.z }, ROYALE_BOT_GROUND_SPEED);
@@ -1221,6 +1247,9 @@ function maybeGrenade(
 	if (world.now < mind.nextGrenadeAt) return;
 	if (distance < 10 || distance > 28) return;
 	if (world.now - player.lastGrenadeAt < ROYALE_BOT_GRENADE_CD_MS) return;
+	// No se lanzan granadas a ciegas contra la posición exacta del objetivo:
+	// solo cuando hay línea de visión real.
+	if (!world.hasLineOfSight(eye(player), eye(target))) return;
 
 	mind.nextGrenadeAt = world.now + ROYALE_BOT_GRENADE_CD_MS;
 
@@ -1328,7 +1357,7 @@ function fireWeapon(world: BotWorld, player: BotPlayer, mind: BotMind): void {
 
 	const errorScale = 1 + distance / 80;
 	const dir = aimWithError(player, target, mind.aimError * errorScale, mind.random);
-	world.shoot(player, dir);
+	world.shoot(player, dir, target.id);
 	mind.burstLeft -= 1;
 	player.lastShotAt = world.now;
 

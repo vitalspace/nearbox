@@ -8,7 +8,11 @@ import type {
 	Mg8PlayerState,
 	Mg8Positions,
 	Mg8Snapshot,
-	Mg8Storm
+	Mg8Storm,
+	Mg8VehicleKind,
+	Mg8VehiclePose,
+	Mg8VehicleReport,
+	Mg8VehicleState
 } from '../services/protocol';
 import type { Mg5WeaponId } from './wavesConfig';
 import { MISSION_ROYALE_FIRST_WIN } from '../missions/minigames';
@@ -16,6 +20,7 @@ import { missions } from './missions.svelte';
 import {
 	lerp,
 	lerpAngle,
+	lerpQuaternion,
 	REMOTE_RENDER_DELAY_MS,
 	SampleBuffer,
 	ServerClock,
@@ -39,6 +44,7 @@ export type Mg8Sample = {
 	at: number;
 	players: Mg8PositionPlayer[];
 	grenades: Mg8Projectile[];
+	vehicles: Mg8VehiclePose[];
 };
 
 export type SequencedMg8Event = Mg8Event & { seq: number };
@@ -59,6 +65,9 @@ export type RoyaleSenders = {
 	) => boolean;
 	reload: () => boolean;
 	equip: (slot: number) => boolean;
+	vehicleEnter: (vehicleId: string) => boolean;
+	vehicleExit: () => boolean;
+	vehicleState: (vehicleId: string, pose: Mg8VehicleReport) => boolean;
 };
 
 const MAX_EVENTS = 50;
@@ -67,8 +76,28 @@ function sameProjectile(a: Mg8Projectile, b: Mg8Projectile): boolean {
 	return a.id === b.id && sameNumber(a.x, b.x) && sameNumber(a.y, b.y) && sameNumber(a.z, b.z);
 }
 
+function sameVehicle(a: Mg8VehiclePose, b: Mg8VehiclePose): boolean {
+	return (
+		a.id === b.id &&
+		sameNumber(a.x, b.x) &&
+		sameNumber(a.y, b.y) &&
+		sameNumber(a.z, b.z) &&
+		sameNumber(a.qx, b.qx, 0.0001) &&
+		sameNumber(a.qy, b.qy, 0.0001) &&
+		sameNumber(a.qz, b.qz, 0.0001) &&
+		sameNumber(a.qw, b.qw, 0.0001) &&
+		a.health === b.health &&
+		a.destroyed === b.destroyed &&
+		a.driverId === b.driverId
+	);
+}
+
 function sameSample(a: Mg8Sample, b: Mg8Sample): boolean {
-	if (a.players.length !== b.players.length || a.grenades.length !== b.grenades.length) {
+	if (
+		a.players.length !== b.players.length ||
+		a.grenades.length !== b.grenades.length ||
+		a.vehicles.length !== b.vehicles.length
+	) {
 		return false;
 	}
 
@@ -89,7 +118,10 @@ function sameSample(a: Mg8Sample, b: Mg8Sample): boolean {
 		}
 	}
 
-	return a.grenades.every((grenade, index) => sameProjectile(grenade, b.grenades[index]));
+	return (
+		a.grenades.every((grenade, index) => sameProjectile(grenade, b.grenades[index])) &&
+		a.vehicles.every((vehicle, index) => sameVehicle(vehicle, b.vehicles[index]))
+	);
 }
 
 function mixProjectile(a: Mg8Projectile, b: Mg8Projectile, t: number): Mg8Projectile {
@@ -118,7 +150,35 @@ function mixSample(a: Mg8Sample, b: Mg8Sample, t: number): Mg8Sample {
 		return next ? mixProjectile(grenade, next, t) : grenade;
 	});
 
-	return { at: b.at, players, grenades };
+	const vehicles = a.vehicles.map((vehicle) => {
+		const next = b.vehicles.find((item) => item.id === vehicle.id);
+
+		if (!next) return vehicle;
+
+		const rotation = lerpQuaternion(
+			{ x: vehicle.qx, y: vehicle.qy, z: vehicle.qz, w: vehicle.qw },
+			{ x: next.qx, y: next.qy, z: next.qz, w: next.qw },
+			t
+		);
+
+		return {
+			...vehicle,
+			x: lerp(vehicle.x, next.x, t),
+			y: lerp(vehicle.y, next.y, t),
+			z: lerp(vehicle.z, next.z, t),
+			qx: rotation.x,
+			qy: rotation.y,
+			qz: rotation.z,
+			qw: rotation.w,
+			yaw: lerpAngle(vehicle.yaw, next.yaw, t),
+			speed: lerp(vehicle.speed, next.speed, t),
+			health: next.health,
+			destroyed: next.destroyed,
+			driverId: next.driverId
+		};
+	});
+
+	return { at: b.at, players, grenades, vehicles };
 }
 
 /**
@@ -143,6 +203,26 @@ class Minigame8Store {
 
 	/** Consumido por `PlayerCollider` al recibir la primera posición de vuelo. */
 	ridingRequest = $state.raw<{ x: number; y: number; z: number } | null>(null);
+
+	/** Pose autoritativa que reemplaza la del conductor tras un salto inválido. */
+	vehicleCorrectRequest = $state.raw<{
+		vehicleId: string;
+		x: number;
+		y: number;
+		z: number;
+		qx: number;
+		qy: number;
+		qz: number;
+		qw: number;
+	} | null>(null);
+
+	/** Punto de abandono que el servidor calculó al salir de un vehículo. */
+	vehicleExitRequest = $state.raw<{
+		x: number;
+		y: number;
+		z: number;
+		mode: Mg8Mode;
+	} | null>(null);
 
 	lastHurtAt = 0;
 	lastHitAt = 0;
@@ -203,6 +283,35 @@ class Minigame8Store {
 
 	get loot(): Mg8Loot[] {
 		return this.snapshot?.loot ?? [];
+	}
+
+	/** Vehículo que conduce el jugador local, si hay alguno. */
+	drivingVehicleId = $state<string | null>(null);
+	/**
+	 * Tipo del vehículo que se conduce. Se guarda al entrar porque el
+	 * `mg8-state` completo llega a 1 Hz y la cámara/controles necesitan saber
+	 * si es globo desde el primer frame.
+	 */
+	drivingKind = $state<Mg8VehicleKind | null>(null);
+	/**
+	 * `Date.now()` del último rescate en el agua (`mg8-correct` con razón
+	 * `water-rescue`). El HUD lo usa para avisar de que el agua no mata:
+	 * te devuelve a la orilla.
+	 */
+	lastWaterRescueAt = $state(0);
+
+	get vehicles(): Mg8VehicleState[] {
+		return this.snapshot?.vehicles ?? [];
+	}
+
+	get vehicle(): Mg8VehicleState | null {
+		const id = this.drivingVehicleId;
+		if (!id) return null;
+		return this.vehicles.find((vehicle) => vehicle.id === id) ?? null;
+	}
+
+	get isDriving(): boolean {
+		return this.drivingVehicleId !== null;
 	}
 
 	get winnerId(): string | null {
@@ -316,6 +425,18 @@ class Minigame8Store {
 		return this.senders?.equip(slot) ?? false;
 	}
 
+	sendVehicleEnter(vehicleId: string): boolean {
+		return this.senders?.vehicleEnter(vehicleId) ?? false;
+	}
+
+	sendVehicleExit(): boolean {
+		return this.senders?.vehicleExit() ?? false;
+	}
+
+	sendVehicleState(vehicleId: string, pose: Mg8VehicleReport): boolean {
+		return this.senders?.vehicleState(vehicleId, pose) ?? false;
+	}
+
 	consumeCorrect(): Mg8Correct | null {
 		const request = this.correctRequest;
 		this.correctRequest = null;
@@ -332,6 +453,13 @@ class Minigame8Store {
 		this.clock.sync(state.serverTime, 0.15);
 		this.snapshot = state;
 
+		const selfId = this.selfId;
+		const driving = selfId
+			? (state.vehicles.find((vehicle) => vehicle.driverId === selfId) ?? null)
+			: null;
+		this.drivingVehicleId = driving?.id ?? null;
+		this.drivingKind = driving?.kind ?? null;
+
 		const previousPhase = this.lastPhase;
 		this.lastPhase = state.phase;
 
@@ -340,6 +468,10 @@ class Minigame8Store {
 				this.lastDeathAt = 0;
 				this.lastHurtAt = 0;
 				this.lastVictoryAt = 0;
+				// Cada partida empieza a bordo: el salto de la anterior no debe
+				// disparar la caída libre en el primer frame de la nueva.
+				this.lastJumpAt = 0;
+				this.lastLandAt = 0;
 			}
 
 			if (state.phase === 'results' && previousPhase === 'playing') {
@@ -368,12 +500,53 @@ class Minigame8Store {
 		this.samples.push(positions.at, {
 			at: positions.at,
 			players: positions.players,
-			grenades: positions.grenades
+			grenades: positions.grenades,
+			vehicles: positions.vehicles
 		});
+
+		const selfId = this.selfId;
+		if (!selfId) return;
+
+		const driving = positions.vehicles.find((vehicle) => vehicle.driverId === selfId);
+		this.drivingVehicleId = driving?.id ?? null;
+
+		if (driving) {
+			const known = this.vehicles.find((vehicle) => vehicle.id === driving.id);
+			if (known) this.drivingKind = known.kind;
+		}
 	}
 
 	applyCorrect(correct: Mg8Correct): void {
 		this.correctRequest = correct;
+
+		if (correct.reason === 'water-rescue') {
+			this.lastWaterRescueAt = Date.now();
+		}
+	}
+
+	applyVehicleCorrect(correct: {
+		vehicleId: string;
+		x: number;
+		y: number;
+		z: number;
+		qx: number;
+		qy: number;
+		qz: number;
+		qw: number;
+	}): void {
+		this.vehicleCorrectRequest = correct;
+	}
+
+	consumeVehicleCorrect() {
+		const request = this.vehicleCorrectRequest;
+		this.vehicleCorrectRequest = null;
+		return request;
+	}
+
+	consumeVehicleExit() {
+		const request = this.vehicleExitRequest;
+		this.vehicleExitRequest = null;
+		return request;
 	}
 
 	applyEvent(event: Mg8Event): void {
@@ -412,6 +585,39 @@ class Minigame8Store {
 			this.lastPickupAt = Date.now();
 		}
 
+		if (event.kind === 'vehicle-enter' && event.playerId === selfId && event.vehicleId) {
+			this.drivingVehicleId = event.vehicleId;
+			this.drivingKind = event.vehicleKind ?? null;
+		}
+
+		if (event.kind === 'vehicle-exit' && event.playerId === selfId) {
+			this.drivingVehicleId = null;
+			this.drivingKind = null;
+
+			if (
+				event.mode &&
+				typeof event.px === 'number' &&
+				typeof event.py === 'number' &&
+				typeof event.pz === 'number'
+			) {
+				this.vehicleExitRequest = {
+					x: event.px,
+					y: event.py,
+					z: event.pz,
+					mode: event.mode
+				};
+			}
+		}
+
+		if (
+			event.kind === 'vehicle-destroyed' &&
+			event.vehicleId &&
+			event.vehicleId === this.drivingVehicleId
+		) {
+			this.drivingVehicleId = null;
+			this.drivingKind = null;
+		}
+
 		if (event.kind === 'storm-damage' && event.playerId === selfId) {
 			this.lastStormHitAt = Date.now();
 		}
@@ -429,6 +635,10 @@ class Minigame8Store {
 		return this.samples.latest?.value.grenades ?? [];
 	}
 
+	latestVehicles(): Mg8VehiclePose[] {
+		return this.samples.latest?.value.vehicles ?? [];
+	}
+
 	eventsAfter(seq: number): SequencedMg8Event[] {
 		return this.events.filter((event) => event.seq > seq);
 	}
@@ -440,6 +650,10 @@ class Minigame8Store {
 		this.correctRequest = null;
 		this.exitRequest = null;
 		this.ridingRequest = null;
+		this.vehicleCorrectRequest = null;
+		this.vehicleExitRequest = null;
+		this.drivingVehicleId = null;
+		this.drivingKind = null;
 		this.lastHurtAt = 0;
 		this.lastHitAt = 0;
 		this.lastKillAt = 0;
@@ -449,6 +663,7 @@ class Minigame8Store {
 		this.lastJumpAt = 0;
 		this.lastLandAt = 0;
 		this.lastVictoryAt = 0;
+		this.lastWaterRescueAt = 0;
 		this.lastPhase = null;
 		this.clock.reset();
 		this.samples.clear();

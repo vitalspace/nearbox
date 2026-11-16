@@ -12,6 +12,7 @@ import {
 } from '../near/config.ts';
 import { getJson, HttpError, postJson } from '../near/http.ts';
 import { view, viewArray, type Finality } from '../near/rpc.ts';
+import { authSession } from '../state/auth.svelte.ts';
 import { callMethod } from '../near/tx.ts';
 import {
 	catalogFromMetadata,
@@ -175,7 +176,7 @@ export async function sponsorMint(
 	const token = await getIdentityToken();
 
 	if (!token) {
-		throw new HttpError('No Google session token available', 401);
+		throw new HttpError('No session token available', 401);
 	}
 
 	const response = await postJson<{
@@ -204,11 +205,24 @@ export async function sponsorMint(
 }
 
 /**
- * Mintea un NFT. Primero intenta el mint patrocinado (sin popup) y, si el
- * backend responde 401/429/503, cae a autopago firmado por la MPC.
+ * Mintea un NFT. En FastAuth intenta primero el mint patrocinado (sin popup) y,
+ * si el backend responde 401/429/503, cae a autopago firmado por la MPC. En
+ * modo wallet siempre firma la wallet del jugador (sin gas patrocinado).
  */
 export async function mint(accountId: string, catalogId: string): Promise<MintResult> {
 	requireConfig();
+
+	if (authSession.isWallet) {
+		const result = await callMethod(
+			accountId,
+			NFT_CONTRACT_ID,
+			'mint',
+			{ owner_id: null, catalog_id: catalogId },
+			{ gas: MINT_GAS, deposit: MINT_DEPOSIT_YOCTO }
+		);
+
+		return { hash: result.hash, tokenId: '', sponsored: false };
+	}
 
 	const auth = await import('../near/auth.ts');
 	const publicKey = await auth.getPublicKey();

@@ -998,6 +998,63 @@ export type Mg8Loot = {
 	available: boolean;
 };
 
+export type Mg8VehicleKind = 'car' | 'balloon';
+
+/** Estado autoritativo de un coche o globo del battle royale. */
+export type Mg8VehicleState = {
+	id: string;
+	kind: Mg8VehicleKind;
+	name: string;
+	/** Modelo de coche (`coche_*`); `null` en los globos. */
+	model: string | null;
+	x: number;
+	y: number;
+	z: number;
+	qx: number;
+	qy: number;
+	qz: number;
+	qw: number;
+	yaw: number;
+	speed: number;
+	health: number;
+	maxHealth: number;
+	destroyed: boolean;
+	driverId: string | null;
+};
+
+/** Pose interpolable de vehículo (10 Hz). */
+export type Mg8VehiclePose = {
+	id: string;
+	x: number;
+	y: number;
+	z: number;
+	qx: number;
+	qy: number;
+	qz: number;
+	qw: number;
+	yaw: number;
+	speed: number;
+	health: number;
+	destroyed: boolean;
+	driverId: string | null;
+};
+
+/** Reporte del piloto: pose + velocidades, sin estado autoritativo. */
+export type Mg8VehicleReport = {
+	x: number;
+	y: number;
+	z: number;
+	qx: number;
+	qy: number;
+	qz: number;
+	qw: number;
+	vx: number;
+	vy: number;
+	vz: number;
+	speed: number;
+	steering: number;
+};
+
 export type Mg8Storm = {
 	phase: number;
 	cx: number;
@@ -1029,6 +1086,7 @@ export type Mg8Snapshot = {
 	humans: number;
 	bots: number;
 	loot: Mg8Loot[];
+	vehicles: Mg8VehicleState[];
 	placements: Mg8Placement[];
 	winner: string | null;
 	waitingForPlayers: boolean;
@@ -1050,6 +1108,7 @@ export type Mg8Positions = {
 	at: number;
 	players: Mg8PositionPlayer[];
 	grenades: Array<{ id: string; x: number; y: number; z: number }>;
+	vehicles: Mg8VehiclePose[];
 };
 
 export type Mg8EventKind =
@@ -1069,6 +1128,10 @@ export type Mg8EventKind =
 	| 'player-died'
 	| 'storm-phase'
 	| 'storm-damage'
+	| 'vehicle-enter'
+	| 'vehicle-exit'
+	| 'vehicle-hit'
+	| 'vehicle-destroyed'
 	| 'match-ended';
 
 export type Mg8Event = {
@@ -1078,11 +1141,17 @@ export type Mg8Event = {
 	weapon?: Mg5WeaponId;
 	lootId?: string;
 	lootKind?: Mg8LootKind;
+	vehicleId?: string;
+	vehicleKind?: Mg8VehicleKind;
 	amount?: number;
 	placement?: number;
-	cause?: 'storm' | 'fell' | 'combat';
+	cause?: 'storm' | 'fell' | 'fall' | 'combat';
 	winner?: string | null;
 	mode?: Mg8Mode;
+	/** Posición de aterrizaje/abandono al salir de un vehículo. */
+	px?: number;
+	py?: number;
+	pz?: number;
 	x?: number;
 	y?: number;
 	z?: number;
@@ -1291,7 +1360,25 @@ export type ClientMessage =
 			tz?: number;
 	  }
 	| { type: 'mg8-reload' }
-	| { type: 'mg8-equip'; slot: number };
+	| { type: 'mg8-equip'; slot: number }
+	| { type: 'mg8-vehicle-enter'; vehicleId: string }
+	| { type: 'mg8-vehicle-exit' }
+	| {
+			type: 'mg8-vehicle-state';
+			vehicleId: string;
+			x: number;
+			y: number;
+			z: number;
+			qx: number;
+			qy: number;
+			qz: number;
+			qw: number;
+			vx: number;
+			vy: number;
+			vz: number;
+			speed: number;
+			steering: number;
+	  };
 
 export type ServerMessage =
 	| { type: 'welcome'; self: Player; presence: PresenceSnapshot }
@@ -1339,7 +1426,18 @@ export type ServerMessage =
 	| { type: 'mg8-state'; state: Mg8Snapshot }
 	| ({ type: 'mg8-positions' } & Mg8Positions)
 	| { type: 'mg8-event'; event: Mg8Event }
-	| { type: 'mg8-correct'; correct: Mg8Correct };
+	| { type: 'mg8-correct'; correct: Mg8Correct }
+	| {
+			type: 'mg8-vehicle-correct';
+			vehicleId: string;
+			x: number;
+			y: number;
+			z: number;
+			qx: number;
+			qy: number;
+			qz: number;
+			qw: number;
+	  };
 
 function isRecord(value: unknown): value is Record<string, unknown> {
 	return typeof value === 'object' && value !== null;
@@ -2427,6 +2525,10 @@ const MG8_EVENT_KINDS: readonly Mg8EventKind[] = [
 	'player-died',
 	'storm-phase',
 	'storm-damage',
+	'vehicle-enter',
+	'vehicle-exit',
+	'vehicle-hit',
+	'vehicle-destroyed',
 	'match-ended'
 ];
 
@@ -2487,6 +2589,52 @@ function isMg8Loot(value: unknown): value is Mg8Loot {
 	);
 }
 
+function isMg8VehicleKind(value: unknown): value is Mg8VehicleKind {
+	return value === 'car' || value === 'balloon';
+}
+
+function isMg8VehicleState(value: unknown): value is Mg8VehicleState {
+	return (
+		isRecord(value) &&
+		typeof value.id === 'string' &&
+		isMg8VehicleKind(value.kind) &&
+		typeof value.name === 'string' &&
+		(value.model === null || typeof value.model === 'string') &&
+		typeof value.x === 'number' &&
+		typeof value.y === 'number' &&
+		typeof value.z === 'number' &&
+		typeof value.qx === 'number' &&
+		typeof value.qy === 'number' &&
+		typeof value.qz === 'number' &&
+		typeof value.qw === 'number' &&
+		typeof value.yaw === 'number' &&
+		typeof value.speed === 'number' &&
+		typeof value.health === 'number' &&
+		typeof value.maxHealth === 'number' &&
+		typeof value.destroyed === 'boolean' &&
+		(value.driverId === null || typeof value.driverId === 'string')
+	);
+}
+
+function isMg8VehiclePose(value: unknown): value is Mg8VehiclePose {
+	return (
+		isRecord(value) &&
+		typeof value.id === 'string' &&
+		typeof value.x === 'number' &&
+		typeof value.y === 'number' &&
+		typeof value.z === 'number' &&
+		typeof value.qx === 'number' &&
+		typeof value.qy === 'number' &&
+		typeof value.qz === 'number' &&
+		typeof value.qw === 'number' &&
+		typeof value.yaw === 'number' &&
+		typeof value.speed === 'number' &&
+		typeof value.health === 'number' &&
+		typeof value.destroyed === 'boolean' &&
+		(value.driverId === null || typeof value.driverId === 'string')
+	);
+}
+
 function isMg8Storm(value: unknown): value is Mg8Storm {
 	return (
 		isRecord(value) &&
@@ -2523,6 +2671,8 @@ export function isMg8Snapshot(value: unknown): value is Mg8Snapshot {
 		typeof value.bots === 'number' &&
 		Array.isArray(value.loot) &&
 		value.loot.every(isMg8Loot) &&
+		Array.isArray(value.vehicles) &&
+		value.vehicles.every(isMg8VehicleState) &&
 		Array.isArray(value.placements) &&
 		value.placements.every(
 			(entry) =>
@@ -2559,7 +2709,9 @@ export function isMg8Positions(value: unknown): value is Mg8Positions {
 				typeof grenade.x === 'number' &&
 				typeof grenade.y === 'number' &&
 				typeof grenade.z === 'number'
-		)
+		) &&
+		Array.isArray(value.vehicles) &&
+		value.vehicles.every(isMg8VehiclePose)
 	);
 }
 
@@ -2574,11 +2726,14 @@ function isMg8Event(value: unknown): value is Mg8Event {
 		(value.weapon === undefined || isMg5WeaponId(value.weapon)) &&
 		(value.lootId === undefined || typeof value.lootId === 'string') &&
 		(value.lootKind === undefined || isMg8LootKind(value.lootKind)) &&
+		(value.vehicleId === undefined || typeof value.vehicleId === 'string') &&
+		(value.vehicleKind === undefined || isMg8VehicleKind(value.vehicleKind)) &&
 		(value.amount === undefined || typeof value.amount === 'number') &&
 		(value.placement === undefined || typeof value.placement === 'number') &&
 		(value.cause === undefined ||
 			value.cause === 'storm' ||
 			value.cause === 'fell' ||
+			value.cause === 'fall' ||
 			value.cause === 'combat') &&
 		(value.winner === undefined || value.winner === null || typeof value.winner === 'string') &&
 		(value.mode === undefined || isMg8Mode(value.mode)) &&
@@ -2601,6 +2756,20 @@ function isMg8Correct(value: unknown): value is Mg8Correct {
 		typeof value.z === 'number' &&
 		isMg8Mode(value.mode) &&
 		typeof value.reason === 'string'
+	);
+}
+
+function isMg8VehicleCorrect(value: unknown): boolean {
+	return (
+		isRecord(value) &&
+		typeof value.vehicleId === 'string' &&
+		typeof value.x === 'number' &&
+		typeof value.y === 'number' &&
+		typeof value.z === 'number' &&
+		typeof value.qx === 'number' &&
+		typeof value.qy === 'number' &&
+		typeof value.qz === 'number' &&
+		typeof value.qw === 'number'
 	);
 }
 
@@ -2701,6 +2870,8 @@ export function isServerMessage(value: unknown): value is ServerMessage {
 			return isMg8Event(value.event);
 		case 'mg8-correct':
 			return isMg8Correct(value.correct);
+		case 'mg8-vehicle-correct':
+			return isMg8VehicleCorrect(value);
 		case 'club-music-state':
 			return isClubMusicSnapshot(value.state);
 		case 'error':

@@ -36,9 +36,7 @@
 	);
 	const minting = $derived(claim?.status === 'minting' || claiming);
 	const locked = $derived(state?.status === 'locked' || state === null);
-	const canClaim = $derived(
-		Boolean(reward) && done && !claimed && Boolean(accountId) && Boolean(publicKey)
-	);
+	const canClaim = $derived(Boolean(reward) && done && !claimed && Boolean(accountId));
 	const progress = $derived(
 		state && state.target > 0 ? Math.min(100, Math.round((state.value / state.target) * 100)) : 0
 	);

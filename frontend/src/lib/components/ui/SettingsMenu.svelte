@@ -479,7 +479,11 @@
 											{authSession.accountId} ↗
 										</a>
 									{:else}
-										<p class="text-[10px] text-slate-500">Preparing your account…</p>
+										<p class="text-[10px] text-slate-500">
+											{authSession.isGuest
+												? 'Guest session: progress is saved, NFTs need an account. Sign out to connect a wallet.'
+												: 'Preparing your account…'}
+										</p>
 									{/if}
 
 									<button

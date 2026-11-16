@@ -67,12 +67,15 @@
 	});
 
 	// A bordo del zepelín el cuerpo local no debe verse: la cámara está sobre el
-	// casco y el avatar tapaba la vista. Se oculta como en los coches; al saltar
-	// vuelve a mostrarse.
+	// casco y el avatar tapaba la vista. Se oculta como en los coches, también
+	// durante la cuenta atrás (antes flotaba a 140 m sin zepelín visible); al
+	// saltar vuelve a mostrarse.
 	const royaleRiding = $derived(
 		sceneState.inRoyale &&
-			minigame8.phase === 'playing' &&
-			(royaleLocalMode === 'riding' || minigame8.riding || minigame8.self?.mode === 'riding')
+			(royaleLocalMode === 'riding' ||
+				minigame8.riding ||
+				minigame8.isDriving ||
+				(minigame8.self !== null && minigame8.self.alive && minigame8.self.mode === 'riding'))
 	);
 
 	// Cosméticos NFT: corona visible en el lobby, Barn Siege y Skyfall Royale;

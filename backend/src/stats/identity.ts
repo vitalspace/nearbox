@@ -2,8 +2,10 @@
  * Identidad de las estadísticas.
  *
  * Los ids UUID son el modo legacy de SPEC-042: los genera el cliente y no
- * pueden autenticarse. Los ids de cuenta (`t-<handle>.testnet`) exigen un JWT
- * de Auth0 y quedan vinculados al `sub` del token la primera vez que se usan.
+ * pueden autenticarse. Los ids de cuenta (`t-<handle>.testnet` o una wallet
+ * como `alice.testnet`) exigen un token de sesión (JWT de Auth0 o token de
+ * wallet de SPEC-047) y quedan vinculados al `sub` del token la primera vez
+ * que se usan.
  */
 
 import { AuthError, verifyAuth0Jwt } from '../server/auth0';
@@ -20,7 +22,7 @@ export class StatsAuthError extends Error {
 	readonly status = 401;
 	readonly code = 'AUTH_REQUIRED';
 
-	constructor(message = 'An Auth0 token is required for account stats') {
+	constructor(message = 'A session token is required for account stats') {
 		super(message);
 		this.name = 'StatsAuthError';
 	}
@@ -64,7 +66,11 @@ export function ownedSubject(playerId: string, subject: string | null): string |
 	return subject;
 }
 
-export type TokenVerifier = (token: string) => Promise<{ sub: string }>;
+export type TokenVerifier = (token: string) => Promise<{
+	sub: string;
+	/** Presente cuando el token es una sesión de wallet (`wbs1.…`). */
+	walletAccountId?: string;
+}>;
 
 /** Reads `Authorization: Bearer <jwt>` and verifies it. `null` = no token. */
 export async function readBearerSubject(
@@ -87,7 +93,7 @@ export async function readBearerSubject(
 		const claims = await verifyToken(match[1].trim());
 
 		if (!claims.sub) {
-			throw new StatsAuthError('The Auth0 token has no subject');
+			throw new StatsAuthError('The session token has no subject');
 		}
 
 		return claims.sub;
@@ -103,7 +109,7 @@ export async function readBearerSubject(
 				? cause.message
 				: cause instanceof Error
 					? cause.message
-					: 'The Auth0 token is invalid'
+					: 'The session token is invalid'
 		);
 	}
 }

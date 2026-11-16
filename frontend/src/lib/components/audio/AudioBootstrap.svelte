@@ -47,6 +47,15 @@
 		// partida; si no, el único aviso de victoria/derrota se perdería.
 		'mission_win',
 		'mission_lose',
+		// El motor del coche tiene que estar listo antes de la primera vuelta
+		// de rueda (Royale, carrera y mapa comparten `car_engine`). Si se
+		// encola tarde, el jugador arranca en silencio.
+		'car_engine',
+		'car_tire',
+		'car_enter',
+		'car_exit',
+		'car_impact_light',
+		'car_impact_heavy',
 		'footstep_grass_0',
 		'footstep_grass_1',
 		'footstep_grass_2',
@@ -72,8 +81,6 @@
 		'reload_end',
 		'hit_flesh',
 		'hit_bone',
-		'car_engine',
-		'car_tire',
 		'cat_meow',
 		'cat_purr',
 		'paper_throw',
@@ -382,7 +389,15 @@
 		} else if (sceneState.inWaves || sceneState.inDeathmatch) {
 			audio.prewarm(['ambience_waves', 'amb_creak', 'amb_thunder']);
 		} else if (sceneState.inRoyale) {
-			audio.prewarm(['ambience_waves', 'amb_thunder']);
+			audio.prewarm([
+				'ambience_waves',
+				'amb_thunder',
+				'car_engine',
+				'car_tire',
+				'car_enter',
+				'car_exit',
+				'car_explosion'
+			]);
 		} else {
 			audio.prewarm(['ambience_bosque', 'ambience_castillo', 'ambience_calabazar']);
 		}

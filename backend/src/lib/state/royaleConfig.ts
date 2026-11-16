@@ -84,7 +84,7 @@ export const ROYALE_OCCLUDERS = ROYALE_MAP.occluders.filter((box) => {
 // Checkpoint y sala
 // ---------------------------------------------------------------------------
 
-export const ROYALE_CHECKPOINT = { x: 60.0, y: 0.4, z: 60.0 } as const;
+export const ROYALE_CHECKPOINT = { x: -17.5, y: 0.4, z: 6.5 } as const;
 export const ROYALE_ENTRY: RoyaleVec3 = { ...ROYALE_CHECKPOINT };
 export const ROYALE_EXIT: RoyaleVec3 = { ...ROYALE_CHECKPOINT };
 export const ROYALE_LOBBY_ID = 'minigame-8' as const;
@@ -121,7 +121,20 @@ export const ROYALE_MEDKIT_HEAL = 40;
 export const ROYALE_SHIELD_PICKUP = 50;
 
 export const ROYALE_SHOT_ORIGIN_TOL = 2.5;
+/**
+ * Retardo con el que el cliente dibuja a los demás jugadores
+ * (`REMOTE_RENDER_DELAY_MS`). El servidor rebobina las posiciones de los
+ * objetivos para que un disparo que se ve encima del enemigo cuente aunque
+ * su posición autoritativa ya se haya movido.
+ */
+export const ROYALE_LAG_COMPENSATION_MS = 200;
 export const ROYALE_KILL_Y = -8;
+/**
+ * Por debajo de este `y` solo hay mar: el jugador no muere, se le devuelve a
+ * la orilla caminable más cercana. Queda por debajo de todas las celdas
+ * caminables (−1.3) para no rescatar a quien pisa una playa baja.
+ */
+export const ROYALE_WATER_RESCUE_Y = -3;
 export const ROYALE_KILL_CREDIT_MS = 5_000;
 export const ROYALE_GRENADE_COOLDOWN_MS = 500;
 export const ROYALE_GRENADE_FUSE_MS = 1_500;
@@ -133,6 +146,160 @@ export const ROYALE_GRENADE_VERTICAL_REACH = 2.5;
 export const ROYALE_MAX_GROUND_SPEED = 10;
 export const ROYALE_MAX_AIR_SPEED = 16;
 export const ROYALE_MAX_POSITION_Y = 180;
+
+// ---------------------------------------------------------------------------
+// Vehículos: coches y globos
+// ---------------------------------------------------------------------------
+
+export type RoyaleVehicleKind = 'car' | 'balloon';
+export type RoyaleCarModel = 'coche_calabaza' | 'coche_momia' | 'coche_halloween';
+
+export type RoyaleVehicleSpawn = {
+	id: string;
+	kind: RoyaleVehicleKind;
+	name: string;
+	/** Solo para coches; los globos ignoran el modelo. */
+	model: RoyaleCarModel | null;
+	x: number;
+	y: number;
+	z: number;
+	yaw: number;
+};
+
+/**
+ * Vehículos repartidos por los POI. Los coches aparecen sobre la calzada con
+ * el centro del chasis a 1 m del suelo (`y = suelo + 1`); los globos apoyan la
+ * barquilla en el suelo (`y = suelo + 0.02`) y despegan con Space.
+ *
+ * Se midieron con `floorHeightAt` sobre `islas-ciudad.royale.json`; el script
+ * `royale:check` comprueba que todos caen en celdas caminables.
+ */
+export const ROYALE_VEHICLE_SPAWNS: readonly RoyaleVehicleSpawn[] = [
+	{
+		id: 'car-comercios',
+		kind: 'car',
+		name: 'Pumpkin Car',
+		model: 'coche_calabaza',
+		x: 157,
+		y: 2.6,
+		z: -17,
+		yaw: Math.PI / 2
+	},
+	{
+		id: 'car-resort',
+		kind: 'car',
+		name: 'Mummy Car',
+		model: 'coche_momia',
+		x: 83,
+		y: -0.3,
+		z: 65,
+		yaw: 0
+	},
+	{
+		id: 'car-sur',
+		kind: 'car',
+		name: 'Halloween Car',
+		model: 'coche_halloween',
+		x: -1,
+		y: 2.6,
+		z: -183,
+		yaw: Math.PI
+	},
+	{
+		id: 'car-civico',
+		kind: 'car',
+		name: 'Pumpkin Car',
+		model: 'coche_calabaza',
+		x: 11,
+		y: 2.7,
+		z: 137,
+		yaw: -Math.PI / 2
+	},
+	{
+		id: 'balloon-faro',
+		kind: 'balloon',
+		name: 'Faro Balloon',
+		model: null,
+		x: -1,
+		y: 2.92,
+		z: -15,
+		yaw: 0
+	},
+	{
+		id: 'balloon-noroeste',
+		kind: 'balloon',
+		name: 'Resort Balloon',
+		model: null,
+		x: -109,
+		y: 1.62,
+		z: -121,
+		yaw: Math.PI / 3
+	},
+	{
+		id: 'balloon-norte',
+		kind: 'balloon',
+		name: 'Dock Balloon',
+		model: null,
+		x: -13,
+		y: -1.18,
+		z: 197,
+		yaw: Math.PI
+	}
+];
+
+export const ROYALE_VEHICLE_HEALTH: Readonly<Record<RoyaleVehicleKind, number>> = {
+	car: 550,
+	balloon: 400
+};
+
+/** Radio para mostrar el prompt y entrar/salir del vehículo. */
+export const ROYALE_VEHICLE_ENTER_RADIUS = 4.5;
+export const ROYALE_VEHICLE_ENTER_MAX_DY = 4;
+/** Distancia lateral a la que aparece el jugador al bajar. */
+export const ROYALE_VEHICLE_EXIT_DISTANCE = 2.8;
+
+/** Velocidad máxima del coche (m/s). La física real la limita el cliente. */
+export const ROYALE_CAR_MAX_SPEED = 26;
+
+/** Vuelo del globo. */
+export const ROYALE_BALLOON_MAX_SPEED = 13;
+export const ROYALE_BALLOON_LIFT_SPEED = 6.5;
+export const ROYALE_BALLOON_ACCELERATION = 6;
+export const ROYALE_BALLOON_YAW_SPEED = 1.2;
+export const ROYALE_BALLOON_MAX_Y = 55;
+/** Margen interior al mapa: el globo no puede salir de este rectángulo. */
+export const ROYALE_BALLOON_BOUNDS_MARGIN = 10;
+
+/**
+ * Los vehículos colisionan con el mundo estático (0x0001) pero no con los
+ * jugadores: el atropello lo decide el servidor, no Rapier.
+ */
+export const ROYALE_VEHICLE_COLLISION_GROUPS = (0x0040 << 16) | 0x0001;
+
+/** Reporte del conductor. */
+export const ROYALE_VEHICLE_STATE_INTERVAL_MS = 100;
+/** Tolerancia de salto por paquete perdido. */
+export const ROYALE_VEHICLE_TELEPORT_TOL = 4;
+
+/** Atropello: daño por impacto del coche a un jugador. */
+export const ROYALE_VEHICLE_RAM_SPEED = 7;
+export const ROYALE_VEHICLE_RAM_DAMAGE = 40;
+export const ROYALE_VEHICLE_RAM_COOLDOWN_MS = 1_500;
+
+/** Explosión al destruirse (coche o globo). */
+export const ROYALE_VEHICLE_BLAST_RADIUS = 7;
+export const ROYALE_VEHICLE_BLAST_DAMAGE = 85;
+export const ROYALE_VEHICLE_BLAST_EDGE_DAMAGE = 20;
+
+/** Altura de los pies del conductor respecto a la pose reportada. */
+export const ROYALE_CAR_SEAT_OFFSET = -1.0;
+export const ROYALE_BALLOON_SEAT_OFFSET = 1.2;
+
+/** Barra de vida sobre el vehículo. */
+export const ROYALE_VEHICLE_BAR_HEIGHT: Readonly<Record<RoyaleVehicleKind, number>> = {
+	car: 3.1,
+	balloon: 12.5
+};
 
 // ---------------------------------------------------------------------------
 // Zepelín y salto/planeo
@@ -163,6 +330,23 @@ export const ROYALE_SKYDIVE_DEPLOY_Y = 55;
 export const ROYALE_SKYDIVE_DEPLOY_MS = 4_500;
 export const ROYALE_GLIDE_FALL = 6;
 export const ROYALE_GLIDE_SPEED = 12;
+
+/**
+ * Daño por caída. El planeo amortigua el golpe pero no lo anula: salir de un
+ * globo en vuelo deja en `glide` (RF-66) y aun así debe doler. El tope evita
+ * que el salto inicial del zepelín sea letal.
+ */
+export const ROYALE_FALL_SAFE_HEIGHT = 5;
+export const ROYALE_FALL_GLIDE_FACTOR = 0.5;
+export const ROYALE_FALL_DAMAGE_PER_METRE = 1.2;
+export const ROYALE_FALL_MAX_DAMAGE = 50;
+
+export function royaleFallDamage(drop: number, gliding: boolean): number {
+	if (!Number.isFinite(drop) || drop <= ROYALE_FALL_SAFE_HEIGHT) return 0;
+	const effective = (drop - ROYALE_FALL_SAFE_HEIGHT) * (gliding ? ROYALE_FALL_GLIDE_FACTOR : 1);
+	const raw = effective * ROYALE_FALL_DAMAGE_PER_METRE;
+	return Math.round(Math.min(ROYALE_FALL_MAX_DAMAGE, raw) * 100) / 100;
+}
 
 /**
  * Asientos deterministas sobre el casco del zepelín.
@@ -504,14 +688,16 @@ export type RoyaleWeaponDefinition = {
 };
 
 /**
- * Estadísticas del battle royale (spec §11.7). La escopeta usa 32 m/1.2 Hz,
- * que es el valor medido para este modo; no altera `wavesConfig`.
+ * Estadísticas del battle royale (spec §11.7). Afinadas para este modo: un
+ * cargador completo de pistola debe poder tumbar a un rival con 100 de vida
+ * y 100 de escudo, y ninguna arma debe tardar más de 3 s en matar a 100 HP.
+ * No altera `wavesConfig`.
  */
 export const ROYALE_WEAPONS: readonly RoyaleWeaponDefinition[] = [
 	{
 		id: 'pistol',
 		name: 'Rusty Pistol',
-		damage: 12,
+		damage: 17,
 		rate: 6,
 		range: 55,
 		magSize: 12,
@@ -523,7 +709,7 @@ export const ROYALE_WEAPONS: readonly RoyaleWeaponDefinition[] = [
 	{
 		id: 'shotgun',
 		name: 'Shotgun',
-		damage: 6,
+		damage: 7,
 		rate: 1.2,
 		range: 32,
 		magSize: 6,
@@ -535,7 +721,7 @@ export const ROYALE_WEAPONS: readonly RoyaleWeaponDefinition[] = [
 	{
 		id: 'smg',
 		name: 'SMG',
-		damage: 9,
+		damage: 11,
 		rate: 11,
 		range: 42,
 		magSize: 30,
@@ -547,7 +733,7 @@ export const ROYALE_WEAPONS: readonly RoyaleWeaponDefinition[] = [
 	{
 		id: 'rifle',
 		name: 'Hunting Rifle',
-		damage: 46,
+		damage: 52,
 		rate: 1.5,
 		range: 130,
 		magSize: 5,
@@ -747,15 +933,93 @@ export function royaleSegmentBlocked(from: RoyaleVec3, to: RoyaleVec3, margin = 
 
 	for (const box of ROYALE_OCCLUDERS) {
 		const t = royaleSegmentAabb(from.x, from.y, from.z, dx, dy, dz, box as RoyaleAabb, margin);
-		// `t = 0` significa que el origen ya está dentro de la caja (el suelo
-		// del mapa es una caja enorme que llega a y = 1.36). Esa caja no tapa
-		// el segmento: no se puede bloquear un disparo con el terreno en el
-		// que están de pie tirador y objetivo. Antes esto anulaba casi todo
-		// el combate a ras de suelo y los bots no se veían entre ellos.
-		if (t !== null && t > 0.001 && t <= 0.995) return true;
+		// `t = 0` es un origen dentro de la caja. Antes se ignoraba porque el
+		// terreno se colaba como una losa gigante y anulaba el combate a ras de
+		// suelo; esa losa ya se filtra en `ROYALE_OCCLUDERS`. Ignorarlo ahora
+		// dejaba disparar a través de un edificio entero a quien estaba dentro
+		// de su AABB (porches, arcos, terrazas). Si el cañón está dentro de un
+		// muro, no hay línea de tiro: el muro bloquea.
+		if (t !== null && t <= 0.995) return true;
 	}
 
 	return false;
+}
+
+/** Punto en el que una parábola de granada choca con la primera pared. */
+export type RoyaleArcClip = { x: number; y: number; z: number; t: number };
+
+/**
+ * Primera caja que corta el vuelo parabólico de una granada.
+ *
+ * Sin esto, el servidor solo recortaba el destino a los límites del mapa y una
+ * granada lanzada contra un muro estallaba al otro lado, matando a quien estaba
+ * a cubierto. Se muestrea el arco y se prueba el segmento entre muestras contra
+ * los mismos oclusores que usan los disparos.
+ *
+ * Las cajas que ya contienen el origen se ignoran: quien lanza desde una terraza
+ * o dentro del volumen de un edificio no debe ver la granada estallar en su mano.
+ *
+ * `t` es el instante normalizado (0..1) del impacto dentro del vuelo.
+ */
+export function royaleArcHit(
+	origin: RoyaleVec3,
+	velocity: RoyaleVec3,
+	flight: number,
+	gravity: number,
+	margin = 0.05
+): RoyaleArcClip | null {
+	if (!(flight > 0) || !(gravity > 0)) return null;
+
+	const steps = Math.max(8, Math.min(96, Math.ceil(flight / 0.02)));
+	let prevX = origin.x;
+	let prevY = origin.y;
+	let prevZ = origin.z;
+
+	for (let step = 1; step <= steps; step += 1) {
+		const time = (step / steps) * flight;
+		const x = origin.x + velocity.x * time;
+		const y = origin.y + velocity.y * time - 0.5 * gravity * time * time;
+		const z = origin.z + velocity.z * time;
+		const dx = x - prevX;
+		const dy = y - prevY;
+		const dz = z - prevZ;
+
+		let nearest = Number.POSITIVE_INFINITY;
+
+		for (const box of ROYALE_OCCLUDERS) {
+			if (
+				origin.x >= box[0] - margin &&
+				origin.x <= box[3] + margin &&
+				origin.y >= box[1] - margin &&
+				origin.y <= box[4] + margin &&
+				origin.z >= box[2] - margin &&
+				origin.z <= box[5] + margin
+			) {
+				continue;
+			}
+
+			const hit = royaleSegmentAabb(prevX, prevY, prevZ, dx, dy, dz, box as RoyaleAabb, margin);
+
+			if (hit !== null && hit >= 0 && hit < nearest) nearest = hit;
+		}
+
+		if (nearest !== Number.POSITIVE_INFINITY) {
+			const hitTime = ((step - 1 + nearest) / steps) * flight;
+
+			return {
+				x: prevX + dx * nearest,
+				y: prevY + dy * nearest,
+				z: prevZ + dz * nearest,
+				t: hitTime / flight
+			};
+		}
+
+		prevX = x;
+		prevY = y;
+		prevZ = z;
+	}
+
+	return null;
 }
 
 /** Etiqueta legible del arma para killfeed y HUD. */

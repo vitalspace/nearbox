@@ -31,6 +31,8 @@ import type {
 	Mg8Mode,
 	Mg8Positions,
 	Mg8Snapshot,
+	Mg8VehiclePose,
+	Mg8VehicleReport,
 	MinigameLobbyId,
 	NpcId,
 	NpcState,
@@ -151,6 +153,16 @@ export type LobbySocketOptions = {
 	onMg8Positions?: (positions: Mg8Positions) => void;
 	onMg8Event?: (event: Mg8Event) => void;
 	onMg8Correct?: (correct: Mg8Correct) => void;
+	onMg8VehicleCorrect?: (correct: {
+		vehicleId: string;
+		x: number;
+		y: number;
+		z: number;
+		qx: number;
+		qy: number;
+		qz: number;
+		qw: number;
+	}) => void;
 	onReconnectScheduled?: (attempt: number, retryAt: number) => void;
 	/** Kept for API compatibility; the Bun backend moves the player directly. */
 	onLobbyExit?: (lobbyId: LobbyId, reason: 'round-ended' | 'kicked') => void;
@@ -662,6 +674,33 @@ export class LobbySocket {
 		return this.send({ type: 'mg8-equip', slot });
 	}
 
+	sendMg8VehicleEnter(vehicleId: string): boolean {
+		return this.send({ type: 'mg8-vehicle-enter', vehicleId });
+	}
+
+	sendMg8VehicleExit(): boolean {
+		return this.send({ type: 'mg8-vehicle-exit' });
+	}
+
+	sendMg8VehicleState(vehicleId: string, pose: Mg8VehicleReport): boolean {
+		return this.send({
+			type: 'mg8-vehicle-state',
+			vehicleId,
+			x: pose.x,
+			y: pose.y,
+			z: pose.z,
+			qx: pose.qx,
+			qy: pose.qy,
+			qz: pose.qz,
+			qw: pose.qw,
+			vx: pose.vx,
+			vy: pose.vy,
+			vz: pose.vz,
+			speed: pose.speed,
+			steering: pose.steering
+		});
+	}
+
 	// -- connection ---------------------------------------------------------
 
 	private open(): void {
@@ -951,6 +990,12 @@ export class LobbySocket {
 			case 'mg8-correct':
 				this.options.onMg8Correct?.(message.correct);
 				return;
+
+			case 'mg8-vehicle-correct': {
+				const { type: _type, ...rest } = message;
+				this.options.onMg8VehicleCorrect?.(rest);
+				return;
+			}
 
 			default:
 				return;

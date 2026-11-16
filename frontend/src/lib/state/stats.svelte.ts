@@ -900,7 +900,7 @@ class StatsStore {
 		}
 	}
 
-	/** Token silencioso de Auth0; un fallo se trata como offline. */
+	/** Token de la sesión (Auth0 o wallet); un fallo se trata como offline. */
 	private async resolveToken(): Promise<string | null> {
 		if (!this.account) {
 			return null;
@@ -915,9 +915,9 @@ class StatsStore {
 		}
 
 		try {
-			const { getIdentityToken } = await import('../near/auth.ts');
+			const { authSession } = await import('./auth.svelte.ts');
 
-			return await getIdentityToken();
+			return await authSession.apiToken();
 		} catch {
 			return null;
 		}

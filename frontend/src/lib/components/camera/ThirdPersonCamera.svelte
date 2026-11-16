@@ -2,6 +2,7 @@
 	import { T, useTask, useThrelte } from '@threlte/core';
 	import { QueryFilterFlags, Ray as RapierRay } from '@dimforge/rapier3d-compat';
 	import { useRapier } from '@threlte/rapier';
+	import { untrack } from 'svelte';
 	import { PerspectiveCamera, MathUtils, Vector3 } from 'three';
 	import { playerState } from '../../state/playerState';
 	import { playerPhysics } from '../../state/playerPhysics';
@@ -16,9 +17,12 @@
 		CANNON_MAX_YAW,
 		CANNON_MIN_PITCH
 	} from '../../state/balloonCannons';
+	import { ROYALE_BALLOON_EYE_OFFSET } from '../../state/royaleConfig';
 	import { race } from '../../state/race.svelte';
 	import { ride } from '../../state/ride.svelte';
 	import { minigame5 } from '../../state/minigame5.svelte';
+	import { minigame8 } from '../../state/minigame8.svelte';
+	import { royaleVehicles } from '../../state/royaleVehicles.svelte';
 	import { sceneState } from '../../state/sceneState.svelte';
 	import { ThirdPersonControls } from './ThirdPersonControls';
 
@@ -48,6 +52,16 @@
 		maxRadius: 12,
 		minPhi: -0.2,
 		maxPhi: 1.0
+	};
+	// Globo de Skyfall Royale: se pilota desde la barquilla y hay que ver el
+	// envelope y el suelo para apuntar. Es más cerrado que el globo del mapa
+	// libre para que los enemigos sigan legibles desde el aire.
+	const ROYALE_BALLOON_PROFILE = {
+		radius: 13,
+		minRadius: 8,
+		maxRadius: 20,
+		minPhi: -0.35,
+		maxPhi: 1.15
 	};
 	const CRYPT_PROFILE = {
 		radius: 4,
@@ -120,6 +134,7 @@
 	let wasInRoadmap = false;
 	let wasInWaves = false;
 	let wasInRoyale = false;
+	let wasRoyaleBalloonFirst = false;
 
 	const ray = new RapierRay({ x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 1 });
 	const desiredDirection = new Vector3();
@@ -172,22 +187,29 @@
 			riding ||
 			race.inCar ||
 			sceneState.inRoadmap ||
-			minigame5.isDriving;
+			minigame5.isDriving ||
+			minigame8.isDriving;
+		const royaleBallooning = minigame8.isDriving && minigame8.drivingKind === 'balloon';
+		const royaleBalloonFirst = royaleBallooning && royaleVehicles.balloonView === 'first';
 		const profile = ballooning
 			? BALLOON_PROFILE
-			: riding
-				? RIDE_PROFILE
-				: driving
-					? CAR_PROFILE
-					: firstPerson
-						? FIRST_PERSON_PROFILE
-						: sceneState.inCrypt
-							? CRYPT_PROFILE
-							: sceneState.inWaves
-								? WAVES_PROFILE
-								: sceneState.inRoyale
-									? ROYALE_PROFILE
-									: EXTERIOR_PROFILE;
+			: royaleBallooning
+				? royaleBalloonFirst
+					? FIRST_PERSON_PROFILE
+					: ROYALE_BALLOON_PROFILE
+				: riding
+					? RIDE_PROFILE
+					: driving
+						? CAR_PROFILE
+						: firstPerson
+							? FIRST_PERSON_PROFILE
+							: sceneState.inCrypt
+								? CRYPT_PROFILE
+								: sceneState.inWaves
+									? WAVES_PROFILE
+									: sceneState.inRoyale
+										? ROYALE_PROFILE
+										: EXTERIOR_PROFILE;
 
 		if (!controlsReady || !controls) return;
 
@@ -234,6 +256,17 @@
 		wasInWaves = inWaves;
 		wasInRoyale = inRoyale;
 
+		// Globo de Royale en 1ª persona: al entrar, la vista arranca mirando
+		// hacia donde apunta la barquilla en vez de heredar el rumbo que el
+		// jugador llevaba a pie. `enter()` guarda el `yaw` del anclaje y
+		// `RoyaleBalloon` lo mantiene al día mientras se vuela.
+		if (royaleBalloonFirst && !wasRoyaleBalloonFirst) {
+			controls.theta = untrack(() => royaleVehicles.balloonYaw);
+			controls.phi = 0.12;
+		}
+
+		wasRoyaleBalloonFirst = royaleBalloonFirst;
+
 		// In FP a slightly wider view helps with orientation.
 		if (camera) {
 			const fov = balloon.isOccupant
@@ -242,9 +275,13 @@
 					: balloon.view === 'turret'
 						? TURRET_FOV
 						: EXTERIOR_FOV
-				: firstPerson && !driving
-					? FIRST_PERSON_FOV
-					: EXTERIOR_FOV;
+				: royaleBallooning
+					? royaleBalloonFirst
+						? FIRST_PERSON_FOV
+						: EXTERIOR_FOV
+					: firstPerson && !driving
+						? FIRST_PERSON_FOV
+						: EXTERIOR_FOV;
 
 			if (camera.fov !== fov) {
 				camera.fov = fov;
@@ -493,12 +530,15 @@
 			ride.isRiding ||
 			race.inCar ||
 			sceneState.inRoadmap ||
-			minigame5.isDriving;
+			minigame5.isDriving ||
+			minigame8.isDriving;
+		const royaleBallooning = minigame8.isDriving && minigame8.drivingKind === 'balloon';
+		const royaleBalloonFirst = royaleBallooning && royaleVehicles.balloonView === 'first';
 
 		// The avatar snaps to the physics position every frame. In first person
 		// the camera must do the same or it trails behind while walking and the
 		// head ends up in front of the view. Third person keeps its smoothing.
-		controls.positionSnap = firstPerson;
+		controls.positionSnap = firstPerson || royaleBalloonFirst;
 
 		// `setTarget` adds `offset`: in FP the offset is 0 and the target becomes
 		// the eye height; in third person everything stays the same. While
@@ -506,6 +546,18 @@
 		// stays at chassis height.
 		if (occupantCamera) {
 			updateOccupantCamera();
+		} else if (royaleBalloonFirst) {
+			// Barquilla en 1ª persona: la vista nace en el asiento y apunta con
+			// el ratón. El objetivo va un poco por delante para que la cámara
+			// quede fuera de la cesta y el disparo siga la mirada, igual que a
+			// pie en primera persona.
+			controls.offset.y = ROYALE_BALLOON_EYE_OFFSET;
+			controls.shoulder = 0;
+			controls.setTarget(
+				playerState.x - Math.sin(controls.theta) * FP_FORWARD_OFFSET,
+				playerState.y,
+				playerState.z - Math.cos(controls.theta) * FP_FORWARD_OFFSET
+			);
 		} else if (driving) {
 			controls.offset.y = 1.4;
 			controls.shoulder = 0;

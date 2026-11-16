@@ -109,8 +109,10 @@
 		nftOwnership.setAccount(accountId);
 	});
 
-	// Las stats usan la cuenta NEAR como identidad estable. El UUID local solo
-	// se migra una vez, así que borrar `localStorage` no pierde el progreso.
+	// Las stats usan la cuenta NEAR como identidad estable. El modo invitado usa
+	// el UUID local (el backend lo acepta como identidad sin dueño). El UUID
+	// antiguo solo se migra una vez, así que borrar `localStorage` no pierde nada.
+	const identityId = $derived(authSession.isGuest ? playerProfile.playerId : authSession.accountId);
 	let statsAccountId = '';
 
 	$effect(() => {
@@ -118,7 +120,7 @@
 			return;
 		}
 
-		const accountId = authSession.accountId;
+		const accountId = identityId;
 
 		if (!accountId || statsAccountId === accountId) {
 			return;
@@ -128,8 +130,7 @@
 		stats.init(accountId, { legacyPlayerId: playerProfile.playerId });
 	});
 
-	// La Central de progresión usa la cuenta NEAR como identidad. Se inicializa
-	// después de las stats para que el primer snapshot ya tenga los contadores.
+	// La Central de progresión usa la misma identidad que las stats.
 	let progressionAccountId = '';
 
 	$effect(() => {
@@ -137,7 +138,7 @@
 			return;
 		}
 
-		const accountId = authSession.accountId;
+		const accountId = identityId;
 
 		if (!accountId || progressionAccountId === accountId) {
 			return;

@@ -190,6 +190,36 @@ export default class RoyaleRoom extends GameRoom<RoyaleProtocol> {
 			case 'mg8-equip':
 				this.royale.onEquip(sender.id, parsed.message.slot);
 				return;
+
+			case 'mg8-vehicle-enter':
+				this.royale.onVehicleEnter(sender.id, parsed.message.vehicleId, now);
+				return;
+
+			case 'mg8-vehicle-exit':
+				this.royale.onVehicleExit(sender.id, now);
+				return;
+
+			case 'mg8-vehicle-state':
+				this.royale.onVehicleState(
+					sender.id,
+					parsed.message.vehicleId,
+					{
+						x: parsed.message.x,
+						y: parsed.message.y,
+						z: parsed.message.z,
+						qx: parsed.message.qx,
+						qy: parsed.message.qy,
+						qz: parsed.message.qz,
+						qw: parsed.message.qw,
+						vx: parsed.message.vx,
+						vy: parsed.message.vy,
+						vz: parsed.message.vz,
+						speed: parsed.message.speed,
+						steering: parsed.message.steering
+					},
+					now
+				);
+				return;
 		}
 	}
 

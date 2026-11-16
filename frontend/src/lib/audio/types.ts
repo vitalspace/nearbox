@@ -43,6 +43,11 @@ export type PlayOptions = {
 	sourceId?: string;
 	priority?: SoundPriority;
 	bus?: BusId;
+	/**
+	 * Renderiza el PCM en el acto si aún no está cacheado. Se usa en loops que
+	 * deben sonar ya (motor del coche) aunque la precarga no haya llegado.
+	 */
+	sync?: boolean;
 };
 
 export type SoundHandle = {

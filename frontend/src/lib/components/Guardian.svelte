@@ -1,18 +1,22 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
 	import { humanizeError } from '#lib/near/errors.ts';
+	import { AUTH0_SHARED_CLIENT } from '#lib/near/config.ts';
 	import {
 		accountIdFromHandle,
 		HANDLE_RULES,
 		isValidHandle,
 		normalizeHandle
 	} from '#lib/near/handle.ts';
+	import { WALLET_MODULES, type WalletModuleId } from '#lib/near/wallet.ts';
 	import { authSession } from '#lib/state/auth.svelte.ts';
 	import { playerProfile } from '#lib/state/playerProfile.svelte.ts';
+	import { browser } from '$app/env';
 
 	let { children }: { children: Snippet } = $props();
 
 	let busy = $state(false);
+	let walletBusy = $state<WalletModuleId | null>(null);
 	let error = $state('');
 	let retrying = $state(false);
 	let handleInput = $state('');
@@ -31,6 +35,14 @@
 	const handleValid = $derived(isValidHandle(handlePreview));
 	const handleAccountId = $derived(
 		handlePreview ? accountIdFromHandle(handlePreview) : 't-your-name.testnet'
+	);
+
+	// El cliente Auth0 compartido solo acepta localhost. En el dominio público
+	// mostramos el aviso en vez de un botón que no puede completar el login.
+	const googleLoginAvailable = $derived(
+		!AUTH0_SHARED_CLIENT ||
+			!browser ||
+			['localhost', '127.0.0.1'].includes(window.location.hostname)
 	);
 
 	$effect(() => {
@@ -73,6 +85,26 @@
 		}
 	}
 
+	async function handleWallet(moduleId: WalletModuleId) {
+		if (busy || walletBusy) return;
+
+		walletBusy = moduleId;
+		error = '';
+
+		try {
+			await authSession.loginWithWallet(moduleId);
+		} catch (cause) {
+			error = humanizeError(cause, 'wallet') || 'Could not connect the wallet. Try again.';
+		} finally {
+			walletBusy = null;
+		}
+	}
+
+	function handleGuest() {
+		error = '';
+		authSession.continueAsGuest();
+	}
+
 	async function handleClaim(event: SubmitEvent) {
 		event.preventDefault();
 
@@ -110,7 +142,7 @@
 		</div>
 	</div>
 {:else if authSession.loggedIn}
-	{#if authSession.accountId}
+	{#if authSession.canPlay}
 		{@render children()}
 	{:else if authSession.needsHandle}
 		<main
@@ -267,44 +299,98 @@
 				</p>
 				<h1 class="mt-1 font-serif text-3xl font-semibold tracking-tight text-amber-50">NearBox</h1>
 				<p class="mt-3 max-w-xs text-sm leading-relaxed text-amber-100/55">
-					Sign in with Google to enter the village. No wallet needed: your NEAR account is created
-					automatically with FastAuth.
+					Enter the village with Google, Meteor Wallet, or as a guest. Same world, same economy.
 				</p>
 			</div>
 
+			{#if googleLoginAvailable}
+				<button
+					type="button"
+					onclick={handleLogin}
+					disabled={busy}
+					class="mt-8 flex w-full items-center justify-center gap-3 rounded-xl border border-amber-200/20 bg-white px-4 py-3 text-sm font-semibold text-neutral-800 shadow-lg transition-colors hover:bg-amber-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-300 disabled:cursor-not-allowed disabled:opacity-60"
+				>
+					{#if busy}
+						<span
+							class="h-5 w-5 animate-spin rounded-full border-2 border-neutral-300 border-t-neutral-800"
+							aria-hidden="true"
+						></span>
+						<span>Connecting…</span>
+					{:else}
+						<svg class="h-5 w-5" viewBox="0 0 48 48" aria-hidden="true">
+							<path
+								fill="#FFC107"
+								d="M43.6 20.1H42V20H24v8h11.3C33.7 32.7 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.6-.4-3.9Z"
+							/>
+							<path
+								fill="#FF3D00"
+								d="m6.3 14.7 6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7Z"
+							/>
+							<path
+								fill="#4CAF50"
+								d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44Z"
+							/>
+							<path
+								fill="#1976D2"
+								d="M43.6 20.1H42V20H24v8h11.3c-.8 2.3-2.2 4.2-4.1 5.6l6.2 5.2C36.9 40.2 44 35 44 24c0-1.3-.1-2.6-.4-3.9Z"
+							/>
+						</svg>
+						<span>Continue with Google</span>
+					{/if}
+				</button>
+			{:else}
+				<div class="mt-8 rounded-xl border border-amber-200/15 bg-black/20 px-4 py-3 text-center">
+					<p class="text-sm font-semibold text-amber-100/70">Google sign-in is not live here yet</p>
+					<p class="mt-1 text-[11px] leading-relaxed text-amber-100/40">
+						The shared Auth0 test client only allows localhost. Use Meteor Wallet or play as a
+						guest.
+					</p>
+				</div>
+			{/if}
+
+			<div class="mt-5 flex items-center gap-3" aria-hidden="true">
+				<span class="h-px flex-1 bg-amber-200/10"></span>
+				<span class="text-[10px] tracking-[0.3em] text-amber-100/30 uppercase">or</span>
+				<span class="h-px flex-1 bg-amber-200/10"></span>
+			</div>
+
+			<div class="mt-4 grid gap-2">
+				{#each WALLET_MODULES as module (module.id)}
+					<button
+						type="button"
+						onclick={() => handleWallet(module.id)}
+						disabled={busy || walletBusy !== null}
+						class="flex w-full items-center justify-between gap-3 rounded-xl border border-amber-300/25 bg-amber-500/10 px-4 py-3 text-left transition hover:border-amber-300/50 hover:bg-amber-500/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-300 disabled:cursor-not-allowed disabled:opacity-50"
+					>
+						<span class="flex flex-col">
+							<span class="text-sm font-semibold text-amber-100">{module.name}</span>
+							<span class="text-[10px] text-amber-100/45">{module.hint}</span>
+						</span>
+						{#if walletBusy === module.id}
+							<span
+								class="h-4 w-4 animate-spin rounded-full border-2 border-amber-200/25 border-t-amber-200"
+								aria-hidden="true"
+							></span>
+						{:else}
+							<span class="text-xs text-amber-200/60">Connect ↗</span>
+						{/if}
+					</button>
+				{/each}
+			</div>
+
+			<p class="mt-3 text-center text-[11px] leading-relaxed text-amber-100/40">
+				Meteor may ask for a network-fee allowance (0.25 NEAR by default). It is not a payment to
+				NearBox: it only covers gas for the transactions you approve. Mission NFT mints stay
+				sponsored.
+			</p>
+
 			<button
 				type="button"
-				onclick={handleLogin}
-				disabled={busy}
-				class="mt-8 flex w-full items-center justify-center gap-3 rounded-xl border border-amber-200/20 bg-white px-4 py-3 text-sm font-semibold text-neutral-800 shadow-lg transition-colors hover:bg-amber-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-300 disabled:cursor-not-allowed disabled:opacity-60"
+				onclick={handleGuest}
+				disabled={busy || walletBusy !== null}
+				class="mt-4 w-full rounded-xl border border-transparent px-4 py-2 text-center text-sm font-semibold text-amber-100/70 transition hover:bg-amber-500/10 hover:text-amber-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-300 disabled:cursor-not-allowed disabled:opacity-50"
 			>
-				{#if busy}
-					<span
-						class="h-5 w-5 animate-spin rounded-full border-2 border-neutral-300 border-t-neutral-800"
-						aria-hidden="true"
-					></span>
-					<span>Connecting…</span>
-				{:else}
-					<svg class="h-5 w-5" viewBox="0 0 48 48" aria-hidden="true">
-						<path
-							fill="#FFC107"
-							d="M43.6 20.1H42V20H24v8h11.3C33.7 32.7 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.6-.4-3.9Z"
-						/>
-						<path
-							fill="#FF3D00"
-							d="m6.3 14.7 6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7Z"
-						/>
-						<path
-							fill="#4CAF50"
-							d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44Z"
-						/>
-						<path
-							fill="#1976D2"
-							d="M43.6 20.1H42V20H24v8h11.3c-.8 2.3-2.2 4.2-4.1 5.6l6.2 5.2C36.9 40.2 44 35 44 24c0-1.3-.1-2.6-.4-3.9Z"
-						/>
-					</svg>
-					<span>Continue with Google</span>
-				{/if}
+				Play as guest
 			</button>
 
 			{#if message}
@@ -316,8 +402,9 @@
 				</p>
 			{/if}
 
-			<p class="mt-6 text-center text-[11px] leading-relaxed text-amber-100/35">
-				No wallet. Your account is created with FastAuth and your key is protected by NEAR MPC.
+			<p class="mt-5 text-center text-[11px] leading-relaxed text-amber-100/35">
+				Google creates a NEAR account protected by NEAR MPC. Meteor keeps your own keys and
+				receives mission NFTs directly. Guest progress is saved but cannot claim NFTs.
 			</p>
 		</div>
 

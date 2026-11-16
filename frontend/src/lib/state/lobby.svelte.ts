@@ -9,6 +9,8 @@ import type {
 	Mg2MummyReport,
 	Mg5WeaponId,
 	Mg8Mode,
+	Mg8VehiclePose,
+	Mg8VehicleReport,
 	MinigameLobbyId,
 	NpcId,
 	PaperRollState,
@@ -140,13 +142,12 @@ class LobbyStore {
 				jitterRatio: 0.2
 			},
 			getIdentity: async () => {
-				if (!authSession.loggedIn || !authSession.accountId || !authSession.publicKey) {
+				if (!authSession.loggedIn || !authSession.accountId) {
 					return null;
 				}
 
 				try {
-					const { getIdentityToken } = await import('../near/auth.ts');
-					const token = await getIdentityToken();
+					const token = await authSession.apiToken();
 
 					if (!token) {
 						return null;
@@ -428,6 +429,9 @@ class LobbyStore {
 			},
 			onMg8Correct: (correct) => {
 				minigame8.applyCorrect(correct);
+			},
+			onMg8VehicleCorrect: (correct) => {
+				minigame8.applyVehicleCorrect(correct);
 			}
 		});
 
@@ -487,7 +491,10 @@ class LobbyStore {
 			shoot: (weapon, origin, dir, targetId) => this.sendMg8Shoot(weapon, origin, dir, targetId),
 			throwGrenade: (origin, dir, target) => this.sendMg8Throw(origin, dir, target),
 			reload: () => this.sendMg8Reload(),
-			equip: (slot) => this.sendMg8Equip(slot)
+			equip: (slot) => this.sendMg8Equip(slot),
+			vehicleEnter: (vehicleId) => this.sendMg8VehicleEnter(vehicleId),
+			vehicleExit: () => this.sendMg8VehicleExit(),
+			vehicleState: (vehicleId, pose) => this.sendMg8VehicleState(vehicleId, pose)
 		});
 		clubMusic.setSender({
 			add: (url) => this.sendClubMusicAdd(url),
@@ -982,6 +989,30 @@ class LobbyStore {
 		}
 
 		return this.socket.sendMg8Equip(slot);
+	}
+
+	sendMg8VehicleEnter(vehicleId: string): boolean {
+		if (!this.socket?.isOpen()) {
+			return false;
+		}
+
+		return this.socket.sendMg8VehicleEnter(vehicleId);
+	}
+
+	sendMg8VehicleExit(): boolean {
+		if (!this.socket?.isOpen()) {
+			return false;
+		}
+
+		return this.socket.sendMg8VehicleExit();
+	}
+
+	sendMg8VehicleState(vehicleId: string, pose: Mg8VehicleReport): boolean {
+		if (!this.socket?.isOpen()) {
+			return false;
+		}
+
+		return this.socket.sendMg8VehicleState(vehicleId, pose);
 	}
 
 	// -- club jukebox -------------------------------------------------------

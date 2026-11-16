@@ -22,6 +22,13 @@ export const AUTH0_CLIENT_ID =
 	PUBLIC_ENV.PUBLIC_AUTH0_CLIENT_ID || 'np8paqIpMWmNbzT4xAvOOapZBjsOpptl';
 export const AUTH0_DOMAIN = PUBLIC_ENV.PUBLIC_AUTH0_DOMAIN || 'login.testnet.fast-auth.com';
 
+/**
+ * El cliente compartido de FastAuth testnet solo admite el callback
+ * `http://localhost:3000`. Si se define `PUBLIC_AUTH0_CLIENT_ID`, se asume que
+ * ese cliente propio ya tiene el dominio actual en su lista de callbacks.
+ */
+export const AUTH0_SHARED_CLIENT = !PUBLIC_ENV.PUBLIC_AUTH0_CLIENT_ID;
+
 export const FAST_AUTH_CONTRACT_ID = 'fast-auth.testnet';
 export const MPC_CONTRACT_ID = 'v1.signer-prod.testnet';
 
@@ -52,6 +59,14 @@ export const RELAYER_FUND_URL = '/api/relayer/fund-account';
 export const RELAYER_SIGN_TX_URL = '/api/relayer/sign-tx';
 export const RELAYER_SPONSOR_MINT_URL = '/api/relayer/sponsor-mint';
 export const RELAYER_STATUS_URL = '/api/relayer/status';
+
+/**
+ * Login con wallet NEAR. `WALLET_AUTH_RECIPIENT` es el dominio que firma el
+ * jugador en el mensaje NEP-413: debe coincidir con `WALLET_AUTH_RECIPIENT`
+ * del backend o la firma se rechaza.
+ */
+export const WALLET_AUTH_URL = '/api/auth/wallet';
+export const WALLET_AUTH_RECIPIENT = PUBLIC_ENV.PUBLIC_WALLET_AUTH_RECIPIENT || 'nearbox.lol';
 
 /**
  * NEP-245 + marketplace. Si faltan, la pestaña Market muestra

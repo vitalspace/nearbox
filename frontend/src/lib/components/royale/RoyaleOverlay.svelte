@@ -96,7 +96,8 @@
 			.find((event) => event.kind === 'player-died' && event.playerId === minigame8.selfId);
 
 		if (death?.cause === 'storm') return 'Caught by the storm';
-		if (death?.cause === 'fell') return 'Fell into the sea';
+		if (death?.cause === 'fell') return 'Fell out of the world';
+		if (death?.cause === 'fall') return 'Killed by the fall';
 		return killer ? `Eliminated by ${killer.name}` : 'Eliminated in combat';
 	});
 

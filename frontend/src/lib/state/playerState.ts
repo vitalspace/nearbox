@@ -80,11 +80,11 @@ export const PARKOUR_ENTRY: SpawnPoint = {
 
 export const PARKOUR_EXIT: SpawnPoint = { ...PARKOUR_ENTRY };
 
-/** Skyfall Royale entrance/exit: open plaza east of the village centre (`minigame-8`). */
+/** Skyfall Royale entrance/exit: beside the Halloween Shop on the central plaza (`minigame-8`). */
 export const ROYALE_ENTRY: SpawnPoint = {
-	x: 60.0,
+	x: -17.5,
 	y: 0.4,
-	z: 60.0
+	z: 6.5
 };
 
 export const ROYALE_EXIT: SpawnPoint = { ...ROYALE_ENTRY };

@@ -1,6 +1,6 @@
 import { Elysia } from 'elysia';
 import { ensureMongo } from '../db/mongo';
-import { verifyAuth0Jwt } from '../server/auth0';
+import { verifySessionToken } from '../server/sessionToken';
 import {
 	StatsAuthError,
 	StatsForbiddenError,
@@ -95,7 +95,7 @@ function parsePlayerId(raw: string) {
 }
 
 export function createProgressionRoutes(
-	verifyToken: TokenVerifier = verifyAuth0Jwt,
+	verifyToken: TokenVerifier = verifySessionToken,
 	options: ProgressionOptions = {}
 ) {
 	return new Elysia({ prefix: '/progression' })

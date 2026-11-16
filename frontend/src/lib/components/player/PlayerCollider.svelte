@@ -23,12 +23,12 @@
 	import {
 		ROYALE_GLIDE_FALL,
 		ROYALE_GLIDE_SPEED,
-		ROYALE_KILL_Y,
 		ROYALE_SKYDIVE_DEPLOY_MS,
 		ROYALE_SKYDIVE_DEPLOY_Y,
 		ROYALE_SKYDIVE_GRAVITY,
 		ROYALE_SKYDIVE_MAX_FALL,
 		ROYALE_SKYDIVE_SPEED,
+		ROYALE_WATER_RESCUE_Y,
 		royaleJumpPosition,
 		type RoyaleMode
 	} from '../../state/royaleConfig';
@@ -290,11 +290,17 @@
 	// Skyfall Royale: the first snapshot places the body on the server seat or
 	// on the zeppelin, and enables `mg8-position` reporting.
 	let royaleEntryWasSynced = false;
+	/** `boardingStartedAt` de la partida en curso; sirve para detectar una nueva. */
+	let royaleBoardingStartedAt = 0;
+	/** Último `lastJumpAt` del store ya aplicado; 0 = sin salto en esta partida. */
+	let royaleSeenJumpAt = 0;
 
 	$effect(() => {
 		if (!sceneState.inRoyale) {
 			royaleEntrySynced = false;
 			royaleEntryWasSynced = false;
+			royaleBoardingStartedAt = 0;
+			royaleSeenJumpAt = 0;
 			royaleInput.reset();
 			return;
 		}
@@ -332,6 +338,21 @@
 		setRoyaleMode(correct.mode);
 		royaleInput.vy = 0;
 		teleport(correct.x, correct.y, correct.z);
+	});
+
+	// Salida de coche/globo: el servidor ya calculó el punto caminable (o el
+	// planeo si se salta en vuelo). Sin esto el cuerpo reaparecía donde entró.
+	$effect(() => {
+		if (!sceneState.inRoyale) return;
+
+		const request = minigame8.consumeVehicleExit();
+
+		if (!request || !body) return;
+
+		setRoyaleMode(request.mode);
+		royaleInput.vy = 0;
+		playerState.grounded = request.mode === 'ground';
+		teleport(request.x, request.y, request.z);
 	});
 
 	// El servidor ya nos devolvió a `global`: volver al checkpoint del pueblo.
@@ -476,7 +497,8 @@
 				(minigame5.snapshot === null || minigame5.blocksMovement || minigame5.isDriving)) ||
 			(sceneState.inDeathmatch && (minigame6.snapshot === null || minigame6.blocksMovement)) ||
 			(sceneState.inParkour && (minigame7.snapshot === null || minigame7.blocksMovement)) ||
-			(sceneState.inRoyale && (minigame8.snapshot === null || minigame8.blocksMovement)) ||
+			(sceneState.inRoyale &&
+				(minigame8.snapshot === null || minigame8.blocksMovement || minigame8.isDriving)) ||
 			(sceneState.inCrypt && (minigame2.snapshot === null || minigame2.blocksMovement));
 
 		return () => {
@@ -630,8 +652,6 @@
 	 * `player-jumped` la caída/planeo se simulan en el cliente y se reportan a
 	 * 10 Hz. Devuelve `true` cuando ya manejó el frame.
 	 */
-	let royaleSeenJumpAt = 0;
-
 	function stepRoyale(dt: number): boolean {
 		const snapshot = minigame8.snapshot;
 		const self = minigame8.self;
@@ -640,17 +660,38 @@
 			return false;
 		}
 
+		// Conduciendo: la pose la manda el vehículo local (`VehiclePhysics` o
+		// `RoyaleBalloon`) y el cuerpo de a pie queda desactivado. Antes esta
+		// rama copiaba la pose replicada (200 ms de retardo) y movía la cápsula
+		// dentro del chasis: el coche recibía un empuje constante y la cámara
+		// iba por detrás del vehículo.
+		if (minigame8.isDriving) {
+			royaleInput.mode = 'ground';
+			royaleInput.vy = 0;
+			// `Space` sigue llegando desde `PlayerBehaviour`: se descarta para
+			// que no quede un salto encolado y se ejecute al bajar del coche.
+			playerInput.consumeJump();
+			return true;
+		}
+
+		// Partida nueva (o reconexión en otra): el salto anterior no cuenta.
+		// Sin esto, el segundo viaje en el mismo cliente entraba en `skydive`
+		// en el primer frame y el servidor seguía viendo al jugador montado.
+		const boardingStartedAt = snapshot.boardingStartedAt ?? 0;
+
+		if (boardingStartedAt !== royaleBoardingStartedAt) {
+			royaleBoardingStartedAt = boardingStartedAt;
+			royaleSeenJumpAt = 0;
+		}
+
 		// Salto confirmado por el servidor: empezar la caída en la posición
-		// autoritativa del asiento en ese instante.
+		// autoritativa del asiento en ese instante. `lastJumpAt = 0` significa
+		// "sin salto": un valor heredado de otra partida nunca debe expulsar.
 		if (minigame8.lastJumpAt !== royaleSeenJumpAt) {
 			royaleSeenJumpAt = minigame8.lastJumpAt;
 
-			if (royaleInput.mode === 'riding' && snapshot.boardingStartedAt) {
-				const point = royaleJumpPosition(
-					snapshot.boardingStartedAt,
-					minigame8.serverNow(),
-					royaleSeat()
-				);
+			if (minigame8.lastJumpAt > 0 && royaleInput.mode === 'riding' && boardingStartedAt > 0) {
+				const point = royaleJumpPosition(boardingStartedAt, minigame8.serverNow(), royaleSeat());
 				teleport(point.x, point.y, point.z);
 				playerState.grounded = false;
 				royaleAerialStartedAt = minigame8.serverNow();
@@ -767,10 +808,11 @@
 			playerState.grounded = false;
 		}
 
-		// La muerte por caída la decide el servidor al recibir `y`; se evita
-		// que el cuerpo siga cayendo indefinidamente mientras llega el estado.
-		if (playerState.y < ROYALE_KILL_Y - 5) {
-			playerState.y = ROYALE_KILL_Y - 5;
+		// El agua no mata: el servidor devuelve al jugador a la orilla. Se frena
+		// la caída justo bajo el nivel de rescate para no hundir la cámara
+		// mientras llega la corrección (antes se esperaba hasta `KILL_Y`).
+		if (playerState.y < ROYALE_WATER_RESCUE_Y - 1) {
+			playerState.y = ROYALE_WATER_RESCUE_Y - 1;
 		}
 
 		return true;
@@ -1014,7 +1056,8 @@
 		!balloon.isOccupant &&
 		!race.inCar &&
 		!sceneState.inRoadmap &&
-		!minigame5.isDriving}
+		!minigame5.isDriving &&
+		!minigame8.isDriving}
 	bind:rigidBody={body}
 >
 	<Collider

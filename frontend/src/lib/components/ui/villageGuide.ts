@@ -132,7 +132,8 @@ const GUIDE_META: Record<string, GuideMeta> = {
 	royale: {
 		missionId: 'royale-first-win',
 		checkpointId: 'minigame-8',
-		location: 'East of the plaza. Follow the sky-blue ring to the Skyfall Royale checkpoint.',
+		location:
+			'Beside the Halloween Shop on the plaza. Follow the sky-blue ring to the Skyfall Royale checkpoint.',
 		rewardSkinId: null,
 		progressionTrack: 'royale',
 		progressionMissionId: 'royale-kills-10',

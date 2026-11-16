@@ -65,6 +65,16 @@
 	let lastZ = 0;
 	let speed = 0;
 
+	/**
+	 * Postura de puntería de los avatares remotos. El servidor no manda un
+	 * estado «apuntando»: se deduce de cada `shot-fired`, que llega también
+	 * para los bots. Durante ~1.6 s el avatar usa los clips de aim en vez de
+	 * caminar con el arma colgando.
+	 */
+	const REMOTE_AIM_MS = 1600;
+	let lastEventSeq = 0;
+	let aimUntil = 0;
+
 	const handWorld = new Vector3();
 	const fingerWorld = new Vector3();
 	const handQuaternion = new Quaternion();
@@ -174,10 +184,31 @@
 		const sample = minigame8.sampleAt();
 		const player = sample?.players.find((item) => item.id === id);
 		const state = minigame8.snapshot?.players.find((item) => item.id === id);
+		const vehicles = sample?.vehicles ?? minigame8.vehicles;
+		const driving = vehicles.some((vehicle) => vehicle.driverId === id);
+
+		// Solo se miran eventos nuevos: al montar se parte del último `seq`
+		// para no reproducir la puntería de disparos viejos.
+		if (lastEventSeq === 0 && minigame8.events.length > 0) {
+			lastEventSeq = minigame8.events[minigame8.events.length - 1].seq;
+		}
+
+		for (const event of minigame8.events) {
+			if (event.seq <= lastEventSeq) continue;
+
+			lastEventSeq = event.seq;
+
+			if (event.kind === 'shot-fired' && event.playerId === id) {
+				aimUntil = performance.now() + REMOTE_AIM_MS;
+			}
+		}
 
 		if (!group) return;
 
-		if (!player || !player.alive) {
+		if (!player || !player.alive || player.mode === 'riding' || driving) {
+			// A bordo del zepelín o de un vehículo no se dibuja a nadie: el
+			// avatar quedaría flotando sobre el asiento. Aparecen al saltar,
+			// salir del coche o cuando el zepelín los expulsa.
 			group.visible = false;
 			updateHeldWeapon(null);
 			return;
@@ -191,7 +222,7 @@
 		lastX = player.x;
 		lastZ = player.z;
 
-		const wanted = player.mode === 'riding' ? null : (state?.weapon ?? null);
+		const wanted = state?.weapon ?? null;
 		updateHeldWeapon(wanted, variantFor(wanted));
 
 		if (!actionsStore) return;
@@ -201,6 +232,8 @@
 
 		if (player.mode === 'skydive' || player.mode === 'glide') {
 			animation = 'HR_jump';
+		} else if (performance.now() < aimUntil) {
+			animation = speed > 6.5 ? 'HR_run_aim' : speed > 0.5 ? 'HR_walk_aim' : 'HR_aim';
 		} else if (speed > 6.5) {
 			animation = 'HR_run';
 		} else if (speed > 0.5) {

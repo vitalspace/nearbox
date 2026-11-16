@@ -46,6 +46,12 @@ export default defineConfig(({ mode }) => {
 					changeOrigin: true,
 					rewrite: (path) => path.replace(/^\/api/, '')
 				},
+				// Login con wallet NEAR (NEP-413) → token de sesión del backend.
+				'/api/auth': {
+					target: backendUrl,
+					changeOrigin: true,
+					rewrite: (path) => path.replace(/^\/api/, '')
+				},
 				// Estadísticas de jugador (MongoDB). Mismo mapeo en producción:
 				// `/api/stats/*` → backend `/stats/*`.
 				'/api/stats': {
@@ -82,10 +88,25 @@ export default defineConfig(({ mode }) => {
 			}
 		},
 		define: {
-			global: 'globalThis'
+			global: 'globalThis',
+			// `@meteorwallet/sdk` arrastra `@near-js/accounts`, que lee esta
+			// variable de Node al cargar el módulo. En el navegador `process` no
+			// existe; el build la neutraliza aquí.
+			'process.env.DEFAULT_FINALITY': 'undefined'
 		},
 		optimizeDeps: {
-			include: ['buffer']
+			include: ['buffer'],
+			// Vite 8 prebundlea con Rolldown y el `define` de arriba no entra en
+			// las dependencias. Sin esto el dev server sirve
+			// `process.env.DEFAULT_FINALITY` y Meteor rompe con
+			// "process is not defined".
+			rolldownOptions: {
+				transform: {
+					define: {
+						'process.env.DEFAULT_FINALITY': 'undefined'
+					}
+				}
+			}
 		},
 		plugins: [
 			// El backend activo es Bun (`backend/`), así que por defecto el build es

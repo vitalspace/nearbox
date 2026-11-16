@@ -4,6 +4,7 @@
 	import { cars } from '../../state/cars.svelte';
 	import { minigame2 } from '../../state/minigame2.svelte';
 	import { minigame5 } from '../../state/minigame5.svelte';
+	import { minigame8 } from '../../state/minigame8.svelte';
 	import { playerIntent } from '../../state/playerIntent';
 	import { playerRuntime, playerState } from '../../state/playerState';
 	import { race } from '../../state/race.svelte';
@@ -177,6 +178,31 @@
 	function resolveRemoteCarList(): Array<{ id: string; x: number; z: number; speed: number }> {
 		const list: Array<{ id: string; x: number; z: number; speed: number }> = [];
 
+		if (sceneState.inRoyale) {
+			// Coches de Skyfall Royale: el motor de los rivales también se oye.
+			// Los globos se mueven con el viento y no llevan motor, se omiten.
+			if (minigame8.phase !== 'playing') {
+				return list;
+			}
+
+			const poses = minigame8.latestVehicles();
+
+			for (const vehicle of minigame8.vehicles) {
+				if (vehicle.kind !== 'car' || vehicle.destroyed) continue;
+				if (!vehicle.driverId || vehicle.driverId === minigame8.selfId) continue;
+
+				const pose = poses.find((entry) => entry.id === vehicle.id);
+				list.push({
+					id: `royale:${vehicle.id}`,
+					x: pose?.x ?? vehicle.x,
+					z: pose?.z ?? vehicle.z,
+					speed: pose?.speed ?? vehicle.speed
+				});
+			}
+
+			return list;
+		}
+
 		if (sceneState.inRace) {
 			// En cuenta atrás o después de la meta los coches están parados:
 			// mantener sus loops los dejaría sonando indefinidamente.
@@ -204,10 +230,22 @@
 		return list;
 	}
 
-	function updateCarAudio(delta: number, slowTick: boolean): void {
+	function updateCarAudio(slowTick: boolean): void {
 		const fresh = nowMs() - carTelemetry.at < 300;
-		const driving = fresh && carTelemetry.driving;
 
+		updateLocalCarAudio(fresh && carTelemetry.driving);
+
+		// El motor de los rivales no depende de que el jugador local conduzca:
+		// si se madrugaba este `return`, al bajarse del coche se apagaban todos.
+		if (!slowTick) {
+			return;
+		}
+
+		updateRemoteCarAudio();
+		updateRemoteFootsteps();
+	}
+
+	function updateLocalCarAudio(driving: boolean): void {
 		if (!driving) {
 			if (engineHandle) {
 				engineHandle.setGain(0, 250);
@@ -228,13 +266,19 @@
 		const ratio = Math.min(1, Math.max(0, carTelemetry.speed / Math.max(1, carTelemetry.maxSpeed)));
 
 		if (!engineHandle) {
-			engineHandle = audio.loop('car_engine', { volume: 0, sourceId: 'local-engine' });
+			// `sync` fuerza el render del PCM: el motor debe sonar en la primera
+			// vuelta de rueda, no tres segundos después cuando acaba la cola.
+			engineHandle = audio.loop('car_engine', {
+				volume: 0,
+				sourceId: 'local-engine',
+				sync: true
+			});
 		}
 
 		if (engineHandle) {
 			engineHandle.setRate(0.65 + ratio * 1.75, 80);
 			engineHandle.setGain(
-				0.04 + Math.min(1, Math.max(0, carTelemetry.throttle)) * 0.08 + ratio * 0.06,
+				0.12 + Math.min(1, Math.max(0, carTelemetry.throttle)) * 0.12 + ratio * 0.14,
 				80
 			);
 		}
@@ -260,11 +304,9 @@
 			tireHandle.stop(200);
 			tireHandle = null;
 		}
+	}
 
-		if (!slowTick) {
-			return;
-		}
-
+	function updateRemoteCarAudio(): void {
 		// Coches remotos: los dos más cercanos, motor al 30 %.
 		const nearby = resolveRemoteCarList()
 			.map((car) => ({
@@ -292,7 +334,8 @@
 				handle = audio.loop('car_engine', {
 					position: { x: car.x, y: 0, z: car.z },
 					volume: 0,
-					sourceId: `remote-${car.id}`
+					sourceId: `remote-${car.id}`,
+					sync: true
 				});
 
 				if (!handle) continue;
@@ -304,7 +347,9 @@
 			handle.setRate(0.6 + Math.min(1, car.speed / 40) * 1.2, 180);
 			handle.setGain(0.3 * attenuation, 180);
 		}
+	}
 
+	function updateRemoteFootsteps(): void {
 		// Pasos remotos del mapa: 4 jugadores a ≤ 18 m.
 		if (sceneState.active === 'map') {
 			const now = nowMs();
@@ -660,7 +705,7 @@
 			slowAccumulator = 0;
 		}
 
-		updateCarAudio(delta, slowTick);
+		updateCarAudio(slowTick);
 		updateMonsters(slowTick);
 		updateCryptMummies(slowTick);
 		updateAmbience(delta, slowTick);

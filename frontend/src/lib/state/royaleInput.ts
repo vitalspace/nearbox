@@ -24,6 +24,9 @@ class RoyaleInput {
 	/** Velocidad vertical local, para el reporte `mg8-position`. */
 	vy = 0;
 
+	/** Ascenso/descenso del globo: 1 Space, -1 Shift, 0 reposo. */
+	lift = 0;
+
 	/** Panel lateral de vivos colapsado. */
 	topAliveVisible = true;
 
@@ -93,6 +96,7 @@ class RoyaleInput {
 		this.deployRequested = false;
 		this.mode = 'riding';
 		this.vy = 0;
+		this.lift = 0;
 		this.topAliveVisible = true;
 		this.grenadeThrownAt = 0;
 	}

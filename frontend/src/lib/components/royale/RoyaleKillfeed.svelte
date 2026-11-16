@@ -12,7 +12,7 @@
 		victim: string;
 		victimBot: boolean;
 		label: string;
-		cause: 'combat' | 'storm' | 'fell' | 'left';
+		cause: 'combat' | 'storm' | 'fell' | 'fall' | 'left';
 		at: number;
 	};
 
@@ -75,8 +75,10 @@
 						cause === 'storm'
 							? 'lost in the storm'
 							: cause === 'fell'
-								? 'fell to their death'
-								: 'left the match';
+								? 'fell out of the world'
+								: cause === 'fall'
+									? 'died in the fall'
+									: 'left the match';
 
 					push({
 						id: event.seq,

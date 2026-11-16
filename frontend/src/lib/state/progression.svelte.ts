@@ -138,8 +138,8 @@ function emptySnapshot(playerId: string): ProgressionSnapshot {
 
 async function identityToken(): Promise<string | null> {
 	try {
-		const { getIdentityToken } = await import('../near/auth.ts');
-		return await getIdentityToken();
+		const { authSession } = await import('./auth.svelte.ts');
+		return await authSession.apiToken();
 	} catch {
 		return null;
 	}
@@ -639,7 +639,9 @@ class ProgressionStore {
 					headers: { 'content-type': 'application/json' },
 					body: JSON.stringify({
 						accountId,
-						publicKey,
+						// En modo wallet la prueba de propiedad va dentro del token
+						// NEP-413; el backend no necesita publicKey.
+						publicKey: publicKey || undefined,
 						missionId,
 						token,
 						request_id: crypto.randomUUID()

@@ -16,6 +16,7 @@
 	let explosionSeq = 0;
 	let lastSeq = 0;
 	let lastBloodAt = 0;
+	let lastImpactAt = 0;
 
 	const UP = new Vector3(0, 0, 1);
 	const direction = new Vector3();
@@ -122,6 +123,14 @@
 				event.z !== undefined
 			) {
 				const now = performance.now();
+
+				// El crosshair escucha `royaleEffects.hitAt`; sin esto el
+				// jugador no tenía confirmación visual de que el disparo había
+				// entrado, aunque el servidor sí aplicara el daño.
+				if (now - lastImpactAt > 45) {
+					lastImpactAt = now;
+					royaleEffects.impact(event.x, event.y, event.z);
+				}
 
 				if (now - lastBloodAt > 55) {
 					lastBloodAt = now;

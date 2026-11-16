@@ -10,7 +10,8 @@
  *   3. Recogida de loot, granada con autodaño, daño, kill, killfeed, drop del
  *      arma y puestos.
  *   4. Resultados, `go-lobby`, reinicio a `idle`, y ranking por timeout.
- *   5. Muerte por caída y por tormenta, sin respawn ni crédito de baja.
+ *   5. Agua = rescate en la orilla (a pie y con coche) y muerte por tormenta,
+ *      sin respawn ni crédito de baja.
  *   6. Reconexión de 20 s sin sustitución por bot.
  *   7. Modo `--bots`: 1 humano + 11 bots, partida completa sin errores.
  *
@@ -18,17 +19,29 @@
  */
 import { Royale } from '../src/server/engines/royale.ts';
 import { hasLineOfSight } from '../src/server/engines/royaleCombat.ts';
+import { createBotMind, updateBot } from '../src/server/engines/royaleBots.ts';
+import { floorHeightAt } from '../src/server/engines/royaleNav.ts';
 import {
+	ROYALE_BALLOON_BOUNDS_MARGIN,
+	ROYALE_BALLOON_MAX_Y,
+	ROYALE_BALLOON_SEAT_OFFSET,
 	ROYALE_BOT_ANCHORS,
+	ROYALE_CAR_MAX_SPEED,
 	ROYALE_COUNTDOWN_MS,
 	ROYALE_JUMP_WINDOW_MS,
+	ROYALE_MAP_BOUNDS,
 	ROYALE_MATCH_MS,
+	ROYALE_OCCLUDERS,
 	ROYALE_RESULT_MS,
 	ROYALE_SEAT_HEIGHT,
 	ROYALE_SKYDIVE_DEPLOY_MS,
 	ROYALE_SKYDIVE_DEPLOY_Y,
 	ROYALE_STORM_START_MS,
+	ROYALE_VEHICLE_RAM_DAMAGE,
+	ROYALE_VEHICLE_SPAWNS,
+	ROYALE_WATER_RESCUE_Y,
 	ROYALE_ZEPPELIN_ALTITUDE,
+	royaleFallDamage,
 	royaleStormAt,
 	royaleZeppelinAt
 } from '../src/lib/state/royaleConfig.ts';
@@ -220,6 +233,9 @@ function landGroup(engine, state, members, clock) {
 		engine.tick(now);
 	}
 
+	// El daño por caída se comprueba en su propio bloque. Aquí el aterrizaje es
+	// solo la puesta en escena de combate/loot, así que se devuelve la vida
+	// completa para no alterar las aserciones de esas pruebas.
 	return clock.value;
 }
 
@@ -309,6 +325,103 @@ function landGroup(engine, state, members, clock) {
 }
 
 // ---------------------------------------------------------------------------
+// 2b. Daño por caída: salida de globo en vuelo (el zepelín es gratis)
+// ---------------------------------------------------------------------------
+
+{
+	const anchor = ROYALE_BOT_ANCHORS.find((entry) => entry.id === 'bot-01');
+	assert(anchor, 'falta el ancla de prueba para daño por caída');
+
+	// El salto del zepelín es la entrada estándar: se salta con planeo, así que
+	// aterrizar ileso no es un bug. Solo la salida improvisada de un globo cobra.
+	{
+		const context = startPlaying(21, ['p1', 'p2']);
+		const { engine, messages } = context;
+		const clock = { value: context.startNow };
+
+		landGroup(
+			engine,
+			engine.buildSnapshot(clock.value),
+			[{ id: 'p1', x: anchor.x, y: anchor.y, z: anchor.z }],
+			clock
+		);
+
+		const body = raw(engine, 'p1');
+
+		assert(
+			body.health === 100 && body.shield === 0,
+			`vida tras el salto del zepelín=${body.health}`
+		);
+		assert(body.fallStartY === null, 'el salto del zepelín no debe registrar altura de caída');
+		assert(!hasEvent(messages, 'player-hurt'), 'el salto del zepelín no debe hacer daño');
+	}
+
+	// Salir de un globo en vuelo también lesiona: el planeo amortigua, pero
+	// caer desde decenas de metros no puede salir gratis.
+	{
+		const context = startPlaying(22, ['p1', 'p2']);
+		const { engine } = context;
+		const balloonSpawn = ROYALE_VEHICLE_SPAWNS.find((spawn) => spawn.kind === 'balloon');
+		assert(balloonSpawn, 'falta un globo de prueba');
+		const clock = { value: context.startNow };
+
+		landGroup(
+			engine,
+			engine.buildSnapshot(clock.value),
+			[{ id: 'p1', x: anchor.x, y: anchor.y, z: anchor.z }],
+			clock
+		);
+
+		const balloon = engine.rawVehicles.find((entry) => entry.id === balloonSpawn.id);
+		assert(balloon, 'falta el globo en el motor');
+		balloon.x = anchor.x;
+		balloon.z = anchor.z;
+		balloon.y = anchor.y;
+
+		clock.value += 100;
+		engine.onVehicleEnter('p1', balloonSpawn.id, clock.value);
+		assert(balloon.driverId === 'p1', 'p1 no entró en el globo de prueba');
+
+		// El globo asciende y el jugador salta de la barquilla en vuelo.
+		balloon.y = anchor.y + 40;
+		clock.value += 100;
+		engine.onVehicleExit('p1', clock.value);
+		const body = raw(engine, 'p1');
+
+		assert(body.mode === 'glide', `salida en globo dejó ${body.mode}`);
+		assert(
+			body.fallStartY !== null && body.fallStartY > anchor.y + 39,
+			`altura de salida del globo=${body.fallStartY}`
+		);
+
+		const startY = body.fallStartY;
+		let y = body.y;
+		while (y > anchor.y + 0.6) {
+			clock.value += 100;
+			y = Math.max(anchor.y + 0.4, y - 0.6);
+			engine.onPosition('p1', anchor.x, y, anchor.z, 0, 'glide', -6, clock.value);
+		}
+
+		clock.value += 100;
+		engine.onPosition('p1', anchor.x, anchor.y, anchor.z, 0, 'ground', 0, clock.value);
+
+		const expected = royaleFallDamage(startY - anchor.y, true);
+		assert(
+			expected > 0 && Math.abs(body.health - (100 - expected)) < 0.01,
+			`daño por saltar del globo=${100 - body.health}, esperado=${expected}`
+		);
+		assert(body.fallStartY === null, 'no se limpió la altura de salida al aterrizar');
+	}
+
+	// Caída corta: el umbral de seguridad sigue sin hacer daño.
+	assert(royaleFallDamage(5, true) === 0, 'una caída de 5 m debería ser segura');
+	assert(royaleFallDamage(5, false) === 0, 'una caída libre de 5 m debería ser segura');
+	assert(royaleFallDamage(20, false) > royaleFallDamage(20, true), 'el planeo debe amortiguar');
+
+	ok('daño por caída OK — zepelín gratis, globo lesiona, planeo amortigua');
+}
+
+// ---------------------------------------------------------------------------
 // 3. Loot, granada, daño, kill, drop y resultados
 // ---------------------------------------------------------------------------
 
@@ -371,11 +484,11 @@ function landGroup(engine, state, members, clock) {
 	assert(p1.health === 25, `autodaño de granada dejó ${p1.health} HP, se esperaban 25`);
 	assert(raw(engine, 'p1').grenades === 0, 'la granada no se consumió');
 
-	// Combate hitscan: 9 disparos de pistola (12 daño) matan a p2.
+	// Combate hitscan: 6 disparos de pistola (17 daño) matan a p2.
 	const origin = { x: p1.x, y: p1.y + 1.2, z: p1.z };
 	let at = clock.value + 500;
 
-	for (let shot = 0; shot < 9; shot += 1) {
+	for (let shot = 0; shot < 6; shot += 1) {
 		const target = player(engine, 'p2', at);
 		assert(target.alive, `p2 murió antes del disparo ${shot + 1}`);
 		engine.onShoot('p1', 'pistol', origin, aimAt(origin, target), 'p2', at);
@@ -388,10 +501,10 @@ function landGroup(engine, state, members, clock) {
 	p1 = snapshot.players.find((entry) => entry.id === 'p1');
 	p2 = snapshot.players.find((entry) => entry.id === 'p2');
 
-	assert(!p2.alive, 'p2 sigue vivo tras 9 disparos');
+	assert(!p2.alive, 'p2 sigue vivo tras 6 disparos');
 	assert(p2.health === 0, `p2 con ${p2.health} HP`);
 	assert(p1.kills === 1, `p1 con ${p1.kills} kills`);
-	assert(p1.damage >= 108, `p1 con ${p1.damage} de daño`);
+	assert(p1.damage >= 102, `p1 con ${p1.damage} de daño`);
 	assert(hasEvent(messages, 'kill'), 'falta el evento kill');
 	assert(hasEvent(messages, 'player-died'), 'falta el evento player-died');
 
@@ -417,6 +530,769 @@ function landGroup(engine, state, members, clock) {
 	assert(engine.lootCount === 0, 'quedó loot tras results');
 
 	ok('loot, granada, kill, drop, victoria y go-lobby OK');
+}
+
+// ---------------------------------------------------------------------------
+// 3b. Compensación de retardo: vale la posición que el cliente dibujó
+// ---------------------------------------------------------------------------
+
+{
+	// Los mismos anclas separadas 8 m en Z, con LOS limpia. El cliente ve a p2
+	// 200 ms en el pasado; si dispara a esa silueta, el servidor debe contar
+	// el impacto aunque la posición actual ya esté 1.1 m a un lado.
+	const anchorA = ROYALE_BOT_ANCHORS.find((anchor) => anchor.id === 'bot-01');
+	const anchorB = ROYALE_BOT_ANCHORS.find((anchor) => anchor.id === 'bot-10');
+	assert(anchorA && anchorB, 'faltan las anclas de prueba');
+
+	const context = startPlaying(6, ['p1', 'p2']);
+	const { engine } = context;
+	const clock = { value: context.startNow };
+
+	landGroup(
+		engine,
+		engine.buildSnapshot(clock.value),
+		[
+			{ id: 'p1', x: anchorA.x, y: anchorA.y, z: anchorA.z },
+			{ id: 'p2', x: anchorB.x, y: anchorB.y, z: anchorB.z }
+		],
+		clock
+	);
+
+	const t0 = clock.value + 100;
+	engine.tick(t0);
+	const seen = player(engine, 'p2', t0);
+	assert(seen && seen.alive, 'p2 no aterrizó para la prueba de retardo');
+
+	const t1 = t0 + 200;
+	engine.onPosition('p2', seen.x + 1.1, seen.y, seen.z, 0, 'ground', 0, t1);
+	engine.tick(t1);
+
+	const current = player(engine, 'p2', t1);
+	assert(
+		current && Math.abs(current.x - seen.x) >= 1,
+		`p2 no se movió lo suficiente (${current ? current.x - seen.x : 'sin estado'})`
+	);
+
+	const p1 = player(engine, 'p1', t1);
+	assert(p1 && p1.alive, 'p1 no aterrizó para la prueba de retardo');
+	const origin = { x: p1.x, y: p1.y + 1.2, z: p1.z };
+	engine.onShoot('p1', 'pistol', origin, aimAt(origin, seen), undefined, t1);
+
+	const hit = player(engine, 'p2', t1);
+	assert(hit && hit.health === 83, `el disparo al cuerpo dibujado dejó ${hit?.health} HP`);
+
+	ok('compensación de retardo: disparo a la silueta de hace 200 ms OK');
+}
+
+// ---------------------------------------------------------------------------
+// 3c. Línea de visión: un muro real corta el segmento
+// ---------------------------------------------------------------------------
+
+{
+	const wall = ROYALE_OCCLUDERS.find((box) => {
+		const width = box[3] - box[0];
+		const depth = box[5] - box[2];
+		const height = box[4] - box[1];
+
+		return height >= 2.5 && Math.max(width, depth) >= 1 && Math.min(width, depth) >= 0.15;
+	});
+	assert(wall, 'no hay un muro válido para la prueba de LOS');
+
+	const middleZ = (wall[2] + wall[5]) / 2;
+	const middleY = wall[1] + (wall[4] - wall[1]) * 0.5;
+	const left = { x: wall[0] - 1, y: middleY, z: middleZ };
+	const right = { x: wall[3] + 1, y: middleY, z: middleZ };
+
+	assert(!hasLineOfSight(left, right), 'el muro no bloquea la línea de visión');
+	assert(
+		hasLineOfSight(
+			{ x: left.x, y: wall[4] + 2, z: middleZ },
+			{ x: right.x, y: wall[4] + 2, z: middleZ }
+		),
+		'un segmento por encima del muro quedó bloqueado'
+	);
+
+	ok('LOS de combate OK — los muros bloquean y el cielo no');
+}
+
+// ---------------------------------------------------------------------------
+// 3d. Bots sin LOS: no refrescan la posición exacta ni disparan/granadean
+// ---------------------------------------------------------------------------
+
+{
+	let now = 1_700_000_000_000;
+	const mind = createBotMind(11, 0, { x: 0, y: 0, z: 0 }, now - 10_000);
+	mind.nextThinkAt = 0;
+	mind.engageAt = 0;
+	mind.targetId = 'enemy';
+	mind.lastSeenAt = now - 100;
+	mind.lastSeenX = 999;
+	mind.lastSeenZ = 999;
+	mind.reactionUntil = 0;
+	mind.burstPauseUntil = 0;
+	mind.nextGrenadeAt = 0;
+
+	const bot = {
+		id: 'bot',
+		isBot: true,
+		alive: true,
+		health: 100,
+		shield: 0,
+		weapon: 'smg',
+		magAmmo: 30,
+		reserveAmmo: 90,
+		grenades: 4,
+		inventory: new Map([['smg', 30]]),
+		mode: 'ground',
+		x: 0,
+		y: 0,
+		z: 0,
+		yaw: 0,
+		vy: 0,
+		seat: 0,
+		jumped: false,
+		lastShotAt: 0,
+		lastReloadAt: 0,
+		lastGrenadeAt: 0,
+		lastAttackerId: null,
+		lastAttackerAt: 0,
+		bot: mind
+	};
+	const enemy = {
+		...bot,
+		id: 'enemy',
+		isBot: false,
+		z: 10,
+		bot: undefined
+	};
+
+	let shots = 0;
+	let grenades = 0;
+	let visible = false;
+	const world = {
+		now,
+		players: [bot, enemy],
+		loot: [],
+		storm: {
+			phase: 0,
+			cx: 0,
+			cz: 0,
+			radius: 400,
+			nextCx: 0,
+			nextCz: 0,
+			nextRadius: 400,
+			endsAt: now + 60_000,
+			state: 'wait',
+			dps: 0
+		},
+		aliveCount: 2,
+		findPath: () => null,
+		hasLineOfSight: () => visible,
+		floorHeight: () => 0,
+		safePoint: (_storm, x, z) => ({ x, z }),
+		jump: () => {},
+		shoot: () => {
+			shots += 1;
+		},
+		throwGrenade: () => {
+			grenades += 1;
+		},
+		emit: () => {},
+		markDirty: () => {}
+	};
+
+	updateBot(bot, world);
+	assert(mind.lastSeenX === 999 && mind.lastSeenZ === 999, 'el bot recordó la posición sin LOS');
+	assert(shots === 0, `el bot disparó ${shots} veces sin LOS`);
+	assert(grenades === 0, `el bot lanzó ${grenades} granadas sin LOS`);
+
+	now += 200;
+	world.now = now;
+	mind.nextThinkAt = 0;
+	visible = true;
+	updateBot(bot, world);
+	assert(mind.lastSeenX === enemy.x && mind.lastSeenZ === enemy.z, 'el bot no refrescó con LOS');
+	assert(shots > 0, 'el bot no disparó con LOS');
+
+	ok('bots sin LOS OK — no refrescan la posición ni disparan/granadean');
+}
+
+// ---------------------------------------------------------------------------
+// 3e. Anti-wallhack: disparos, granadas y explosiones no atraviesan muros
+// ---------------------------------------------------------------------------
+
+{
+	const wall = ROYALE_OCCLUDERS.find((box) => {
+		const width = box[3] - box[0];
+		const depth = box[5] - box[2];
+		const height = box[4] - box[1];
+
+		return (
+			height >= 2.5 &&
+			Math.max(width, depth) >= 1 &&
+			Math.min(width, depth) >= 0.15 &&
+			Math.min(width, depth) <= 2
+		);
+	});
+	assert(wall, 'no hay muro para la prueba anti-wallhack');
+
+	const thicknessX = wall[3] - wall[0] <= wall[5] - wall[2];
+	const middleX = (wall[0] + wall[3]) / 2;
+	const middleZ = (wall[2] + wall[5]) / 2;
+	const floorY = wall[1];
+
+	/** Coloca un jugador en crudo y limpia el historial de retardo. */
+	function resetRaw(engine, id, x, y, z) {
+		const entry = raw(engine, id);
+		entry.x = x;
+		entry.y = y;
+		entry.z = z;
+		entry.mode = 'ground';
+		entry.alive = true;
+		entry.health = 100;
+		entry.shield = 0;
+		entry.weapon = 'pistol';
+		entry.magAmmo = 12;
+		entry.reserveAmmo = 60;
+		entry.grenades = 4;
+		entry.lastShotAt = 0;
+		entry.lastGrenadeAt = 0;
+		entry.lastPositionAt = 0;
+		entry.track = [];
+		return entry;
+	}
+
+	function aimPoint(origin, point) {
+		const dx = point.x - origin.x;
+		const dy = point.y - origin.y;
+		const dz = point.z - origin.z;
+		const length = Math.hypot(dx, dy, dz) || 1;
+		return { x: dx / length, y: dy / length, z: dz / length };
+	}
+
+	// Lados opuestos del muro, cada uno a `offset` de su cara.
+	function sides(offset) {
+		if (thicknessX) {
+			return {
+				a: { x: wall[0] - offset, z: middleZ },
+				b: { x: wall[3] + offset, z: middleZ }
+			};
+		}
+		return {
+			a: { x: middleX, z: wall[2] - offset },
+			b: { x: middleX, z: wall[5] + offset }
+		};
+	}
+
+	// 1) Un origen dentro del AABB de un edificio no ve a través de él.
+	{
+		const envelope = ROYALE_OCCLUDERS.map((box) => ({
+			box,
+			height: box[4] - box[1],
+			area: (box[3] - box[0]) * (box[5] - box[2])
+		}))
+			.filter((entry) => entry.height >= 5 && entry.area >= 60)
+			.sort((first, second) => second.area - first.area)[0];
+		assert(envelope, 'no hay edificio para la prueba de origen dentro');
+
+		const inside = {
+			x: (envelope.box[0] + envelope.box[3]) / 2,
+			y: envelope.box[1] + 2,
+			z: (envelope.box[2] + envelope.box[5]) / 2
+		};
+		const outside = { x: envelope.box[3] + 6, y: inside.y, z: inside.z };
+
+		assert(!hasLineOfSight(inside, outside), 'un origen dentro del edificio ve a través de él');
+	}
+
+	// 2) Disparos: un muro real corta el daño, con y sin objetivo bloqueado.
+	{
+		const context = startPlaying(12, ['p1', 'p2']);
+		const { engine } = context;
+		const points = sides(1.3);
+		const yA = floorHeightAt(points.a.x, points.a.z) ?? floorY;
+		const yB = floorHeightAt(points.b.x, points.b.z) ?? floorY;
+
+		resetRaw(engine, 'p1', points.a.x, yA, points.a.z);
+		resetRaw(engine, 'p2', points.b.x, yB, points.b.z);
+
+		const origin = { x: points.a.x, y: yA + 1.2, z: points.a.z };
+		const target = raw(engine, 'p2');
+		const aim = aimAt(origin, target);
+
+		engine.onShoot('p1', 'pistol', origin, aim, undefined, context.startNow + 50);
+		assert(target.health === 100, `el disparo sin bloqueo atravesó el muro (${target.health} HP)`);
+
+		engine.onShoot('p1', 'pistol', origin, aim, 'p2', context.startNow + 400);
+		assert(target.health === 100, `el disparo bloqueado atravesó el muro (${target.health} HP)`);
+
+		// Control: mismo muro, mismo lado y línea limpia → el disparo sí daña.
+		const along = thicknessX
+			? { x: points.a.x, z: points.a.z - 6 }
+			: { x: points.a.x - 6, z: points.a.z };
+		const yAlone = floorHeightAt(along.x, along.z) ?? floorY;
+		resetRaw(engine, 'p1', points.a.x, yA, points.a.z);
+		resetRaw(engine, 'p2', along.x, yAlone, along.z);
+		const controlOrigin = { x: points.a.x, y: yA + 1.2, z: points.a.z };
+		const controlTarget = raw(engine, 'p2');
+		engine.onShoot(
+			'p1',
+			'pistol',
+			controlOrigin,
+			aimAt(controlOrigin, controlTarget),
+			undefined,
+			context.startNow + 800
+		);
+		assert(
+			controlTarget.health < 100,
+			`el disparo de control no dañó (${controlTarget.health} HP)`
+		);
+	}
+
+	// 3) Granada: la parábola se recorta en el muro y no alcanza a quien se cubre.
+	{
+		const context = startPlaying(13, ['p1', 'p2']);
+		const { engine, messages } = context;
+		const points = sides(2);
+		const yA = floorHeightAt(points.a.x, points.a.z) ?? floorY;
+		const yB = floorHeightAt(points.b.x, points.b.z) ?? floorY;
+
+		const p1 = resetRaw(engine, 'p1', points.a.x, yA, points.a.z);
+		const p2 = resetRaw(engine, 'p2', points.b.x, yB, points.b.z);
+		const origin = { x: points.a.x, y: yA + 1.2, z: points.a.z };
+
+		engine.onThrow('p1', origin, { x: 0, y: 0, z: 0 }, p2.x, p2.z, context.startNow + 50);
+		engine.tick(context.startNow + 2_600);
+
+		assert(hasEvent(messages, 'grenade-thrown'), 'la granada del muro no se lanzó');
+		assert(hasEvent(messages, 'grenade-exploded'), 'la granada del muro no explotó');
+		assert(p2.health === 100, `la granada atravesó el muro (${p2.health} HP)`);
+
+		// Control: misma granada sin muro de por medio → sí daña.
+		const along = thicknessX
+			? { x: points.a.x, z: points.a.z - 6 }
+			: { x: points.a.x - 6, z: points.a.z };
+		const yAlone = floorHeightAt(along.x, along.z) ?? floorY;
+		const controlP1 = resetRaw(engine, 'p1', points.a.x, yA, points.a.z);
+		const controlP2 = resetRaw(engine, 'p2', along.x, yAlone, along.z);
+		const controlOrigin = { x: points.a.x, y: yA + 1.2, z: points.a.z };
+
+		engine.onThrow(
+			'p1',
+			controlOrigin,
+			{ x: 0, y: 0, z: 0 },
+			controlP2.x,
+			controlP2.z,
+			context.startNow + 3_200
+		);
+		engine.tick(context.startNow + 5_800);
+
+		assert(controlP1.alive, 'el lanzador de control murió');
+		assert(
+			controlP2.health < 100,
+			`la granada de control no dañó (${controlP2.health} HP)`
+		);
+	}
+
+	// 4) Explosión de vehículo: un muro entre el coche y la víctima corta el daño.
+	{
+		const context = startPlaying(14, ['p1', 'p2']);
+		const { engine } = context;
+		const points = sides(1.3);
+		const yA = floorHeightAt(points.a.x, points.a.z) ?? floorY;
+		const yB = floorHeightAt(points.b.x, points.b.z) ?? floorY;
+
+		const vehicle = engine.rawVehicles.find((entry) => entry.kind === 'car');
+		assert(vehicle, 'falta un coche para la prueba de explosión');
+
+		// Coche pegado a la cara cercana del muro.
+		vehicle.x = points.a.x;
+		vehicle.y = yA;
+		vehicle.z = points.a.z;
+		vehicle.destroyed = false;
+		vehicle.health = 1;
+		vehicle.driverId = null;
+
+		// Tirador en el mismo lado, 3 m a lo largo del muro.
+		const shooterAt = thicknessX
+			? { x: points.a.x, z: points.a.z - 3 }
+			: { x: points.a.x - 3, z: points.a.z };
+		resetRaw(engine, 'p1', shooterAt.x, yA, shooterAt.z);
+		const victim = resetRaw(engine, 'p2', points.b.x, yB, points.b.z);
+		const origin = { x: shooterAt.x, y: yA + 1.2, z: shooterAt.z };
+
+		engine.onShoot(
+			'p1',
+			'pistol',
+			origin,
+			aimPoint(origin, { x: vehicle.x, y: vehicle.y + 0.5, z: vehicle.z }),
+			undefined,
+			context.startNow + 50
+		);
+		engine.tick(context.startNow + 60);
+
+		assert(vehicle.destroyed, 'el coche no explotó');
+		assert(victim.health === 100, `la explosión atravesó el muro (${victim.health} HP)`);
+
+		// Control: víctima en el mismo lado del coche → la explosión sí la daña.
+		const controlP2 = resetRaw(
+			engine,
+			'p2',
+			thicknessX ? points.a.x : points.a.x - 6,
+			yA,
+			thicknessX ? points.a.z - 6 : points.a.z
+		);
+		const controlVehicle = engine.rawVehicles.find((entry) => entry.kind === 'car');
+		controlVehicle.destroyed = false;
+		controlVehicle.health = 1;
+		controlVehicle.x = points.a.x;
+		controlVehicle.y = yA;
+		controlVehicle.z = points.a.z;
+		controlVehicle.driverId = null;
+		resetRaw(engine, 'p1', shooterAt.x, yA, shooterAt.z);
+
+		engine.onShoot(
+			'p1',
+			'pistol',
+			origin,
+			aimPoint(origin, { x: controlVehicle.x, y: controlVehicle.y + 0.5, z: controlVehicle.z }),
+			undefined,
+			context.startNow + 900
+		);
+		engine.tick(context.startNow + 910);
+
+		assert(controlVehicle.destroyed, 'el coche de control no explotó');
+		assert(
+			controlP2.health < 100,
+			`la explosión de control no dañó (${controlP2.health} HP)`
+		);
+	}
+
+	ok('anti-wallhack OK — disparos, granadas y explosiones no atraviesan muros');
+}
+
+// ---------------------------------------------------------------------------
+// 3b. Vehículos: coche, globo, vida, límites y destrucción
+// ---------------------------------------------------------------------------
+
+{
+	const context = startPlaying(7, ['p1', 'p2']);
+	const { engine, messages, sendToCalls } = context;
+	const clock = { value: context.startNow };
+	const spawns = ROYALE_VEHICLE_SPAWNS;
+	const carSpawn = spawns.find((spawn) => spawn.id === 'car-comercios');
+	const balloonSpawn = spawns.find((spawn) => spawn.id === 'balloon-faro');
+	assert(carSpawn && balloonSpawn, 'faltan los vehículos de prueba');
+
+	// El ancla y del coche es el centro del chasis; los pies van 1 m abajo.
+	landGroup(
+		engine,
+		engine.buildSnapshot(clock.value),
+		[
+			{ id: 'p1', x: carSpawn.x, y: carSpawn.y - 1, z: carSpawn.z },
+			{ id: 'p2', x: carSpawn.x + 2, y: carSpawn.y - 1, z: carSpawn.z }
+		],
+		clock
+	);
+
+	const enterAt = clock.value + 100;
+	engine.onVehicleEnter('p1', carSpawn.id, enterAt);
+	clock.value = enterAt;
+	engine.tick(enterAt);
+
+	let vehicle = engine.rawVehicles.find((entry) => entry.id === carSpawn.id);
+	assert(vehicle && vehicle.driverId === 'p1', 'p1 no entró en el coche');
+	assert(hasEvent(messages, 'vehicle-enter'), 'falta el evento vehicle-enter');
+
+	// También se dispara desde el coche: el servidor ignora el propio
+	// vehículo del tirador, así la carrocería no se come el disparo.
+	const carTarget = player(engine, 'p2', clock.value);
+	const carOrigin = { x: vehicle.x, y: vehicle.y + 0.55, z: vehicle.z };
+	engine.onShoot(
+		'p1',
+		'pistol',
+		carOrigin,
+		aimAt(carOrigin, { x: carTarget.x, y: carTarget.y, z: carTarget.z }),
+		undefined,
+		enterAt + 50
+	);
+	clock.value = enterAt + 50;
+	engine.tick(clock.value);
+	const carTargetAfter = player(engine, 'p2', clock.value);
+	assert(
+		carTargetAfter.health + carTargetAfter.shield < carTarget.health + carTarget.shield,
+		'el disparo desde el coche no dañó al objetivo'
+	);
+
+	// Conducción válida: el conductor sigue la pose del vehículo. Se mueve
+	// hacia el lado contrario a p2 para que el primer reporte no atropelle y
+	// el golpe se pueda medir en el segundo.
+	engine.onVehicleState(
+		'p1',
+		carSpawn.id,
+		{
+			x: carSpawn.x - 2,
+			y: carSpawn.y,
+			z: carSpawn.z,
+			qx: 0,
+			qy: 0,
+			qz: 0,
+			qw: 1,
+			vx: 0,
+			vy: 0,
+			vz: 0,
+			speed: 999,
+			steering: 0
+		},
+		enterAt + 100
+	);
+	clock.value = enterAt + 100;
+	engine.tick(clock.value);
+	vehicle = engine.rawVehicles.find((entry) => entry.id === carSpawn.id);
+	assert(Math.abs(vehicle.x - (carSpawn.x - 2)) < 0.01, 'el coche no se movió');
+	assert(vehicle.speed <= ROYALE_CAR_MAX_SPEED, `velocidad ${vehicle.speed} sin tope`);
+	assert(
+		Math.abs(player(engine, 'p1', clock.value).x - vehicle.x) < 0.01,
+		'el conductor no siguió al coche'
+	);
+
+	// Atropello: p2 está a 2 m y el coche circula a 10 m/s.
+	const beforeRam = player(engine, 'p2', clock.value);
+	engine.onVehicleState(
+		'p1',
+		carSpawn.id,
+		{
+			x: carSpawn.x + 2,
+			y: carSpawn.y,
+			z: carSpawn.z + 1,
+			qx: 0,
+			qy: 0,
+			qz: 0,
+			qw: 1,
+			vx: 0,
+			vy: 0,
+			vz: 10,
+			speed: 10,
+			steering: 0
+		},
+		clock.value + 100
+	);
+	clock.value += 100;
+	engine.tick(clock.value);
+	const afterRam = player(engine, 'p2', clock.value);
+	assert(
+		beforeRam.health + beforeRam.shield - (afterRam.health + afterRam.shield) ===
+			ROYALE_VEHICLE_RAM_DAMAGE,
+		`el atropello dejó ${afterRam.health + afterRam.shield} HP+escudo`
+	);
+
+	// Salto imposible: el servidor manda corrección y no mueve el coche.
+	const beforeCheat = { x: engine.rawVehicles.find((entry) => entry.id === carSpawn.id).x };
+	engine.onVehicleState(
+		'p1',
+		carSpawn.id,
+		{
+			x: beforeCheat.x + 500,
+			y: carSpawn.y,
+			z: carSpawn.z,
+			qx: 0,
+			qy: 0,
+			qz: 0,
+			qw: 1,
+			vx: 100,
+			vy: 0,
+			vz: 0,
+			speed: 26,
+			steering: 0
+		},
+		clock.value + 100
+	);
+	assert(
+		sendToCalls.some(
+			(call) => call.playerId === 'p1' && call.message.type === 'mg8-vehicle-correct'
+		),
+		'falta mg8-vehicle-correct tras un salto imposible'
+	);
+	assert(
+		Math.abs(engine.rawVehicles.find((entry) => entry.id === carSpawn.id).x - beforeCheat.x) < 0.01,
+		'el coche aceptó el teletransporte'
+	);
+
+	// Los disparos dañan el coche antes que al conductor.
+	const car = engine.rawVehicles.find((entry) => entry.id === carSpawn.id);
+	const shooter = player(engine, 'p2', clock.value);
+	const origin = { x: shooter.x, y: shooter.y + 1.2, z: shooter.z };
+	const aim = aimAt(origin, { x: car.x, y: car.y, z: car.z });
+	engine.onShoot('p2', 'pistol', origin, aim, undefined, clock.value + 50);
+	clock.value += 50;
+	engine.tick(clock.value);
+	vehicle = engine.rawVehicles.find((entry) => entry.id === carSpawn.id);
+	assert(vehicle.health === vehicle.maxHealth - 17, `el coche quedó a ${vehicle.health} HP`);
+	assert(hasEvent(messages, 'vehicle-hit'), 'falta el evento vehicle-hit');
+
+	// Destrucción: explosión, eyección del conductor y evento.
+	const carBefore = engine.rawVehicles.find((entry) => entry.id === carSpawn.id);
+	const shooter2 = player(engine, 'p2', clock.value);
+	const origin2 = { x: shooter2.x, y: shooter2.y + 1.2, z: shooter2.z };
+	const aim2 = aimAt(origin2, { x: carBefore.x, y: carBefore.y, z: carBefore.z });
+	carBefore.health = 5;
+	const shotAt = clock.value + 500;
+	engine.onShoot('p2', 'pistol', origin2, aim2, undefined, shotAt);
+	clock.value = shotAt;
+	engine.tick(shotAt);
+	vehicle = engine.rawVehicles.find((entry) => entry.id === carSpawn.id);
+	assert(vehicle.destroyed && vehicle.health === 0, 'el coche no se destruyó');
+	assert(vehicle.driverId === null, 'el conductor sigue dentro del coche destruido');
+	assert(hasEvent(messages, 'vehicle-destroyed'), 'falta el evento vehicle-destroyed');
+	assert(
+		!player(engine, 'p1', clock.value).alive || player(engine, 'p1', clock.value).health < 100,
+		'la explosión no dañó al conductor'
+	);
+
+	ok('coche OK — entrar, conducir, atropellar, disparar, explotar y corregir saltos');
+}
+
+{
+	const context = startPlaying(8, ['p1', 'p2']);
+	const { engine, messages } = context;
+	const clock = { value: context.startNow };
+	const balloonSpawn = ROYALE_VEHICLE_SPAWNS.find((spawn) => spawn.id === 'balloon-faro');
+	assert(balloonSpawn, 'falta el globo de prueba');
+
+	const state = engine.buildSnapshot(clock.value);
+	const balloonTarget = ROYALE_BOT_ANCHORS.find((entry) => entry.id === 'bot-10');
+	assert(balloonTarget, 'falta el ancla bot-10');
+	landGroup(
+		engine,
+		state,
+		[
+			{ id: 'p1', x: balloonSpawn.x, y: balloonSpawn.y - 0.02, z: balloonSpawn.z },
+			{ id: 'p2', x: balloonTarget.x, y: balloonTarget.y, z: balloonTarget.z }
+		],
+		clock
+	);
+
+	const enterAt = clock.value + 100;
+	engine.onVehicleEnter('p1', balloonSpawn.id, enterAt);
+	clock.value = enterAt;
+	engine.tick(enterAt);
+	let balloon = engine.rawVehicles.find((entry) => entry.id === balloonSpawn.id);
+	assert(balloon && balloon.driverId === 'p1', 'p1 no entró en el globo');
+
+	// Se puede disparar desde la barquilla: el servidor ya no bloquea el
+	// combate del conductor. El origen se calcula desde el asiento local.
+	const targetHealth = player(engine, 'p2', clock.value).health;
+	const targetShield = player(engine, 'p2', clock.value).shield;
+	const balloonOrigin = {
+		x: balloon.x,
+		y: balloon.y + ROYALE_BALLOON_SEAT_OFFSET + 1.2,
+		z: balloon.z
+	};
+	engine.onShoot(
+		'p1',
+		'pistol',
+		balloonOrigin,
+		aimAt(balloonOrigin, { x: balloonTarget.x, y: balloonTarget.y, z: balloonTarget.z }),
+		undefined,
+		clock.value + 100
+	);
+	clock.value += 100;
+	engine.tick(clock.value);
+	const targetAfter = player(engine, 'p2', clock.value);
+	assert(
+		targetAfter.health + targetAfter.shield < targetHealth + targetShield,
+		'el disparo desde el globo no dañó al objetivo'
+	);
+
+	// Recargar también funciona desde la barquilla: antes el vehículo ocupado
+	// bloqueaba `onReload` y el arma quedaba seca en pleno vuelo.
+	const shooterAt = raw(engine, 'p1');
+	assert(shooterAt.magAmmo === 11, `cargador tras disparar=${shooterAt.magAmmo}`);
+	const reserveBefore = shooterAt.reserveAmmo;
+	engine.onReload('p1', clock.value + 500);
+	clock.value += 500;
+	engine.tick(clock.value);
+	assert(shooterAt.magAmmo === 12, `cargador tras recargar=${shooterAt.magAmmo}`);
+	assert(
+		shooterAt.reserveAmmo === reserveBefore - 1,
+		`reserva tras recargar=${shooterAt.reserveAmmo}`
+	);
+
+	// Primer reporte: se aceptan los topes sin corrección por teleport.
+	engine.onVehicleState(
+		'p1',
+		balloonSpawn.id,
+		{
+			x: ROYALE_MAP_BOUNDS.maxX + 100,
+			y: balloonSpawn.y - 20,
+			z: balloonSpawn.z,
+			qx: 0,
+			qy: 0,
+			qz: 0,
+			qw: 1,
+			vx: 0,
+			vy: -10,
+			vz: 0,
+			speed: 5,
+			steering: 0
+		},
+		enterAt + 100
+	);
+	clock.value += 100;
+	engine.tick(clock.value);
+	balloon = engine.rawVehicles.find((entry) => entry.id === balloonSpawn.id);
+	assert(
+		Math.abs(balloon.x - (ROYALE_MAP_BOUNDS.maxX - ROYALE_BALLOON_BOUNDS_MARGIN)) < 0.01,
+		`el globo salió del margen: x=${balloon.x}`
+	);
+	assert(Math.abs(balloon.y - balloonSpawn.y) < 0.01, `el globo bajó del suelo: y=${balloon.y}`);
+
+	// Techo de altitud.
+	engine.onVehicleState(
+		'p1',
+		balloonSpawn.id,
+		{
+			x: balloon.x,
+			y: ROYALE_BALLOON_MAX_Y + 40,
+			z: balloon.z,
+			qx: 0,
+			qy: 0,
+			qz: 0,
+			qw: 1,
+			vx: 0,
+			vy: 6,
+			vz: 0,
+			speed: 0,
+			steering: 0
+		},
+		clock.value + 100
+	);
+	clock.value += 100;
+	engine.tick(clock.value);
+	balloon = engine.rawVehicles.find((entry) => entry.id === balloonSpawn.id);
+	assert(Math.abs(balloon.y - ROYALE_BALLOON_MAX_Y) < 0.01, `techo del globo y=${balloon.y}`);
+
+	// Salir en vuelo deja planeando y el evento trae el punto de abandono.
+	engine.onVehicleExit('p1', clock.value + 100);
+	clock.value += 100;
+	engine.tick(clock.value);
+	const exitEvent = events(messages).find(
+		(event) => event.kind === 'vehicle-exit' && event.playerId === 'p1'
+	);
+	assert(exitEvent, 'falta el evento vehicle-exit del globo');
+	assert(exitEvent.mode === 'glide', `modo de salida ${exitEvent.mode}`);
+	assert(
+		typeof exitEvent.px === 'number' &&
+			typeof exitEvent.py === 'number' &&
+			typeof exitEvent.pz === 'number',
+		'el evento de salida no trae el punto de abandono'
+	);
+	assert(
+		Math.abs(exitEvent.py - (balloon.y + ROYALE_BALLOON_SEAT_OFFSET)) < 0.05,
+		`punto de abandono y=${exitEvent.py}`
+	);
+
+	ok('globo OK — entrar, disparar, recargar, limitar altura/mapa y salir planeando');
 }
 
 // ---------------------------------------------------------------------------
@@ -468,31 +1344,113 @@ function landGroup(engine, state, members, clock) {
 }
 
 // ---------------------------------------------------------------------------
-// 5. Muerte por caída y por tormenta, sin respawn
+// 5. Agua = rescate en la orilla (a pie y con coche), tormenta = muerte
 // ---------------------------------------------------------------------------
 
 {
+	// Caer al mar no mata: el servidor devuelve al jugador a la celda
+	// caminable más cercana conservando vida y escudo.
 	const context = startPlaying(5, ['p1', 'p2']);
-	const { engine, messages } = context;
+	const { engine, messages, sendToCalls } = context;
+	const p1Raw = raw(engine, 'p1');
+	p1Raw.y = ROYALE_WATER_RESCUE_Y - 6;
+	p1Raw.mode = 'ground';
+	const healthBefore = p1Raw.health;
+	const shieldBefore = p1Raw.shield;
 
-	raw(engine, 'p1').y = -9;
-	raw(engine, 'p1').mode = 'ground';
 	engine.tick(context.startNow + 100);
-	let snapshot = engine.buildSnapshot(context.startNow + 100);
-	let p1 = snapshot.players.find((entry) => entry.id === 'p1');
-	assert(!p1.alive, 'p1 no murió al caer al mar');
-	assert(p1.placement === 2, `puesto por caída=${p1.placement}`);
-
-	const died = events(messages).find(
-		(event) => event.kind === 'player-died' && event.playerId === 'p1'
+	const p1 = player(engine, 'p1', context.startNow + 100);
+	assert(p1.alive, 'p1 murió al caer al mar');
+	assert(
+		p1.y > ROYALE_WATER_RESCUE_Y,
+		`p1 no volvió a la orilla: y=${p1.y}`
 	);
-	assert(died && died.cause === 'fell', `causa de caída=${died?.cause}`);
-	assert(engine.phaseName === 'results', 'la partida no terminó al quedar 1 vivo');
+	assert(
+		p1.health === healthBefore && p1.shield === shieldBefore,
+		'el rescate del agua quitó vida o escudo'
+	);
+	assert(player(engine, 'p2', context.startNow + 100).alive, 'el rescate mató a p2');
+	assert(engine.phaseName === 'playing', `fase tras rescate=${engine.phaseName}`);
 
-	const endedAt = engine.buildSnapshot(context.startNow).resultEndsAt;
-	engine.tick(endedAt + 1);
-	assert(engine.phaseName === 'idle', 'la room no se reinició tras la caída');
-	assert(!player(engine, 'p1', endedAt + 1), 'p1 reapareció tras morir');
+	const correction = sendToCalls.find(
+		(call) => call.playerId === 'p1' && call.message.type === 'mg8-correct'
+	);
+	assert(
+		correction && correction.message.correct.reason === 'water-rescue',
+		`corrección de agua=${correction?.message?.correct?.reason}`
+	);
+	assert(
+		hasEvent(messages, 'player-landed'),
+		'falta player-landed al rescatar del agua'
+	);
+	assert(
+		!events(messages).some(
+			(event) => event.kind === 'player-died' && event.playerId === 'p1'
+		),
+		'el agua emitió player-died'
+	);
+
+	// Con coche: el conductor abandona el vehículo y reaparece en la orilla,
+	// sin corrección extra que pudiera pisar el punto del rescate.
+	const carSpawn = ROYALE_VEHICLE_SPAWNS.find((spawn) => spawn.kind === 'car');
+	assert(carSpawn, 'falta un coche de prueba');
+	const clock = { value: context.startNow + 200 };
+	const seated = raw(engine, 'p1');
+	seated.x = carSpawn.x;
+	seated.y = carSpawn.y - 1;
+	seated.z = carSpawn.z;
+	seated.mode = 'ground';
+	engine.tick(clock.value);
+	assert(
+		raw(engine, 'p1').alive,
+		'p1 murió al colocarse junto al coche de prueba'
+	);
+
+	engine.onVehicleEnter('p1', carSpawn.id, clock.value + 100);
+	clock.value += 100;
+	engine.tick(clock.value);
+	assert(
+		engine.rawVehicles.find((entry) => entry.id === carSpawn.id)?.driverId === 'p1',
+		'p1 no entró en el coche para la prueba de agua'
+	);
+
+	engine.onVehicleState(
+		'p1',
+		carSpawn.id,
+		{
+			x: carSpawn.x,
+			y: ROYALE_WATER_RESCUE_Y - 6,
+			z: carSpawn.z,
+			qx: 0,
+			qy: 0,
+			qz: 0,
+			qw: 1,
+			vx: 0,
+			vy: -6,
+			vz: 0,
+			speed: 0,
+			steering: 0
+		},
+		clock.value + 100
+	);
+	clock.value += 100;
+	engine.tick(clock.value);
+
+	const driver = player(engine, 'p1', clock.value);
+	assert(driver.alive, 'el conductor murió al hundir el coche');
+	assert(driver.y > ROYALE_WATER_RESCUE_Y, `conductor sin rescatar: y=${driver.y}`);
+	const abandoned = engine.rawVehicles.find((entry) => entry.id === carSpawn.id);
+	assert(abandoned && abandoned.driverId === null, 'el coche no se abandonó al hundirse');
+	const exit = events(messages)
+		.filter((event) => event.kind === 'vehicle-exit' && event.playerId === 'p1')
+		.pop();
+	assert(exit && exit.mode === 'ground', `salida del coche=${exit?.mode}`);
+	assert(
+		Math.abs(exit.px - driver.x) < 0.05 && Math.abs(exit.pz - driver.z) < 0.05,
+		'el evento de salida no apunta a la orilla'
+	);
+
+	ok('agua OK — rescate en la orilla a pie y con coche, sin muerte');
 }
 
 {
@@ -534,7 +1492,7 @@ function landGroup(engine, state, members, clock) {
 	assert(snapshot.winner === 'p1', `ganador tras tormenta=${snapshot.winner}`);
 	assert(player(engine, 'p1', at).alive, 'p1 murió dentro de la zona segura');
 
-	ok('caída y tormenta OK — sin autor, sin respawn y con puesto');
+	ok('tormenta OK — daño sin autor, sin respawn y con puesto');
 }
 
 // ---------------------------------------------------------------------------

@@ -160,6 +160,49 @@ suite('progression rewards', () => {
 		expect(barn?.claimedAt).toBeTruthy();
 	});
 
+	test('mints to the wallet account with a NEP-413 session and no publicKey', async () => {
+		await readyMission();
+		await PlayerStats.updateOne(
+			{ playerId: ACCOUNT },
+			{ $set: { subject: `wallet:${ACCOUNT}` } }
+		);
+
+		const result = await claimReward(
+			{ ...baseInput(), publicKey: undefined, token: 'wallet-token' },
+			options({
+				verifyToken: async (token) => {
+					if (token !== 'wallet-token') throw new Error('Invalid token');
+
+					return { sub: `wallet:${ACCOUNT}`, walletAccountId: ACCOUNT };
+				},
+				assertOwned: async () => {
+					throw new Error('The wallet session must not re-check the public key');
+				}
+			})
+		);
+
+		expect(result.minted).toBe(true);
+		expect(result.claim.status).toBe('minted');
+		expect(mintCalls).toBe(1);
+	});
+
+	test('rejects a wallet session that does not own the claimed account', async () => {
+		await readyMission();
+
+		await expect(
+			claimReward(
+				{ ...baseInput(), accountId: 't-someone-else.testnet', publicKey: undefined },
+				options({
+					verifyToken: async () => ({
+						sub: `wallet:${ACCOUNT}`,
+						walletAccountId: ACCOUNT
+					})
+				})
+			)
+		).rejects.toBeInstanceOf(RewardForbiddenError);
+		expect(mintCalls).toBe(0);
+	});
+
 	test('is idempotent for the same mission', async () => {
 		await readyMission();
 

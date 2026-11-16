@@ -77,7 +77,7 @@ El proyecto ya tiene las piezas que esta spec necesita:
   del HUD (`MissionHud`) ya muestra `Errands / Challenges / Rewards`.
 - **Skyfall Royale** (`SPEC-040`): octavo minijuego jugable, lobby
   `minigame-8`, room `royale`, checkpoint `SKYFALL ROYALE` en
-  `(60.0, 0.40, 60.0)` y mapa completo `islas-ciudad`
+  `(-17.5, 0.40, 6.5)` y mapa completo `islas-ciudad`
   (`frontend/static/maps/islas_ciudad.glb`, físicas `chunked`). Es un battle
   royale 12 participantes con bots de relleno, zepelín, tormenta, loot y
   victoria del último en pie.
@@ -197,7 +197,7 @@ nuevas.
 | RF-26 | La tarjeta NFT muestra pista, tramo, título de misión, `valor/objetivo`, recompensa (`sniper-gold`, `bazooka-gold`, `ghost`, etc.) y estado `Locked` / `Available` / `In progress` / `Ready to claim` / `Claimed` desde `progression.missionState()`. | alta      |
 | RF-27 | El kiosco **no** mintea, no reclama, no firma ni escribe `RewardClaim`; solo muestra el estado y el texto «Claim it in Mission Central → Rewards». El reclamo sigue en `MissionHud → Rewards` y `POST /rewards/claim`. | alta      |
 | RF-28 | Con `progression.snapshot === null` (sin sesión, offline o backend caído) la guía sigue mostrando el nombre de la recompensa NFT desde el catálogo estático y el estado `Sync to track`, sin errores ni tarjetas vacías. | alta      |
-| RF-29 | Skyfall Royale se documenta como parte del mapa `islas-ciudad` (`SPEC-040`); la guía no monta el GLB ni las físicas del battle royale, solo enlaza su checkpoint `(60, 0.4, 60)` y su preview de actividad. | media     |
+| RF-29 | Skyfall Royale se documenta como parte del mapa `islas-ciudad` (`SPEC-040`); la guía no monta el GLB ni las físicas del battle royale, solo enlaza su checkpoint `(-17.5, 0.4, 6.5)` y su preview de actividad. | media     |
 
 ### No funcionales
 
@@ -265,7 +265,7 @@ nuevas.
 | `frontend/src/lib/components/ui/RewardCard.svelte`             | referencia | Mismo lenguaje visual de recompensa NFT; no se monta en el kiosco.    |
 | `frontend/src/lib/components/ui/MissionHud.svelte`             | referencia | `Mission Central → Rewards` es donde se reclaman los NFT.              |
 | `frontend/src/lib/state/royaleConfig.ts`                       | referencia | Timings, path, tormenta y datos de Skyfall Royale (`SPEC-040`).        |
-| `frontend/src/lib/state/checkpoints.svelte.ts`                 | referencia | Checkpoint `minigame-8` `SKYFALL ROYALE` en `(60, 0.4, 60)`.          |
+| `frontend/src/lib/state/checkpoints.svelte.ts`                 | referencia | Checkpoint `minigame-8` `SKYFALL ROYALE` en `(-17.5, 0.4, 6.5)`.          |
 | `frontend/world/maps.json`                                     | referencia | Entrada `islas-ciudad` con spawn, físicas `chunked` y `lighting`.       |
 | `frontend/src/lib/components/world/Checkpoint.svelte`          | referencia | Lenguaje visual del marcador; no se modifica.                          |
 | `frontend/src/lib/components/world/ClubMusicBooth.svelte`      | referencia | Patrón de proximidad por `playerState` en `useTask`; no se modifica.   |
@@ -376,7 +376,7 @@ nuevas.
 - [x] Paso 12: Revisar los textos de la guía contra las fuentes reales:
       `SPEC-015` (25 gatos, recompensa Scarecrow), `SPEC-019` (onboarding y
       catálogo de skins), `SPEC-040` (Skyfall Royale, `islas-ciudad`, checkpoint
-      `(60, 0.4, 60)`), `SPEC-045` (pistas, tramos y `catalog_id` NFT) y las
+      `(-17.5, 0.4, 6.5)`), `SPEC-045` (pistas, tramos y `catalog_id` NFT) y las
       specs de cada minijuego (`SPEC-010`, `SPEC-011`, `SPEC-018`, `SPEC-021`,
       `SPEC-023`, `SPEC-025`, `SPEC-026`). No prometer recompensas ni teclas
       que no existan.

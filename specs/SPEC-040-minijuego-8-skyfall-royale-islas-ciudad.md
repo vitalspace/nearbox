@@ -4,7 +4,7 @@ titulo: "Minijuego 8: Skyfall Royale — battle royale todos contra todos en Isl
 estado: completado
 prioridad: alta
 creado: 2026-11-13
-actualizado: 2026-11-14
+actualizado: 2026-11-15
 responsable: opencode
 etiquetas:
   [
@@ -31,6 +31,9 @@ etiquetas:
     bots,
     ia,
     relleno-de-partida,
+    vehiculos,
+    coches,
+    globos,
     minigame-8,
     nft,
     recompensas,
@@ -112,7 +115,8 @@ Añadir `Skyfall Royale`, un battle royale **12 participantes, todos contra
 todos, sin respawn**, en el mapa `islas_ciudad`, con una salida desde un
 zepelín controlado por el servidor, salto/paracaídas/planeo, tormenta que
 cierra el círculo, loot repartido por la ciudad, combate autoritativo,
-**bots que rellenan la partida cuando faltan jugadores reales** y victoria del
+**bots que rellenan la partida cuando faltan jugadores reales**, **coches y
+globos destruibles que se conducen dentro de la partida** y victoria del
 último jugador en pie.
 
 ## 3. Alcance
@@ -124,9 +128,16 @@ cierra el círculo, loot repartido por la ciudad, combate autoritativo,
   `idleTimeout: 120`), no singleton. Los bots **no ocupan** plazas de
   `maxPlayers`; las plazas son solo para humanos.
 - Checkpoint físico **`SKYFALL ROYALE`** en el mapa global, en
-  `(60.0, 0.40, 60.0)`, radio 2.2, color `#38bdf8`; `E` entra y sale.
+  `(-17.5, 0.40, 6.5)`, radio 2.2, color `#38bdf8`; `E` entra y sale.
 - Integración real de `islas-ciudad`: `world:sync`, `sceneState`, montaje del
   componente manual y físicas `chunked`. Sin GLB nuevos.
+- **Vehículos destruibles**: **4 coches** y **3 globos** repartidos por el mapa
+  en puntos caminables, con vida propia (550 y 400 HP), barra sobre el modelo y
+  panel en el HUD. Coches con `VehiclePhysics` (máx. 26 m/s, atropello a
+  40 de daño); globos con vuelo propio (máx. 13 m/s, techo 55 m, límite del
+  mapa con margen de 10 m). Al llegar a 0 HP explotan (7 m, 85 → 20 de daño),
+  expulsan al conductor y no reaparecen hasta la siguiente partida. `E` entra
+  y sale; salir en vuelo deja planeando.
 - **Bots de relleno**: con **1 humano** la partida ya puede empezar; el
   servidor completa hasta **12 participantes** con bots y los sustituye por
   humanos que entren durante la cuenta atrás. Los bots son jugadores
@@ -172,14 +183,16 @@ cierra el círculo, loot repartido por la ciudad, combate autoritativo,
   entre partidas, selector de dificultad, entrenamiento de IA o *machine
   learning*. Solo hay un perfil de bot «normal» determinista.
 - Bots en `minigame-1`…`minigame-7` o en el hub.
-- Vehículos, construcción, edición de estructuras, monturas o planeadoras
-  permanentes.
+- Construcción, edición de estructuras, monturas o planeadoras permanentes más
+  allá de los coches y globos de §11.16. Los bots no conducen ni pilotan.
+- Nuevos modelos de vehículo: se reutilizan `coche_calabaza`, `coche_momia`,
+  `coche_halloween` y `props/balloon.glb`.
 - Cambios a `islas_ciudad.glb`, a sus físicas ya validadas o a otros mapas.
 - Cambios de comportamiento en `minigame-1`…`minigame-7`.
 - Rarezas de loot, cofres, misiones diarias, pase de batalla, XP, rangos,
   leaderboard global o estadísticas persistentes.
-- Daño por caída, natación real, headshots o multiplicadores por parte del
-  cuerpo.
+- Natación real, headshots o multiplicadores por parte del cuerpo. Sí hay daño
+  por caída (§11.7) al saltar de un globo en vuelo; el salto del zepelín es gratis.
 - Nuevas skins o desbloqueos de cosméticos existentes. Las recompensas NFT de
   la pista `royale` las define `SPEC-045` y se reclaman en la Central; esta spec
   solo registra las estadísticas y la misión local `royale-first-win`.
@@ -193,16 +206,16 @@ cierra el círculo, loot repartido por la ciudad, combate autoritativo,
 
 | ID    | Requisito                                                                                                                                                                                                                                                                                                 | Prioridad |
 | ----- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------- |
-| RF-1  | Checkpoint `SKYFALL ROYALE` en `(60.0, 0.40, 60.0)`, radio 2.2, color `#38bdf8`; `E` entra a la room `royale` con `minigame-8` y `E`/salida vuelve al mismo punto.                                                                                                                                       | alta      |
+| RF-1  | Checkpoint `SKYFALL ROYALE` en `(-17.5, 0.40, 6.5)`, radio 2.2, color `#38bdf8`; `E` entra a la room `royale` con `minigame-8` y `E`/salida vuelve al mismo punto.                                                                                                                                       | alta      |
 | RF-2  | `LOBBY_IDS` y `MINIGAME_LOBBY_IDS` incluyen `minigame-8`; `LOBBY_DEFINITIONS` lo llama `Skyfall Royale`; la room se declara en `rooms.config.json` con `maxPlayers: 12`, `allowReconnect: true`, `reconnectTimeout: 20`, `idleTimeout: 120`.                                                               | alta      |
 | RF-3  | Fases: `idle → countdown (30 s) → playing (máx. 10 min) → results (20 s) → idle`. La cuenta atrás arranca con **≥ 1 humano** y el servidor completa la partida con bots hasta 12 participantes. Con 0 humanos se muestra `Waiting for players` y no avanza. No se reinicia al entrar más jugadores. | alta      |
 | RF-4  | Entrada permitida en `idle` y `countdown` hasta 12 **humanos**. Si entran más humanos, se retiran bots para mantener 12 participantes; si un humano sale en `countdown`, se añade un bot. En `playing`/`results` se rechaza con `ROYALE_IN_PROGRESS` y `go-lobby` a `global`; nunca se permite entrar a mitad de partida. | alta      |
 | RF-5  | Durante `countdown` el movimiento, el salto y el combate están bloqueados para humanos y bots; la cámara puede girar. Al empezar `playing` todos los participantes aparecen en el zepelín. | alta      |
-| RF-6  | Al iniciar `playing`, cada participante (humano o bot) está en modo `riding` sobre el zepelín, a la altitud del path (140 m), con la física congelada y la posición sincronizada con el servidor. | alta      |
+| RF-6  | Al iniciar `playing`, cada participante (humano o bot) está en modo `riding` sobre el zepelín, a la altitud del path (140 m), con la física congelada y la posición sincronizada con el servidor. Mientras `mode === 'riding'` no se dibuja ningún avatar (local ni remoto): aparecen al saltar o al ser expulsados. | alta      |
 | RF-7  | El zepelín recorre 5 waypoints con velocidad constante `12.5 m/s` y tarda `36.5 s`; se puede saltar desde `1.5 s` hasta `32 s`; a los `32 s` el servidor expulsa automáticamente a quien siga a bordo (incluidos bots) y a los `36.5 s` el zepelín desaparece. | alta      |
 | RF-8  | Salto con `Space` o `E`: transición `riding → skydive`, posición inicial calculada por el servidor desde el path y `jumpAt` registrado. El cliente no puede saltar dos veces ni saltar después de aterrizar.                                                                                               | alta      |
 | RF-9  | Caída libre: gravedad `40 m/s²`, velocidad vertical máxima `40 m/s`, control horizontal `9 m/s`. El planeo se despliega automáticamente al bajar de `y = 55` o a los `4.5 s` del salto, lo que ocurra primero.                                                                                              | alta      |
-| RF-10 | Planeo: caída vertical `6 m/s`, avance horizontal `12 m/s`, sin salto. Al tocar una superficie (`computedGrounded`) se pasa a `grounded` y se recupera el movimiento normal. Sin daño por caída.                                                                                                           | alta      |
+| RF-10 | Planeo: caída vertical `6 m/s`, avance horizontal `12 m/s`, sin salto. Al tocar una superficie (`computedGrounded`) se pasa a `grounded` y se recupera el movimiento normal. El golpe se resuelve con daño por caída (RF-82).                                                                                  | alta      |
 | RF-11 | El servidor valida transiciones de modo (`riding → skydive → glide → ground`), velocidad horizontal máxima (10 en suelo, 16 en aire), altura y límites del mapa; si un reporte es inválido envía `mg8-correct` y el cliente se teletransporta a la última posición válida.                                    | alta      |
 | RF-12 | Si un jugador se desconecta montado o cae fuera del mapa (`y < -8`), se elimina; si se desconecta en tierra, su cuerpo permanece 20 s y luego se elimina. Se permite reconectar dentro de esos 20 s conservando vida, escudo, inventario y posición.                                                        | media     |
 | RF-13 | Tormenta autoritativa: radio inicial `400`, gracia de `60 s`, y 7 fases `260 → 180 → 120 → 70 → 35 → 10 → 3` con `waitMs`/`shrinkMs` y daño `1/2/3/5/8/12/20` HP/s. El centro de cada fase se elige con semilla de partida entre los 14 POI, garantizando que el nuevo círculo quede dentro del anterior. | alta      |
@@ -213,21 +226,21 @@ cierra el círculo, loot repartido por la ciudad, combate autoritativo,
 | RF-18 | Pickup automático a ≤ 1.8 m horizontal y ≤ 2.5 m vertical: arma llena su ranura, recarga el cargador y añade una reserva de un cargador; si ya se tiene, recarga y añade munición. Munición +60 (máx. 300), botiquín +40 HP (máx. 100), escudo +50 (máx. 100), granada +1 (máx. 4).                     | alta      |
 | RF-19 | Loadout inicial: 100 HP, 0 escudo, pistola con 12 en cargador y 60 de reserva universal, 0 granadas y las otras 3 ranuras vacías. No hay armas infinitas: la pistola también consume reserva.                                                                                                              | alta      |
 | RF-20 | Inventario de 4 ranuras fijas (1 pistola, 2 escopeta, 3 SMG, 4 rifle), reserva universal 0–300, `R` recarga, `1`–`4` o clic/toque equipan. Recoger un arma que ya está en su ranura no crea duplicados.                                                                                                    | alta      |
-| RF-21 | Estadísticas de armas idénticas a `wavesConfig.ts`: pistola 12 de daño, 6 disparos/s, 55 m, cargador 12; escopeta 8 × 6 con dispersión ±7°, 1.2 disparos/s, 32 m, cargador 6; SMG 9, 11/s, 42 m, cargador 30; rifle 46, 1.5/s, 130 m, cargador 5.                                                      | alta      |
-| RF-22 | Disparo hitscan autoritativo con validación de fase, vivo, arma en mano, cargador, cadencia, origen ≤ 2.5 m del último reporte, alcance y línea de visión contra las cajas de oclusión. La escopeta usa 8 perdigones deterministas por disparo.                                                            | alta      |
-| RF-23 | Asistencia de puntería: el cliente busca al jugador bajo el punto de mira (radio 1.4 m horizontal) y manda `targetId`; el servidor lo acepta solo si sigue vivo, está delante, dentro del cono y dentro del alcance. Todos los jugadores son enemigos.                                                      | alta      |
+| RF-21 | Estadísticas afinadas para el battle royale (no alteran `wavesConfig.ts`): pistola 17 de daño, 6 disparos/s, 55 m, cargador 12; escopeta 8 × 7 con dispersión ±7°, 1.2 disparos/s, 32 m, cargador 6; SMG 11, 11/s, 42 m, cargador 30; rifle 52, 1.5/s, 130 m, cargador 5. Un cargador completo de pistola (204) supera los 200 de HP+escudo máximos. | alta      |
+| RF-22 | Disparo hitscan autoritativo con validación de fase, vivo, arma en mano, cargador, cadencia, origen ≤ 2.5 m del último reporte (+3.5 m adicionales al conducir un vehículo), alcance y línea de visión contra las cajas de oclusión. La escopeta usa 8 perdigones deterministas por disparo. Las posiciones de los objetivos se rebobinan 200 ms (`ROYALE_LAG_COMPENSATION_MS`) para compensar el retardo de render del cliente. | alta      |
+| RF-23 | Asistencia de puntería: el cliente busca al jugador bajo el punto de mira (radio 2.2 m horizontal) y manda `targetId`; el servidor lo acepta solo si sigue vivo, está delante, dentro del cono y dentro del alcance. Todos los jugadores son enemigos. El radio cubre el retardo de 200 ms sin convertirse en aimbot. | alta      |
 | RF-24 | Granada con `G`: espoleta 1.5 s o impacto, 75 de daño en el centro con caída lineal hasta 30 en el borde, radio 4.5 m; daña a cualquier jugador, incluido el lanzador. Máximo 4 granadas.                                                                                                                | alta      |
 | RF-25 | El daño consume primero escudo y luego vida. No hay daño amigo porque no hay equipos. Al llegar a 0 HP el jugador muere, suelta el arma equipada con el cargador actual y no reaparece.                                                                                                                    | alta      |
 | RF-26 | Crédito de baja al último jugador que hizo daño en los 5 s previos; evento `kill` con arma, killfeed y `kills++`. Una muerte por tormenta o caída no da crédito a nadie.                                                                                                                                    | alta      |
 | RF-27 | Puesto de eliminación: `placement = vivosAntesDeMorir` (si mueren 12, el primero en morir es 12.º). El ganador es el último vivo y recibe `placement = 1`.                                                                                                                                                  | alta      |
 | RF-28 | La partida termina cuando queda **1 vivo** o a los 600 s de `playing`. En timeout gana quien tenga más `HP + escudo`; desempata kills y luego daño infligido.                                                                                                                                              | alta      |
-| RF-29 | `results` dura 20 s y muestra `VICTORY ROYALE` o el puesto local, kills, daño, tiempo sobrevivido y podio de los 3 primeros. Botón `Back to the village` y salida automática con `go-lobby` + teletransporte a `(60.0, 0.40, 60.0)`.                                                                       | alta      |
+| RF-29 | `results` dura 20 s y muestra `VICTORY ROYALE` o el puesto local, kills, daño, tiempo sobrevivido y podio de los 3 primeros. Botón `Back to the village` y salida automática con `go-lobby` + teletransporte a `(-17.5, 0.40, 6.5)`.                                                                       | alta      |
 | RF-30 | Tras morir, overlay `ELIMINADO #N` con botón de salir y modo espectador: sigue al asesino (o al líder vivo) con cámara orbital; `V` cicla jugadores vivos; no se puede volver a jugar en esa partida.                                                                                                        | media     |
 | RF-31 | HUD permanente: vivos/12, humanos/bots, kills, fase y timer de tormenta, dirección/distancia a la zona segura, HP, escudo, arma, cargador, reserva, granadas y estado de salto/planeo.                                                                                                                                    | alta      |
 | RF-32 | Minimapa 2D de 180 × 180 con bounds del mapa, POI, círculo actual, círculo siguiente, jugador local y compañeros… **no hay compañeros**: solo jugador local y los vivos no se revelan.                                                                                                                     | media     |
 | RF-33 | Panel lateral derecho con el top 5 de vivos por kills, colapsable como el panel del chat y con chip `BOT`; killfeed con arma, tormenta y bots. No hay scoreboard modal con `Tab`.                                                                                                                                                  | alta      |
 | RF-34 | Overlays: espera, cuenta atrás, `SPACE TO JUMP` con altitud y cuenta atrás de expulsión, `GLIDER OPEN`, eliminación, resultados y victoria.                                                                                                                                                                 | alta      |
-| RF-35 | Controles móviles en `inRoyale`: salto/expulsar del zepelín, disparar, granada, recargar, ranuras 1–4 y salir; sin botón de coche.                                                                                                                                                                          | alta      |
+| RF-35 | Controles móviles en `inRoyale`: salto/expulsar del zepelín, disparar, granada, recargar, ranuras 1–4 y salir. Sin el botón de coche del hub, pero con `Drive`/`Fly` para entrar al vehículo cercano y, mientras se conduce, `Fire`, granada, **`Reload`**, `Exit` y `Rise`/`Down` en el globo. | alta      |
 | RF-36 | Audio procedural: salto, planeo, disparos, impactos, pickups, aviso de tormenta, bucle de tormenta fuera de zona, eliminación y victoria. Sin archivos de audio nuevos.                                                                                                                                      | media     |
 | RF-37 | Cliente: remotos humanos y bots interpolados a 10 Hz, skin real, chip `BOT`, animaciones de caminar/correr/apuntar/disparar/morir, disparos remotos y granadas interpoladas.                                                                                                                                                           | alta      |
 | RF-38 | Protocolo `mg8-*` espejado en servidor y cliente, con guards y validación de cada mensaje. Snapshots a 1 Hz y posiciones a 10 Hz; `ByteBudget` avisa si un frame supera 16 KiB.                                                                                                                            | alta      |
@@ -235,7 +248,7 @@ cierra el círculo, loot repartido por la ciudad, combate autoritativo,
 | RF-40 | `royale-first-win` se registra en `rw:missions:v1` la primera vez que el jugador local gana; no desbloquea skins nuevas. Las recompensas NFT (`sniper-gold`, `bazooka-gold`, `ghost`) viven en la pista `royale` de `SPEC-045` y se reclaman en la Central. | baja      |
 | RF-41 | `bun run world:sync` añade `islas-ciudad` a `registry.generated.ts`; `sceneState.active === 'islas-ciudad'` con `minigame-8`; `inRoyale` existe y `map.glb` no se monta dentro de la partida.                                                                                                                | alta      |
 | RF-42 | El resto de checkpoints, minijuegos, chat, misiones, coches y rollos siguen funcionando; el nuevo checkpoint no se solapa con los existentes ni con edificios.                                                                                                                                              | alta      |
-| RF-43 | Si el jugador local cae al mar (`y < -8`), el servidor lo elimina con causa `fell`; el cliente no puede quedarse cayendo indefinidamente ni reaparecer en el spawn del mapa.                                                                                                                                | alta      |
+| RF-43 | **El agua no mata**: si el jugador local (a pie o conduciendo) baja de `ROYALE_WATER_RESCUE_Y = -3`, el servidor lo devuelve a la celda caminable más cercana (`mg8-correct` razón `water-rescue` o `vehicle-exit` si iba en vehículo), con `mode = 'ground'` y `vy = 0`; solo si no hay tierra en 200 celdas muere con causa `fell`. El cliente frena la caída justo bajo el nivel de rescate y el HUD muestra «Rescued from the water · back on shore». | alta      |
 | RF-44 | El zepelín visual usa `Zeppelin.svelte` con un nuevo modo `path`; las hélices y animaciones siguen funcionando. La posición visual se calcula desde `boardingStartedAt` y el mismo path del servidor, sin mensajes por frame.                                                                                | alta      |
 | RF-45 | `royale:check`, `royale:balance`, `royale:match`, `royale:bots`, `check`, `lint`, `build`, `islas-ciudad:check` y `map:check` pasan en verde.                                                                                                                                                                              | media     |
 | RF-46 | **Relleno con bots**: al arrancar `countdown` el servidor añade bots hasta `humanos + bots = 12` (`ROYALE_BOT_FILL = 11`, máximo 11). Un humano que entra en `idle`/`countdown` sustituye al bot más reciente; uno que sale en `countdown` se reemplaza por otro bot. Con 0 humanos se cancela todo y no queda ningún bot. | alta      |
@@ -251,19 +264,43 @@ cierra el círculo, loot repartido por la ciudad, combate autoritativo,
 | RF-56 | `royale:bots` simula 500 partidas solo-bots y 200 partidas 1 humano de referencia + 11 bots con semillas fijas: siempre 1 ganador, puestos únicos 1–12, duración media 240–540 s, ninguna partida > 600 s, sin NaN, sin posiciones fuera del mapa, sin bots atascados > 10 s y con muertes por tormenta/caída. | alta      |
 | RF-57 | Si se va el último humano en cualquier fase, se cancelan timers, loot, granadas, tormenta y bots, y la room vuelve a `idle`. Los bots nunca mantienen viva una partida sin humanos. Un humano desconectado en `playing` conserva su ventana de reconexión de 20 s y **no** se sustituye por un bot. | alta      |
 | RF-58 | `royale:build` genera la rejilla de navegación y los anclas de aterrizaje de bots; `royale:check` valida que los 14 POI y las 70 anclas de loot caen en celdas caminables, que la componente conectada principal cubre todos los POI y que no hay celdas caminables sobre agua o tejados. | alta      |
+| RF-59 | **Vehículos fijos por partida**: 4 coches (`car-comercios`, `car-resort`, `car-sur`, `car-civico`, modelos `coche_calabaza`/`coche_momia`/`coche_halloween`) y 3 globos (`balloon-faro`, `balloon-noroeste`, `balloon-norte`, `props/balloon.glb`). `royale:check` valida que cada spawn cae en celda caminable de la componente principal, a la altura del suelo (coche `suelo + 1`, globo `suelo + 0.02`), a ≥ 6 m de cualquier ancla de loot/bot, a ≥ 8 m de otro vehículo y a ≤ 30 m de su POI. | alta      |
+| RF-60 | `E` entra al vehículo si el jugador está vivo, en `ground`, sin vehículo, en `playing`, a ≤ 4.5 m horizontales y ≤ 4 m verticales del asiento, y el vehículo no está destruido ni ocupado. `E` de nuevo sale. El servidor decide la posición de salida (2.8 m al lado, búsqueda caminable de 8 m) y la publica en `vehicle-exit` con `px/py/pz`; el cliente teletransporta ahí al jugador. | alta      |
+| RF-61 | Coche: física arcade local con `VehiclePhysics`, velocidad máxima 26 m/s. El conductor reporta pose a 10 Hz (`mg8-vehicle-state` con `x,y,z,qx,qy,qz,qw,vx,vy,vz,speed,steering`); el servidor recorta posición y velocidad, detecta teletransportes (`> maxSpeed·dt + 4 m`) y responde `mg8-vehicle-correct` para que el cliente se pegue a la pose autoritativa. | alta      |
+| RF-62 | Globo: vuelo local con `Space` de despegue (elevación 6.5 m/s, aceleración 6 m/s², giro 1.2 rad/s, avance máximo 13 m/s). El servidor limita `y` entre la altura de spawn y 55 m y `x/z` a los bounds del mapa con margen interior de 10 m; el reporte se recorta eje a eje sin corrección por salto. | alta      |
+| RF-63 | Vida de vehículo: coche 550, globo 400. El hitscan enemigo puede impactar la carrocería (radio lateral 1.9 m coche / 2.4 m globo, altura −1.1…+1.6 / −0.2…+3.2) y **a igual distancia gana el vehículo**, así la carrocería tapa al conductor. Cada impacto emite `vehicle-hit`; a 0 HP se emite `vehicle-destroyed`, el conductor sale despedido y una explosión de 7 m reparte 85 de daño en el centro y 20 en el borde con crédito al último atacante. | alta      |
+| RF-64 | Atropello de coche: si `speed ≥ 7 m/s`, cualquier jugador vivo a ≤ 2.9 m horizontales y ≤ 2.8 m verticales recibe 40 de daño con crédito al conductor, como máximo una vez cada 1.5 s por víctima. Los vehículos no colisionan con jugadores en Rapier (`ROYALE_VEHICLE_COLLISION_GROUPS`); el atropello es lógica del servidor. | alta      |
+| RF-65 | Mientras conduce, el servidor sincroniza al conductor con la pose del vehículo (pies a −1.0 m en coche, +1.2 m en globo), el avatar local/remoto y la barra 3D del jugador se ocultan, la cámara usa el perfil de conducción (globo con perfil propio más abierto) y el HUD muestra `DRIVING`, vida del vehículo y `E · Exit`. En móvil aparecen `Fire`, granada, `Exit` y, en el globo, `Rise`/`Down`. Se puede disparar y lanzar granadas desde el vehículo; la cápsula de a pie queda desactivada y la física del vehículo es la única que mueve `playerState`. | alta      |
+| RF-66 | Salir en vuelo de un globo (pies a más de 2.5 m del suelo) deja al jugador en modo `glide` desde la barquilla; salir en coche o con el globo apoyado lo deja en `ground` sobre un punto caminable. Morir, desconectarse, salir de la room o destruirse el vehículo expulsa al conductor. | alta      |
+| RF-67 | Al reiniciar la partida (`idle`) los 7 vehículos vuelven a su spawn con vida completa y sin conductor. Un vehículo destruido permanece como pecio (sin collider, sin entrada) hasta el siguiente `reset()`; no se reparan ni reaparecen dentro de la misma partida. | media     |
+| RF-68 | Los bots no conducen, no pilotan y no disparan a los vehículos de forma deliberada, pero pueden ser atropellados y alcanzados por la explosión como cualquier jugador. | media     |
+| RF-69 | `royale:check` valida cantidad, tipos, spawns, separación de anclas, altura de barra y constantes de vida/límites; `royale:match` cubre entrar, conducir, tope de velocidad, atropello, corrección de salto imposible, disparo al coche, destrucción con explosión, globo con techo/límites y salida planeando. | alta      |
+| RF-70 | **Combate desde vehículos**: el conductor puede disparar y lanzar granadas. El servidor acepta el origen con margen ampliado (`+3.5 m` horizontal en disparo y `+4.5 m` en granada) porque la pose del asiento va por delante del reporte a 10 Hz. El vehículo que conduce el tirador se excluye del hitscan: el cañón está dentro de la carrocería y, sin esta exclusión, cada disparo impactaba en el propio vehículo. | alta      |
+| RF-71 | **Memoria de bots solo con LOS**: el objetivo retenido durante 2 s no actualiza `lastSeenX/Z/At` si no hay línea de visión real. Sin LOS el bot persigue el último punto visto y no dispara ni lanza granadas; también se exige LOS para la persecución por venganza. La comprobación de disparo usa además la silueta de hace 200 ms (`trackedPosition`), para no ver tiros saliendo de detrás de una pared por desfase visual. | alta      |
+| RF-72 | **Explosión con LOS**: una granada solo daña a un jugador si hay línea de visión desde el punto de explosión hasta su pecho. Una pared entre ambos corta la metralla. | alta      |
+| RF-73 | **Cápsula y cámara al conducir**: la cápsula cinemática de `PlayerCollider` se desactiva mientras `minigame8.isDriving` para no empujar el chasis desde dentro; `VehiclePhysics`/`RoyaleBalloon` son la única fuente de `playerState`. La cámara usa `CAR_PROFILE` en coche y `ROYALE_BALLOON_PROFILE` en globo. `R` endereza el coche; en el globo (y a pie) `R` recarga el arma, igual que el botón `Reload` del HUD y el de los controles móviles. | alta      |
+| RF-74 | **Globo en 1ª persona**: al pilotar un globo la cámara arranca en primera persona (`royaleVehicles.balloonView = 'first'`), con `FIRST_PERSON_PROFILE`, FOV 75, ojo a `ROYALE_BALLOON_EYE_OFFSET` sobre el asiento y rumbo inicial igual al `yaw` local del globo (`RoyaleBalloon` lo publica en `royaleVehicles.balloonYaw`). `V` (y el botón móvil `View`) alterna a tercera persona con `ROYALE_BALLOON_PROFILE`. El disparo y la granada salen a la misma altura que la cámara para que el trazador no aparezca por encima de la retícula. | alta      |
+| RF-75 | **Sin retícula en coche**: el `AimCrosshair` de Royale se oculta mientras `minigame8.drivingKind === 'car'`; en el globo se mantiene porque se apunta con la cámara en 1ª persona. | media     |
+| RF-76 | **Puntería remota**: los avatares remotos (humanos y bots) reproducen `HR_aim`/`HR_walk_aim`/`HR_run_aim` durante ~1.6 s tras cada `shot-fired` propio, procesando solo eventos con `seq` nuevo. El clip se elige por la velocidad medida: quieto, andando o corriendo. | media     |
+| RF-77 | **Audio de vehículos en Royale**: `RoyaleCar` publica su telemetría en `carTelemetry`, así que el motor local (`car_engine`) suena al conducir con ganancia `0.12 + throttle·0.12 + ratio·0.14` y `car_tire` al derrapar. Los coches de otros pilotos también se oyen (hasta 2, ≤ 25 m) porque `resolveRemoteCarList` incluye los vehículos de `minigame8`, y los loops remotos se actualizan aunque el jugador local no conduzca. `audio.loop(..., { sync: true })` renderiza el PCM en el acto y `AudioBootstrap` precarga los sonidos de coche al entrar en la room; `vehicle-enter`/`vehicle-exit`/`vehicle-destroyed` disparan `car_enter`/`car_exit`/`car_explosion`. | alta      |
+| RF-78 | **Sin disparos desde dentro de la geometría**: `royaleSegmentBlocked` ya no ignora una caja cuando el origen está dentro de su AABB (`t = 0`). La losa del terreno se filtra en `ROYALE_OCCLUDERS`, así que cualquier origen dentro de un edificio, porche o arco queda sin línea de tiro. Antes, un jugador situado dentro del AABB de un edificio disparaba a través de todo el edificio, con y sin `targetId`. | alta      |
+| RF-79 | **Granada recortada por el arco**: `royaleArcHit(origin, velocity, flight, gravity)` muestrea la parábola y devuelve el primer muro que corta, ignorando las cajas que contienen el origen (lanzar desde una terraza no estalla en la mano). `throwGrenade` recorta `targetX/Z`, `flightMs` y guarda `clipY`; `updateGrenades` usa `clipY` para que la granada estalle contra la pared y no al otro lado. Se aplica igual a humanos y bots. | alta      |
+| RF-80 | **Explosión de vehículo con LOS**: la metralla de `destroyVehicle` (radio 7 m, 85/20) exige línea de visión desde el centro del vehículo al pecho de cada víctima. Un muro entre ambos corta el daño, igual que en la granada. | alta      |
+| RF-81 | **Compensación de retardo con LOS doble**: `selectLockedTarget` e `hitscan` exigen `hasClearShot` tanto a la silueta rebobinada (`ROYALE_LAG_COMPENSATION_MS = 200`) como al cuerpo en su posición actual. Apuntar a la silueta antigua ya no permite atravesar un muro que el objetivo acaba de usar como cobertura. | alta      |
+| RF-82 | **Daño por caída**: el salto del zepelín (`jumpPlayer`) es la entrada estándar con planeo incluido y **no registra altura**, así que aterrizar ileso es correcto. Solo se registra la altura al abandonar un globo en vuelo (`exitVehicle`, modo `glide`) y se cobra el golpe al aterrizar. `royaleFallDamage(drop, gliding)` aplica 0 bajo `ROYALE_FALL_SAFE_HEIGHT = 5 m`, `1.2` de daño por metro efectivo, factor `0.5` planeando y tope `ROYALE_FALL_MAX_DAMAGE = 50`. Consume escudo antes que vida, no tiene autor y avisa con `player-hurt`; la muerte usa causa `fall`. Aplica igual a humanos y bots. | alta      |
 
 ### No funcionales
 
 | ID    | Requisito      | Criterio                                                                                                                                        |
 | ----- | -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
 | RNF-1 | Autoridad      | El cliente solo envía posición/modo, salto, disparo, granada, recarga y equipar. Daño, loot, tormenta, puestos y resultado los decide el servidor. |
-| RNF-2 | Tráfico        | `mg8-positions` cada 100 ms, redondeado a 2 decimales; con 12 participantes y granadas ≤ 16 KiB por frame. `mg8-state` a 1 Hz.                       |
-| RNF-3 | Rendimiento    | 60 FPS en hardware medio con el mapa completo, 12 participantes (humanos + hasta 11 bots), 70 loot y tormenta. Sin monstruos ni mallas extra por bot.            |
-| RNF-4 | Determinismo   | Dos clientes ven el mismo timer, tormenta, loot, vivos, puestos, bots y resultado para la misma semilla.                                                     |
-| RNF-5 | Sin fugas      | Entrar/salir 10 veces y reconectar no deja cuerpos, controladores, listeners, timers, bots ni loot residual.                                                 |
+| RNF-2 | Tráfico        | `mg8-positions` cada 100 ms, redondeado a 2 decimales, con jugadores y vehículos; el conductor añade un reporte `mg8-vehicle-state` por tick (10 Hz). Con 12 participantes y granadas ≤ 16 KiB por frame. `mg8-state` a 1 Hz.                       |
+| RNF-3 | Rendimiento    | 60 FPS en hardware medio con el mapa completo, 12 participantes (humanos + hasta 11 bots), 7 vehículos, 70 loot y tormenta. Sin monstruos ni mallas extra por bot.            |
+| RNF-4 | Determinismo   | Dos clientes ven el mismo timer, tormenta, loot, vivos, puestos, bots, vehículos y resultado para la misma semilla.                                                     |
+| RNF-5 | Sin fugas      | Entrar/salir 10 veces, conducir y reconectar no deja cuerpos, controladores, listeners, timers, bots, vehículos ni loot residual.                                                 |
 | RNF-6 | Portabilidad   | Todo el balance vive en `royaleConfig.ts` + `islas-ciudad.royale.json`; cambiar de mapa solo requiere regenerar el JSON y re-medir.                          |
 | RNF-7 | Reloj          | Timers basados en `serverTime`/`endsAt`; el cliente no puede adelantar la tormenta, la cuenta atrás ni la IA de los bots.                                   |
-| RNF-8 | Anti-cheat     | Rebote de posición inválida, límite de velocidad, línea de visión del servidor, cadencia y origen de disparo.                                               |
+| RNF-8 | Anti-cheat     | Rebote de posición inválida, límite de velocidad, línea de visión del servidor, cadencia y origen de disparo; en vehículos, recorte de bounds/altitud y corrección de teletransporte (`mg8-vehicle-correct`).                                               |
 | RNF-9 | Accesibilidad  | Overlays legibles, botones táctiles ≥ 44 px, respeto a `prefers-reduced-motion` en animaciones de HUD.                                                      |
 | RNF-10 | Compatibilidad | `islas_ciudad.glb` Draco + 419 017 triángulos sigue cargando en móvil; no se duplican mallas ni materiales por jugador.                                      |
 | RNF-11 | CPU de bots    | 11 bots a 5 Hz añaden < 4 ms al tick medio del servidor; A* cacheado con ≤ 4 000 nodos y sin asignaciones grandes por frame.                                 |
@@ -271,7 +308,7 @@ cierra el círculo, loot repartido por la ciudad, combate autoritativo,
 
 ## 5. Criterios de aceptación
 
-- [x] CA-1: El checkpoint `SKYFALL ROYALE` se ve en `(60, 0.4, 60)`, no se solapa con otros checkpoints ni edificios, y `E` abre la room `royale` con `minigame-8`.
+- [x] CA-1: El checkpoint `SKYFALL ROYALE` se ve en `(-17.5, 0.4, 6.5)`, no se solapa con otros checkpoints ni edificios, y `E` abre la room `royale` con `minigame-8`.
 - [x] CA-2: Con **1 humano** arranca la cuenta atrás de 30 s y se rellena la partida con **11 bots**; con 2 humanos hay 10 bots. Un segundo humano que entra durante la cuenta atrás sustituye a un bot y el total sigue siendo 12.
 - [x] CA-3: Durante la cuenta atrás ni humanos ni bots se mueven ni disparan; la cámara sí gira. Al llegar a 0 todos aparecen sobre el zepelín a 140 m.
 - [x] CA-4: El zepelín recorre el path visible sobre las islas, las hélices giran y la posición coincide en dos clientes.
@@ -282,20 +319,20 @@ cierra el círculo, loot repartido por la ciudad, combate autoritativo,
 - [x] CA-9: Recoger escopeta/SMG/rifle llena su ranura, recarga y añade reserva; `1`–`4` cambian de arma; `R` recarga.
 - [x] CA-10: Munición +60, botiquín +40 HP, escudo +50 y granada +1 respetan los máximos (300/100/100/4).
 - [x] CA-11: Un disparo a otro jugador resta escudo y luego vida; no existe daño amigo porque todos son enemigos.
-- [x] CA-12: La escopeta aplica 8 perdigones; el rifle 46; la SMG 9; la pistola 12; las cadencias y cargadores coinciden con `wavesConfig`.
+- [x] CA-12: La escopeta aplica 8 perdigones de 7; el rifle 52; la SMG 11; la pistola 17; las cadencias y cargadores se mantienen y un cargador de pistola mata a 100 HP + 100 de escudo. Un impacto confirmado enciende el hit marker del crosshair.
 - [x] CA-13: Una granada en el suelo explota a los 1.5 s, daña a todos los que estén en 4.5 m y puede matar al lanzador.
-- [x] CA-14: No se puede disparar a través de una pared de hotel/tienda/muro; `royale:check` valida las cajas de oclusión.
+- [x] CA-14: No se puede disparar a través de una pared de hotel/tienda/muro; `royale:check` valida las cajas de oclusión y `royale:match` comprueba un muro real y el cielo como control positivo.
 - [x] CA-15: Al morir se muestra `ELIMINADO #N`, el asesino recibe +1 kill y la víctima suelta el arma equipada; no reaparece.
 - [x] CA-16: El jugador muerto puede espectar al asesino o al líder vivo (humano o bot) con `V` y salir cuando quiera.
 - [x] CA-17: La tormenta empieza a los 60 s, muestra el círculo actual y el siguiente, cierra en 7 fases y hace daño creciente fuera de zona.
 - [x] CA-18: El daño de tormenta consume escudo y vida, no tiene autor y muestra `se perdió en la tormenta` en el killfeed.
 - [x] CA-19: Dos clientes ven el mismo centro/radio de tormenta, el mismo timer y los mismos vivos.
-- [x] CA-20: Al quedar 1 vivo se pasa a `results` con `VICTORY ROYALE` o derrota, kills, daño, tiempo y podio; si gana un bot se muestra su nombre con chip `BOT` y la misión local no se registra. A los 20 s o con el botón se vuelve a `(60, 0.4, 60)`.
+- [x] CA-20: Al quedar 1 vivo se pasa a `results` con `VICTORY ROYALE` o derrota, kills, daño, tiempo y podio; si gana un bot se muestra su nombre con chip `BOT` y la misión local no se registra. A los 20 s o con el botón se vuelve a `(-17.5, 0.4, 6.5)`.
 - [x] CA-21: En timeout gana el mayor `HP + escudo`; si empatan, más kills; si también, más daño.
 - [x] CA-22: Entrar en `playing` se rechaza con `ROYALE_IN_PROGRESS` y devuelve a `global`; no se puede hacer *stream snipe* ni sustituir un bot a mitad de partida.
 - [x] CA-23: Reconectar dentro de 20 s conserva vida, escudo, inventario, posición y kills; pasado el plazo el jugador queda eliminado y **no** se crea un bot en su lugar.
 - [x] CA-24: El minimapa muestra el mapa, los POI, el jugador y los dos círculos; el panel de vivos se colapsa y el killfeed se actualiza con humanos y bots.
-- [x] CA-25: Los controles móviles permiten saltar, disparar, granada, recargar y cambiar de ranura; no aparece el botón de coche.
+- [x] CA-25: Los controles móviles permiten saltar, disparar, granada, recargar, cambiar de ranura y entrar/salir de un vehículo; no aparece el botón de coche del hub.
 - [x] CA-26: El HUD de salto muestra altitud, `SPACE TO JUMP`, cuenta atrás de expulsión y `GLIDER OPEN` al desplegar.
 - [x] CA-27: El audio suena en disparos, impactos, pickups, salto, planeo, tormenta, eliminación y victoria, sin errores de decode.
 - [x] CA-28: Ganar una partida contra humanos o bots registra `royale-first-win` una sola vez y no altera desbloqueos de skins existentes; las recompensas NFT de la pista `royale` las concede `SPEC-045` desde la Central.
@@ -304,7 +341,7 @@ cierra el círculo, loot repartido por la ciudad, combate autoritativo,
 - [x] CA-30: Entrar/salir 10 veces, morir, espectar, reconectar y dejar que entren/salgan bots no deja cuerpos, controladores, listeners, timers ni errores en consola.
 - [x] CA-31: Un humano solo puede jugar una partida completa: 11 bots saltan del zepelín, aterrizan, recogen loot, se mueven por la ciudad y compiten por la victoria.
 - [x] CA-32: Los bots aparecen en `mg8-positions` y se ven interpolados con skin, nombre, chip `BOT`, animaciones y disparos; no hay IA en el cliente.
-- [x] CA-33: Un bot no dispara ni ve a través de una pared: se comprueba con un bot al otro lado de un hotel y no recibe daño hasta que hay LOS.
+- [x] CA-33: Un bot no dispara ni ve a través de una pared: no refresca la posición del objetivo sin LOS, persigue el último punto visto y `royale:match` verifica que no dispara ni granadea en esa situación.
 - [x] CA-34: Los bots rotan antes de cada cierre de tormenta, reciben daño si quedan fuera y no se quedan quietos muriendo por la zona.
 - [x] CA-35: Al entrar un segundo humano durante `countdown`, desaparece un bot y el total sigue en 12; si el humano se va, vuelve un bot.
 - [x] CA-36: Si se va el último humano, los bots se eliminan, la room vuelve a `idle` y deja de consumir CPU de IA.
@@ -314,6 +351,31 @@ cierra el círculo, loot repartido por la ciudad, combate autoritativo,
 - [x] CA-40: `royale:check` valida la rejilla de navegación: 14 POI y 70 anclas en celdas caminables, componente conectada y ninguna celda sobre agua o tejados.
 - [x] CA-41: Los nombres de bots son únicos, no colisionan con nombres humanos y se mantienen estables para la misma semilla.
 - [x] CA-42: Un humano desconectado en `playing` conserva su cuerpo 20 s y puede reconectar; no aparece un bot en su lugar.
+- [x] CA-44: Hay **4 coches** y **3 globos** visibles en el mapa, apoyados sobre suelo caminable, sin solaparse con loot, bots ni entre ellos.
+- [x] CA-45: Al acercarse a un coche o globo aparece el prompt `E · Enter`; `E` sube al jugador, oculta su avatar y la cámara pasa al perfil de conducción.
+- [x] CA-46: El coche se conduce con WASD, frena y gira con la física existente, no supera 26 m/s y su posición coincide en dos clientes.
+- [x] CA-47: Un coche a ≥ 7 m/s atropella a un jugador a su paso (40 de daño, crédito al conductor) y no repite daño hasta 1.5 s después.
+- [x] CA-48: Un salto de posición imposible del coche no se acepta: llega `mg8-vehicle-correct` y el vehículo vuelve a la última pose válida.
+- [x] CA-49: Los disparos dañan el coche (barra sobre el modelo y panel del HUD) y la carrocería protege al conductor; a 0 HP explota, expulsa al conductor y deja un pecio sin collider.
+- [x] CA-50: El globo despega con `Space`, se mueve en horizontal, no pasa de 55 m de altura ni del rectángulo del mapa con 10 m de margen, y frena en el techo sin corrección.
+- [x] CA-51: Salir de un globo en vuelo deja al jugador planeando desde la barquilla, con el punto de salida que manda `vehicle-exit`.
+- [x] CA-52: Morir, desconectarse o destruirse el vehículo saca al conductor; al volver a `idle` los 7 vehículos reaparecen con vida completa.
+- [x] CA-53: `royale:check` valida los vehículos y `royale:match` cubre coche, globo, atropello, corrección, destrucción y salida en planeo.
+- [x] CA-54: Se puede disparar desde el coche y desde el globo; el disparo daña a un objetivo con LOS y no impacta en el propio vehículo del tirador. `royale:match` lo comprueba en ambos vehículos.
+- [x] CA-55: Una granada al otro lado de una pared no hace daño; el motor exige LOS desde el punto de explosión al pecho de cada víctima.
+- [x] CA-56: Un bot sin LOS no refresca la posición exacta del objetivo, no dispara y no lanza granadas; al recuperar LOS vuelve a actualizar la posición y a disparar.
+- [x] CA-57: Al conducir, la cápsula de a pie está desactivada, la cámara usa el perfil del coche o del globo, `R` endereza el coche sin recargar y los controles móviles muestran `Fire` y granada además de `Exit`/`Rise`/`Down`.
+- [x] CA-58: Al subir a un globo la vista es en 1ª persona y mira hacia delante según el rumbo de la barquilla; `V` (o `View` en móvil) alterna a 3ª persona y de vuelta sin perder el control del vuelo. La cámara, el arma y la granada comparten altura, así que la retícula coincide con el trazador y el punto de caída.
+- [x] CA-59: Conduciendo un coche no se dibuja la retícula de Royale; al bajarse o al pilotar el globo vuelve a mostrarse.
+- [x] CA-60: Cuando un humano o un bot dispara, su avatar remoto entra en postura de puntería (`HR_aim`, `HR_walk_aim` o `HR_run_aim` según se mueva) durante ~1.6 s, sin repetir disparos antiguos al montar el componente.
+- [x] CA-61: Al conducir un coche se oye el motor propio desde la primera vuelta de rueda (sin esperar a la precarga) y también el de los rivales cercanos; entrar, salir y destruir un vehículo suenan una sola vez.
+- [x] CA-62: Pilotando un globo o conduciendo un coche se puede recargar: `R` en teclado, el botón `[R] Reload` del HUD y el botón `Reload` de los controles móviles; `royale:match` verifica la recarga desde el globo.
+- [x] CA-63: Caer al agua no mata: el servidor devuelve al jugador a la orilla y el HUD avisa «Rescued from the water · back on shore»; `royale:match` cubre el rescate a pie y con coche.
+- [x] CA-64: Aterrizar tras el salto del zepelín no quita vida (entrada con planeo), pero saltar de un globo en vuelo sí (tope 50), el planeo reduce el golpe, las caídas ≤ 5 m no hacen daño y los bots pagan la misma regla; `royale:check` valida la curva y `royale:match` cubre ambos saltos.
+- [x] CA-64: Ni humanos ni bots dañan a través de una pared aunque el tirador esté dentro del AABB de un edificio y aunque envíe `targetId`; el disparo de control con LOS sí daña. `royale:match` lo verifica con un muro real y un origen dentro de un AABB.
+- [x] CA-65: Una granada lanzada contra un muro estalla en la pared y no daña a quien se cubre al otro lado; la misma granada sin muro de por medio sí daña. `royale:match` comprueba ambos casos y que la explosión ocurrió.
+- [x] CA-66: La explosión de un coche destruido no atraviesa un muro: la víctima al otro lado queda intacta y, en el control sin muro, recibe daño. `royale:match` lo verifica.
+- [x] CA-67: Si el objetivo se cubre tras un muro durante los 200 ms de compensación, el disparo a su silueta rebobinada no cuenta; la prueba de retardo sigue pasando con LOS limpia en ambas posiciones.
 
 ## 6. Archivos relevantes
 
@@ -326,31 +388,31 @@ cierra el círculo, loot repartido por la ciudad, combate autoritativo,
 | `frontend/scripts/verify-royale-balance.mjs`                      | crear      | `royale:balance`: simula loot y valida reparto/TTK.                                                                           |
 | `frontend/scripts/verify-royale-bots.mjs`                         | crear      | `royale:bots`: 500 partidas solo-bots + 200 con humano de referencia; valida IA, navegación, puestos y duración.             |
 | `frontend/package.json`                                           | modificar  | Scripts `royale:build`, `royale:check`, `royale:match`, `royale:balance`, `royale:bots`.                                      |
-| `frontend/src/lib/state/royaleConfig.ts`                          | crear      | **Única fuente** de timings, path, tormenta, POI, loot, armas, bots y límites. Importa el JSON generado.                     |
+| `frontend/src/lib/state/royaleConfig.ts`                          | crear      | **Única fuente** de timings, path, tormenta, POI, loot, armas, bots, vehículos y límites. Importa el JSON generado.          |
 | `frontend/src/lib/state/minigame8.svelte.ts`                      | crear      | Store reactivo: snapshot, posiciones, vivos, humanos/bots, loot, tormenta, killfeed, correcciones y `reset()`.               |
 | `frontend/src/lib/state/royaleInput.ts`                           | crear      | Entrada de combate/salto separada de `playerInput`, `waveInput` y `dmInput`.                                                  |
 | `frontend/src/lib/state/royaleEffects.svelte.ts`                  | crear      | Trazadoras, impactos, chispas, granadas, escudo roto y muerte; sin tocar `dmEffects`.                                        |
-| `frontend/src/server/engines/royale.ts`                           | crear      | Motor autoritativo: fases, zepelín, salto, tormenta, loot, combate, bots, puestos y resultado.                               |
+| `frontend/src/server/engines/royale.ts`                           | crear      | Motor autoritativo: fases, zepelín, salto, tormenta, loot, combate, bots, vehículos, puestos y resultado.                    |
 | `frontend/src/server/engines/royaleCombat.ts`                     | crear      | Hitscan, LOS contra cajas, dispersión, granadas y daño reutilizando `combat.ts`.                                              |
 | `frontend/src/server/engines/royaleNav.ts`                        | crear      | Decodifica la rejilla, A* con límite de nodos, suavizado por LOS, altura de suelo y consultas de celda caminable.            |
 | `frontend/src/server/engines/royaleBots.ts`                       | crear      | Controlador de bots: relleno/sustitución, salto, loot, percepción, combate, rotación de tormenta y estados.                  |
 | `frontend/src/server/rooms/RoyaleRoom.ts`                         | crear      | Room `royale`: ciclo de vida, mensajes, `tick` a 100 ms, `go-lobby` y rechazo en curso.                                      |
 | `backend/src/lib/state/royaleConfig.ts`                           | crear      | Copia de referencia del servidor activo: mismos timings, path, tormenta, POI, loot, armas y bots.                            |
 | `backend/src/lib/state/islas-ciudad.royale.json`                  | crear      | Copia de los datos generados para que `backend/` sea autocontenido en el deploy.                                             |
-| `backend/src/server/engines/royale.ts`                            | crear      | Motor autoritativo en el servidor WebSocket activo (misma API que la copia de `frontend/`).                                  |
+| `backend/src/server/engines/royale.ts`                            | crear      | Motor autoritativo en el servidor WebSocket activo (misma API que la copia de `frontend/`), con vehículos.                  |
 | `backend/src/server/engines/royaleCombat.ts`                      | crear      | Hitscan, LOS, dispersión, granadas y daño del servidor activo.                                                               |
 | `backend/src/server/engines/royaleNav.ts`                         | crear      | Rejilla, A* con ALT, suavizado y altura de suelo del servidor activo.                                                        |
 | `backend/src/server/engines/royaleBots.ts`                        | crear      | IA de bots del servidor activo; nunca ocupa plazas ni envía mensajes.                                                        |
-| `backend/src/server/protocol.ts`                                  | modificar  | `minigame-8`, definición `Skyfall Royale`, tipos `Mg8*`, uniones de servidor y cliente.                                       |
-| `backend/src/server/validate.ts`                                  | modificar  | Validación de `mg8-position/jump/shoot/throw/reload/equip`.                                                                   |
+| `backend/src/server/protocol.ts`                                  | modificar  | `minigame-8`, definición `Skyfall Royale`, tipos `Mg8*`, vehículos y uniones de servidor y cliente.                          |
+| `backend/src/server/validate.ts`                                  | modificar  | Validación de `mg8-position/jump/shoot/throw/reload/equip` y `mg8-vehicle-enter/exit/state`.                                  |
 | `backend/src/index.ts`                                            | modificar  | Topic `lobby:minigame-8`, puerto/engine, estado de lobby, tick a 100 ms, admisión y handlers `mg8-*`.                         |
 | `frontend/rundot/rooms.config.json`                               | modificar  | Alta de la room `royale` con 12 humanos, reconexión 20 s e idle 120 s; los bots no cuentan como plazas.                        |
-| `frontend/src/server/protocol.ts`                                 | modificar  | `minigame-8` en listas/definiciones; tipos `Mg8*` con `isBot`, `humans`, `bots`; unión de mensajes y `CLIENT_MESSAGE_TYPES`. |
-| `frontend/src/server/validate.ts`                                 | modificar  | Esquemas de `mg8-position`, `mg8-jump`, `mg8-shoot`, `mg8-throw`, `mg8-reload` y `mg8-equip`; rechazo de mensajes de bots.    |
-| `frontend/src/lib/services/protocol.ts`                           | modificar  | Espejo de tipos/guards `Mg8*` y `minigame-8`.                                                                                 |
-| `frontend/src/lib/services/lobbySocket.ts`                        | modificar  | Callbacks `onMg8State/Positions/Event/Correct`, senders `sendMg8*` y dispatch.                                                |
+| `frontend/src/server/protocol.ts`                                 | modificar  | `minigame-8` en listas/definiciones; tipos `Mg8*` con `isBot`, `humans`, `bots` y vehículos; unión de mensajes y `CLIENT_MESSAGE_TYPES`. |
+| `frontend/src/server/validate.ts`                                 | modificar  | Esquemas de `mg8-position/jump/shoot/throw/reload/equip` y `mg8-vehicle-enter/exit/state`; rechazo de mensajes de bots.        |
+| `frontend/src/lib/services/protocol.ts`                           | modificar  | Espejo de tipos/guards `Mg8*` (jugadores, vehículos, eventos de vehículo) y `minigame-8`.                                    |
+| `frontend/src/lib/services/lobbySocket.ts`                        | modificar  | Callbacks `onMg8State/Positions/Event/Correct/VehicleCorrect`, senders `sendMg8*` y dispatch.                                |
 | `frontend/src/lib/state/lobby.svelte.ts`                          | modificar  | Wiring de `minigame8`, `isRoyaleLobbyId`, reset y `exitRequest` a `ROYALE_EXIT`.                                             |
-| `frontend/src/lib/state/checkpoints.svelte.ts`                    | modificar  | Checkpoint `minigame-8` `SKYFALL ROYALE` en `(60, 0.4, 60)`, `#38bdf8`, radio 2.2.                                           |
+| `frontend/src/lib/state/checkpoints.svelte.ts`                    | modificar  | Checkpoint `minigame-8` `SKYFALL ROYALE` en `(-17.5, 0.4, 6.5)`, `#38bdf8`, radio 2.2.                                           |
 | `frontend/src/lib/state/playerState.ts`                           | modificar  | `ROYALE_ENTRY`/`ROYALE_EXIT` y `playerRuntime.inRoyale`.                                                                      |
 | `frontend/src/lib/state/sceneState.svelte.ts`                     | modificar  | `minigame-8` → `islas-ciudad`; getter `inRoyale`.                                                                             |
 | `frontend/src/lib/world/registry.generated.ts`                    | regenerar  | `bun run world:sync` añade `islas-ciudad` y su import de físicas.                                                             |
@@ -365,16 +427,25 @@ cierra el círculo, loot repartido por la ciudad, combate autoritativo,
 | `frontend/src/lib/components/royale/RoyaleLoot.svelte`            | crear      | 70 pickups con modelos GLB, halo, color y disponibilidad.                                                                    |
 | `frontend/src/lib/components/royale/RoyaleStorm.svelte`           | crear      | Cilindro y anillo de tormenta con interpolación de centro/radio.                                                             |
 | `frontend/src/lib/components/royale/RoyaleProjectiles.svelte`     | crear      | Granadas, explosiones, trazadoras y chispas reutilizando `GrenadeProjectile`/`WaveExplosion`.                                |
-| `frontend/src/lib/components/royale/RoyaleHud.svelte`             | crear      | Vivos/12, humanos/bots, kills, timer de tormenta, HP/escudo, arma, munición, granadas y estado de salto.                     |
+| `frontend/src/lib/components/royale/RoyaleHud.svelte`             | crear      | Vivos/12, humanos/bots, kills, timer de tormenta, HP/escudo, arma, munición, granadas, `[R] Reload`, estado de salto y aviso de rescate en el agua. |
 | `frontend/src/lib/components/royale/RoyaleMinimap.svelte`         | crear      | SVG 180 × 180 con bounds, POI, jugador, círculo actual y siguiente.                                                          |
 | `frontend/src/lib/components/royale/RoyaleKillfeed.svelte`        | crear      | Killfeed con arma, tormenta, caída y chip `BOT` en asesinos/víctimas bot.                                                    |
 | `frontend/src/lib/components/royale/RoyaleTopAlive.svelte`        | crear      | Panel lateral top 5 de vivos por kills, colapsable, con chip `BOT`.                                                          |
 | `frontend/src/lib/components/royale/RoyaleOverlay.svelte`         | crear      | Espera, countdown, aviso `jugando con 11 bots`, eliminación, resultados, victoria y espectador.                              |
 | `frontend/src/lib/components/royale/RoyaleControls.svelte`        | crear      | Clic/toque para disparar, `G`, `R`, `1`–`4`, salto y asistencia de puntería.                                                 |
+| `frontend/src/lib/components/royale/RoyaleVehicles.svelte`        | crear      | Lista los 7 vehículos, interpola su pose a 10 Hz y decide qué barra de vida se dibuja.                                       |
+| `frontend/src/lib/components/royale/RoyaleCar.svelte`             | crear      | Coche local con `VehiclePhysics` y coche remoto cinemático; consume `mg8-vehicle-correct`.                                    |
+| `frontend/src/lib/components/royale/RoyaleBalloon.svelte`         | crear      | Globo local con vuelo propio (despegue, avance, techo y bounds) y globo remoto interpolado.                                   |
+| `frontend/src/lib/components/royale/RoyaleVehicleBar.svelte`      | crear      | Barra de vida sobre el vehículo con `HTML` de Threlte, nombre, HP y estado destruido.                                         |
+| `frontend/src/lib/components/royale/RoyaleVehicleControls.svelte` | crear      | Prompt `E · Enter/Exit`, panel de vida y aviso `DRIVING` mientras se conduce.                                                 |
+| `frontend/src/lib/state/royaleVehicles.svelte.ts`                 | crear      | Store del vehículo cercano: distancia, entrada/salida y visibilidad del prompt.                                               |
+| `frontend/src/lib/components/cars/VehiclePhysics.svelte`          | reutilizar | Física arcade del coche (rigid body, ruedas, modelo y explosión); no se modifica.                                             |
 | `frontend/src/lib/components/royale/RoyaleSpectator.svelte`       | crear      | Cámara orbital sobre el asesino/líder (humano o bot) y ciclo con `V`.                                                        |
-| `frontend/src/lib/components/ui/MobileControls.svelte`            | modificar  | Botones de salto/planeo, disparo, granada, recarga y ranuras en `inRoyale`.                                                  |
+| `frontend/src/lib/components/ui/MobileControls.svelte`            | modificar  | Botones de salto/planeo, disparo, granada, `Reload`, ranuras, `Drive`/`Fly`, `Exit` y `Rise`/`Down` en `inRoyale`, también dentro del vehículo. |
 | `frontend/src/lib/components/ui/villageGuide.ts`                  | modificar  | Entrada del nuevo checkpoint en la guía de la aldea.                                                                         |
-| `frontend/src/lib/components/audio/AudioBootstrap.svelte`         | modificar  | `CountdownSource` incluye `royale`; audio de tormenta y victoria.                                                            |
+| `frontend/src/lib/components/audio/AudioBootstrap.svelte`         | modificar  | `CountdownSource` incluye `royale`; audio de tormenta, motor de coche, victoria y rescate.                                    |
+| `frontend/src/lib/components/audio/SceneAudio.svelte`             | modificar  | Motor propio y de los coches rivales de Royale; loops remotos aunque el jugador local no conduzca.                            |
+| `frontend/src/lib/audio/events.ts`                                | modificar  | `consumeMg8` mapea `vehicle-enter`/`vehicle-exit`/`vehicle-destroyed` a `car_enter`/`car_exit`/`car_explosion`.                |
 | `frontend/src/lib/missions/minigames.ts`                          | modificar  | Misión `royale-first-win`.                                                                                                   |
 | `frontend/src/lib/components/player/weaponModels.ts`              | reutilizar | Modelos de armas/pickups ya cacheados; no se modifica.                                                                       |
 | `frontend/src/server/engines/deathmatch.ts`                       | referencia | Patrón de fases, snapshots, daño, granadas y resultados.                                                                     |
@@ -608,12 +679,13 @@ Casos manuales:
 8. **Tormenta**: esperar fuera de zona y comprobar daño creciente, escudo, HUD,
    cilindro, aviso de 10 s y muerte por tormenta sin autor.
 9. **Victoria contra bots**: matar al último bot y ver `VICTORY ROYALE`, podio,
-   stats, botón y auto-salida a `(60, 0.4, 60)`.
+   stats, botón y auto-salida a `(-17.5, 0.4, 6.5)`.
 10. **Timeout y reconexión**: forzar 600 s sin muertes y comprobar el ranking;
     recargar una pestaña en `playing` y reconectar dentro de 20 s; comprobar
     que no aparece un bot en el hueco del desconectado.
-11. **Móvil**: probar salto, disparo, granada, recarga, ranuras y espectador en
-    una vista táctil.
+11. **Móvil**: probar salto, disparo, granada, recarga, ranuras, espectador y
+    los botones `Drive`/`Fly`, `Fire`, granada, `Exit`, `Rise` y `Down` en una
+    vista táctil, incluido disparar mientras se conduce.
 12. **Regresión**: entrar a cripta, Grand Prix, Barn Siege, Witch House,
     Parkour y hub; comprobar que el nuevo checkpoint y la room `royale` no
     interfieren.
@@ -622,13 +694,28 @@ Casos manuales:
     se reinicia. Cerrar la segunda pestaña y comprobar que vuelve un bot.
 14. **IA de bots**: observar que los bots saltan en momentos distintos,
     aterrizan en POIs distintos, recogen loot, rotan con la tormenta, se
-    cubren, disparan en ráfagas y no atraviesan paredes.
+    cubren, disparan en ráfagas y no atraviesan paredes. Ponerse detrás de un
+    muro: el bot no debe seguir la posición exacta ni lanzar granadas hasta
+    recuperar la línea de visión.
 15. **Bot ganador y espectador**: dejar que gane un bot y comprobar el podio,
     el chip `BOT` y que la misión local no se registra; morir y espectar a un
     bot con `V`.
 16. **Cierre con humanos**: salir de la única pestaña en `playing` y
     comprobar que la room vuelve a `idle`, que no quedan bots y que no siguen
     timers ni consumo de IA.
+17. **Coche**: ir a `car-comercios`, pulsar `E`, conducir con WASD, atropellar
+    a un bot y comprobar 40 de daño; disparar desde el coche a un objetivo con
+    LOS y comprobar que el impacto no se come en la propia carrocería; pulsar
+    `R` para enderezar el coche. Disparar al coche hasta 0 HP y ver barra,
+    explosión, eyección y pecio sin collider. Repetir un teletransporte forzado
+    y comprobar que el coche vuelve con `mg8-vehicle-correct`.
+18. **Globo**: entrar a `balloon-faro`, despegar con `Space`, disparar desde la
+    barquilla a un objetivo en el suelo, volar hasta el techo de 55 m y hasta
+    el margen de 10 m del mapa, comprobar que frena sin corrección, salir en
+    vuelo y planear hasta el suelo.
+19. **Ciclo de vehículos**: morir dentro de un vehículo y comprobar que el
+    conductor sale; salir de la room, volver a entrar y verificar que los 7
+    vehículos están en su spawn con vida completa.
 
 ## 9. Riesgos y mitigaciones
 
@@ -652,6 +739,15 @@ Casos manuales:
 | Los bots revelan posiciones o se sienten injustos           | medio   | Detección con FOV + LOS real, sin visión omnisciente, sin disparos a través de muros, chip `BOT` visible y sustitución por humanos en cuanto entran. |
 | Los bots mantienen viva una partida sin humanos              | medio   | Al salir el último humano se cancelan timers y se eliminan bots, loot y tormenta; se verifica entrando/saliendo 10 veces.                                     |
 | La rejilla de navegación queda obsoleta si cambia el mapa    | medio   | `royale:build` la regenera y `royale:check` valida POI, anclas, agua y conectividad antes de aceptar el JSON.                                                |
+| El coche local y el servidor divergen o atraviesan el mapa   | alto    | Reporte a 10 Hz con pose/velocidad, recorte de bounds y `mg8-vehicle-correct` si el salto supera `maxSpeed·dt + 4 m`; colisión solo contra el mundo estático. |
+| El globo escapa del mapa o sube sin límite                   | medio   | El servidor recorta `x/z` al rectángulo con 10 m de margen y `y` a `[spawnY, 55]`; el cliente además limita la simulación local.                           |
+| La carrocería vuelve inmortal al conductor                   | medio   | El vehículo tiene vida propia (550/400), barra visible a 60 m y explosión al destruirse; a igual distancia el impacto va al vehículo, que es el objetivo legítimo. |
+| La explosión del vehículo mata sin aviso                     | medio   | Barra sobre el modelo, panel en el HUD, 7 m de radio, 85 → 20 de daño y eyección del conductor antes de aplicar el área.                                     |
+| 7 barras `HTML` extra bajan FPS en móvil                     | bajo    | Solo se dibujan a < 60 m (< 42 m si el vehículo está destruido), la del conductor se oculta y el HUD reutiliza el panel existente.                        |
+| Disparar desde un vehículo impacta en la propia carrocería   | alto    | El hitscan excluye el vehículo que conduce el tirador; `royale:match` dispara desde coche y globo y exige daño al objetivo.                                  |
+| La cápsula de a pie empuja el chasis desde dentro            | alto    | `PlayerCollider` se desactiva con `minigame8.isDriving`; solo `VehiclePhysics`/`RoyaleBalloon` escriben `playerState` mientras se conduce.                    |
+| Los bots siguen la posición exacta sin línea de visión       | alto    | `lastSeenX/Z/At` solo se refrescan con LOS; sin LOS persiguen el último punto visto, no disparan, no granadean y no persiguen venganzas a ciegas.            |
+| Una granada daña a través de una pared                       | medio   | La explosión exige LOS desde el punto de blast al pecho de cada víctima; una pared corta la metralla.                                                        |
 
 ## 10. Preguntas abiertas
 
@@ -672,20 +768,23 @@ Futuras mejoras fuera de este spec:
 
 - Se usa `islas_ciudad.glb` completo; no se recorta ni se crea una arena.
 - El checkpoint vive en el mapa global (`map.glb`), no dentro de la partida.
-  Coordenada `(60.0, 0.40, 60.0)`, en la zona abierta entre la plaza y
-  `TWN_Building_16`, con radio 2.2. El `y = 0.4` es la altura del marcador
-  sobre el suelo, no la del terreno.
+  Coordenada `(-17.5, 0.40, 6.5)`, junto a la tienda de Halloween en la plaza
+  central (`SPEC-033`), con radio 2.2. El `y = 0.4` es la altura del marcador
+  sobre el suelo, no la del terreno. Se eligió aquí para que sea visible nada
+  más entrar al hub, en vez de estar lejos en `(60, 60)`.
 - Validación realizada contra `frontend/world/source/map.glb` +
   `frontend/world/map.physics.json` (raycast descendente desde `y = 300`):
-  - el punto cae sobre `TWN_Plaza` a `y ≈ 0.03`, sin techo ni edificio encima;
-  - el muro/obstáculo más cercano está a **17.0 m** (`CCC_Fence`), así que el
-    checkpoint no se solapa con ninguna pared;
-  - el checkpoint existente más cercano es el Grand Prix `(83, 0.06, -3)` a
-    **67 m**; no hay solape con `minigame-2`…`minigame-7`;
+  - el punto cae sobre `Circle` a `y ≈ 0.0`, sin techo ni edificio encima;
+  - el kiosco de la tienda `(-17.2, 0.4, 0)` está a **6.5 m**, así que los dos
+    discos (radios 3.2 y 2.2) no se solapan; la valla `PFM_Fence` empieza en
+    `z ≈ 10.5`, a **4 m** del centro;
+  - el gato `cat-01` `(-14, 6)` está a **3.5 m** (fuera del radio de captura de
+    2.2 m), y el anillo de NPCs de la plaza pasa a **4.7 m**;
+  - el checkpoint existente más cercano es Witch House Deathmatch
+    `(-33.01, 0.4, -22.9)` a **33.2 m**; no hay solape con `minigame-2`…`minigame-7`;
   - no hay agua en el punto (el hub no usa el océano de `islas_ciudad`).
-- `royale:check` repite esta validación de forma automática y falla si el
-  punto deja de estar sobre suelo transitable o se acerca a menos de 2.5 m de
-  un muro.
+- `royale:check` valida que `ROYALE_CHECKPOINT`, `ROYALE_ENTRY`, `ROYALE_EXIT` y
+  `CHECKPOINTS[minigame-8]` sigan apuntando a esta misma coordenada.
 - `frontend/world/islas-ciudad.royale.json` es dato de build, no de runtime:
   - `bounds`: AABB del mapa.
   - `pois`: 14 centros con nombre, radio de influencia y bounds.
@@ -753,6 +852,11 @@ Path compartido `ROYALE_ZEPPELIN_PATH` (altitud 140 m):
 - `royaleZeppelinAt(boardingStartedAt, now)` devuelve `{ x, y, z, yaw }`.
 - Los jugadores se colocan en asientos laterales alrededor del zepelín para no
   solaparse (offsets de 1.2 m en X/Z). Los bots usan los mismos asientos.
+- Mientras `mode === 'riding'` no se dibuja ningún avatar: ni el local ni los
+  remotos. El zepelín se ve desde la cuenta atrás esperando en el primer
+  waypoint y cada jugador aparece al saltar o al ser expulsado a los `32 s`.
+  Un `player-jumped` heredado de la partida anterior nunca dispara la caída de
+  la siguiente: `lastJumpAt` se reinicia al arrancar `playing`.
 - `Zeppelin.svelte` gana un modo `path` opt-in:
   ```svelte
   <Zeppelin path={ROYALE_ZEPPELIN_PATH} pathTime={elapsed} pathActive />
@@ -774,7 +878,15 @@ Path compartido `ROYALE_ZEPPELIN_PATH` (altitud 140 m):
 - El cliente envía `mode` en cada `mg8-position`; el servidor solo acepta la
   secuencia `riding → skydive → glide → ground` (o `riding → ground` si cae
   justo en el zepelín).
-- No hay daño por caída.
+- **Daño por caída** (RF-82): el salto del zepelín no registra altura y llega
+  ileso a tierra (entrada estándar con planeo). Al salir de un globo en vuelo,
+  el servidor guarda la altura de la barquilla y, al pasar a `ground`, calcula
+  `drop = alturaDeSalida - y` y aplica
+  `royaleFallDamage(drop, gliding)`: 0 si `drop ≤ 5 m`; si no,
+  `(drop - 5) · (planeando ? 0.5 : 1) · 1.2`, tope 50. El planeo amortigua pero
+  no anula el golpe. El daño consume escudo y luego vida, sin autor; si mata,
+  la causa es `fall`. El rescate en agua limpia la altura de salida y no cobra
+  daño.
 - Si `y < -8` el servidor elimina con causa `fell`.
 - Los bots usan exactamente las mismas alturas, gravedad y planeo; su salto y
   su punto de aterrizaje los decide el servidor, no el cliente.
@@ -852,14 +964,26 @@ Path compartido `ROYALE_ZEPPELIN_PATH` (altitud 140 m):
 ### 11.7 Combate, daño y muerte
 
 - HP 100 + escudo 100. El escudo absorbe primero; no se regenera.
-- Pistola 12 / 6 Hz / 55 m / cargador 12.
-- Escopeta 8 × 6 con dispersión ±7° / 1.2 Hz / 32 m / cargador 6.
-- SMG 9 / 11 Hz / 42 m / cargador 30.
-- Rifle 46 / 1.5 Hz / 130 m / cargador 5.
+- Pistola 17 / 6 Hz / 55 m / cargador 12.
+- Escopeta 8 × 7 con dispersión ±7° / 1.2 Hz / 32 m / cargador 6.
+- SMG 11 / 11 Hz / 42 m / cargador 30.
+- Rifle 52 / 1.5 Hz / 130 m / cargador 5.
 - Granada: 75 centro → 30 borde, radio 4.5 m, espoleta 1.5 s, autodaño.
+- **Caída (RF-82):** `(drop - 5) · (planeando ? 0.5 : 1) · 1.2`, tope 50, 0 si
+  `drop ≤ 5 m`. Solo cuenta la salida de un globo en vuelo; el salto del
+  zepelín es gratis. Sin autor, consume escudo primero y avisa con `player-hurt`.
 - Sin daño amigo (todos son enemigos). Sin headshots ni multiplicadores.
 - El servidor valida LOS con las cajas de oclusión; no se puede matar a través
   de paredes, techos o rocas.
+- **Compensación de retardo:** el cliente dibuja a los remotos 200 ms en el
+  pasado, así que `onShoot` resuelve el hitscan contra la posición histórica
+  del objetivo (hasta 800 ms de muestras a 10 Hz) y no contra la actual. Un
+  disparo que se ve encima del enemigo cuenta aunque su posición autoritativa
+  ya se haya movido. Al aterrizar no se rebobina hacia el zepelín.
+- **Feedback de impacto:** cada `player-hurt` con `otherId = selfId` enciende
+  el hit marker del crosshair, añade una chispa en el punto de impacto, sangre
+  y el sonido `hit_flesh`. Sin esto el daño era invisible aunque el servidor
+  lo aplicara.
 - Crédito de baja: último daño en 5 s. Tormenta/caída no dan kill.
 - Al morir: `placement = vivosAntesDeMorir`, drop del arma, evento `kill` o
   `death`, killfeed y paso a espectador.
@@ -896,10 +1020,12 @@ Path compartido `ROYALE_ZEPPELIN_PATH` (altitud 140 m):
 - Killfeed: `A eliminó a B con Rifle`, `Bot Paco eliminó a A con SMG`,
   `B se perdió en la tormenta`, `B cayó al mar`.
 - Controles: `WASD`, ratón, `Space` (saltar/saltar del zepelín), `G`
-  (granada), `R` (recargar), `1`–`4` (ranuras), `V` (espectador), `Esc`
-  (salir/pausa local).
+  (granada), `R` (recargar; al conducir, enderezar el coche), `E` (entrar o
+  salir del vehículo), `V` (espectador; al pilotar el globo, alternar
+  1ª/3ª persona), `1`–`4` (ranuras), `Esc` (salir/pausa local).
 - Móvil: joystick, arrastre para cámara, botones de disparo/granada/recarga,
-  salto y ranuras; sin botón de coche.
+  salto y ranuras; sin botón de coche. En el globo aparecen `Rise`, `Down` y
+  `View` (1ª/3ª persona).
 
 ### 11.10 Protocolo (resumen)
 
@@ -1090,8 +1216,8 @@ Reglas:
   (`skydive 40/40/9`, `glide 6/6/12`). El servidor mueve al bot y comprueba
   que el punto final está en una celda caminable; si no, usa la celda
   caminable más cercana.
-- Al aterrizar se pasa a `ground`, se busca loot y se empieza a navegar. No hay
-  daño por caída.
+- Al aterrizar se pasa a `ground`, se busca loot y se empieza a navegar. Los bots
+  pagan el mismo daño por caída (RF-82) con el factor de planeo.
 
 #### 11.14.5 Loot y economía
 
@@ -1204,6 +1330,160 @@ Reglas:
   anuncie `canEnter` antes de mover al jugador; `onEnter` sigue siendo la
   autoridad final (rechaza `ROYALE_IN_PROGRESS` y `ROYALE_FULL`).
 
+### 11.16 Coches y globos (vehículos destruibles)
+
+#### 11.16.1 Reparto en el mapa
+
+- Cuatro coches y tres globos fijos por partida, medidos con `floorHeightAt`
+  sobre `world/islas-ciudad.royale.json` y validados por `royale:check`:
+
+  | id                 | Tipo    | Modelo              | Spawn `(x, y, z)`   | POI              | Nota                                  |
+  | ------------------ | ------- | ------------------- | ------------------- | ---------------- | ------------------------------------- |
+  | `car-comercios`    | coche   | `coche_calabaza`    | `(157, 2.6, -17)`   | `comercios-este` | yaw `π/2`; acera abierta              |
+  | `car-resort`       | coche   | `coche_momia`       | `(83, -0.3, 65)`    | `resort-este`    | yaw `0`; arena del resort             |
+  | `car-sur`          | coche   | `coche_halloween`   | `(-1, 2.6, -183)`   | `isla-sur`       | yaw `π`; explanada sur                |
+  | `car-civico`       | coche   | `coche_calabaza`    | `(11, 2.7, 137)`    | `distrito-civico`| yaw `-π/2`; plaza cívica              |
+  | `balloon-faro`     | globo   | `props/balloon.glb` | `(-1, 2.92, -15)`   | `faro-viejo`     | yaw `0`; junto al faro                |
+  | `balloon-noroeste` | globo   | `props/balloon.glb` | `(-109, 1.62, -121)`| `resort-noroeste`| yaw `π/3`; claro del resort           |
+  | `balloon-norte`    | globo   | `props/balloon.glb` | `(-13, -1.18, 197)` | `muelle-norte`   | yaw `π`; muelle                       |
+
+- `y` es el centro del chasis en los coches (`suelo + 1`) y la base de la
+  barquilla en los globos (`suelo + 0.02`). Los siete puntos están a ≥ 6 m de
+  cualquier ancla de loot o de bot, a ≥ 8 m entre sí y a ≤ 30 m de su POI, para
+  que se encuentren caminando sin pisar el loot.
+- Se reutilizan los modelos de `SPEC-023` y el globo de `SPEC-037`; no hay GLB
+  nuevos ni cambios en `islas_ciudad.glb`.
+
+#### 11.16.2 Entrada, asiento y salida
+
+- `E` entra si el jugador está vivo, en `ground`, sin vehículo, en `playing`, a
+  ≤ 4.5 m horizontales y ≤ 4 m verticales del vehículo, y este no está
+  destruido ni ocupado. Un segundo `E` sale. Si no hay vehículo cerca, `E`
+  vuelve a ser el salto del battle royale.
+- Al entrar, el servidor pega al jugador a la pose del vehículo:
+  - coche: pies `y − 1.0` (`ROYALE_CAR_SEAT_OFFSET`);
+  - globo: pies `y + 1.2` (`ROYALE_BALLOON_SEAT_OFFSET`).
+- Al salir, el servidor elige un punto caminable a 2.8 m del lado del vehículo
+  (búsqueda de hasta 8 m) y lo manda en `vehicle-exit` con `px/py/pz` y `mode`.
+  Si el globo está en vuelo, el jugador pasa a `glide` desde la barquilla en vez
+  de caer al vacío, y el servidor recuerda esa altura para cobrar el daño por
+  caída al aterrizar (RF-82): el planeo amortigua pero no anula el golpe.
+- Morir, desconectarse, salir de la room o destruirse el vehículo expulsa al
+  conductor con la misma ruta.
+
+#### 11.16.3 Coche
+
+- Física arcade local con `VehiclePhysics` (rigid body, ruedas, modelo y
+  explosión ya usados en el hub). El servidor no simula Rapier: recibe la pose.
+- Velocidad máxima `26 m/s` (`ROYALE_CAR_MAX_SPEED`). El conductor reporta a
+  10 Hz con `mg8-vehicle-state` (`x,y,z,qx,qy,qz,qw,vx,vy,vz,speed,steering`).
+- El servidor recorta `x/z` a los bounds ±4 m e `y` a `[-20, ROYALE_MAX_POSITION_Y]`,
+  limita `speed` y rechaza saltos mayores que `maxSpeed · dt + 4 m`
+  (`ROYALE_VEHICLE_TELEPORT_TOL`). En ese caso responde `mg8-vehicle-correct`
+  con la última pose válida y el cliente recoloca el coche.
+- Colisión: `ROYALE_VEHICLE_COLLISION_GROUPS = (0x0040 << 16) | 0x0001`, es
+  decir, el vehículo choca con el mundo estático. El atropello es lógica del
+  servidor para que no dependa del frame del cliente.
+- Combate desde el coche: el conductor puede disparar. El servidor acepta un
+  origen con `+3.5 m` de margen horizontal sobre `ROYALE_SHOT_ORIGIN_TOL`
+  (el asiento local va por delante del reporte a 10 Hz) e ignora el propio
+  vehículo del tirador en el hitscan, para que la carrocería no absorba el
+  disparo. `R` endereza el coche en el sitio en vez de recargar.
+- Atropello: `speed ≥ 7 m/s`, víctima viva a ≤ 2.9 m horizontales y ≤ 2.8 m
+  verticales, 40 de daño (`ROYALE_VEHICLE_RAM_DAMAGE`) con crédito al
+  conductor, máximo una vez cada 1.5 s por víctima.
+
+#### 11.16.4 Globo
+
+- Simulación local propia: `Space` despega a `6.5 m/s`
+  (`ROYALE_BALLOON_LIFT_SPEED`), aceleración horizontal `6 m/s²`, giro
+  `1.2 rad/s`, avance máximo `13 m/s` y descenso suave al soltar (`Shift`).
+- El servidor recorta la pose eje a eje: `x/z` dentro del mapa con margen
+  interior de 10 m (`ROYALE_BALLOON_BOUNDS_MARGIN`) e `y` entre la altura de
+  spawn y `55 m` (`ROYALE_BALLOON_MAX_Y`). No hay corrección por salto si el
+  recorte es el esperado; el cliente ve el globo frenar en el techo y en el
+  borde.
+- Salir en vuelo (> 2.5 m sobre el suelo) deja al jugador en `glide`, con la
+  velocidad de planeo normal; el globo se queda sin conductor y puede volver a
+  pilotarse.
+- El globo no usa Rapier: su colisión es la caja del mapa y el techo. Las aspas
+  y la barquilla son visuales.
+- Se puede disparar y lanzar granadas desde la barquilla. El origen se valida
+  con `+3.5 m` / `+4.5 m` de margen horizontal mientras se conduce y el propio
+  globo se excluye del hitscan. La cámara usa `ROYALE_BALLOON_PROFILE` (radio
+  13, 8–20 m), más cerrado que el globo del mapa libre para que los objetivos
+  sigan legibles desde el aire.
+
+#### 11.16.5 Vida, daño y destrucción
+
+- Vida: coche `550`, globo `400` (`ROYALE_VEHICLE_HEALTH`). La vida vive en el
+  servidor; el cliente solo la dibuja.
+- Hitscan: la carrocería es un blanco válido con radio lateral `1.9 m` (coche)
+  o `2.4 m` (globo) y altura `y − 1.1…+1.6` / `y − 0.2…+3.2`. Se compara por
+  distancia con el jugador más cercano y, **a igual distancia, gana el
+  vehículo**: quien va dentro está protegido por su propio coche.
+- Cada impacto emite `vehicle-hit` con daño y posición; a 0 HP se emite
+  `vehicle-destroyed`, el conductor sale despedido y una explosión de `7 m`
+  (`ROYALE_VEHICLE_BLAST_RADIUS`) reparte `85` de daño en el centro y `20` en
+  el borde, con crédito al último atacante.
+- Un vehículo destruido queda como pecio: sin collider, sin entrada, sin barra
+  y sin vida. No se repara ni reaparece hasta el siguiente `reset()` de la room.
+- La explosión también daña al conductor y a los bots cercanos. No hay daño
+  amigo porque no hay equipos.
+
+#### 11.16.6 Cliente, HUD y cámara
+
+- `RoyaleVehicles.svelte` recorre el snapshot, interpola poses a 10 Hz y monta
+  `RoyaleCar` (local con `VehiclePhysics`, remoto cinemático) o
+  `RoyaleBalloon` (local con vuelo propio, remoto interpolado).
+- `RoyaleVehicleBar.svelte` dibuja nombre, HP y estado sobre el modelo con
+  `HTML` de Threlte a `3.1 m` (coche) y `12.5 m` (globo). La barra del vehículo
+  que conduce el jugador local se oculta: esa información va al HUD.
+- `RoyaleHud` añade el panel `DRIVING` con vida del vehículo y
+  `RoyaleControls` muestra `E · Enter/Exit` en el centro inferior; en móvil
+  aparecen `Fire`, granada, `Exit` y `Rise`/`Down` mientras se conduce.
+- `PlayerCollider` desactiva su cápsula cinemática con `minigame8.isDriving`:
+  `VehiclePhysics` y `RoyaleBalloon` son la única fuente de `playerState`.
+  Antes la cápsula copiaba la pose replicada (200 ms tarde) y empujaba el
+  chasis desde dentro, lo que hacía que el coche se sintiera bloqueado.
+- `Player.svelte` oculta el avatar y los cosméticos locales, y `RoyaleRemote`
+  oculta al conductor remoto (`vehicles[].driverId` interpolado). La cámara usa
+  `CAR_PROFILE` en coche y `ROYALE_BALLOON_PROFILE` en globo.
+- `royaleVehicles.svelte.ts` calcula el vehículo cercano, el prompt y la
+  entrada/salida; no guarda estado autoritativo.
+
+#### 11.16.7 Protocolo y autoridad
+
+- Cliente → servidor: `mg8-vehicle-enter { vehicleId }`, `mg8-vehicle-exit` y
+  `mg8-vehicle-state` con la pose y velocidad del coche/globo.
+- Servidor → cliente: `vehicles[]` en `mg8-state` y `mg8-positions`,
+  `mg8-vehicle-correct` para el conductor, y eventos `vehicle-enter`,
+  `vehicle-exit` (con `px/py/pz` y `mode`), `vehicle-hit` y
+  `vehicle-destroyed`.
+- El servidor es la autoridad de vida, destrucción, atropello, explosión,
+  límites y expulsión. El cliente solo propone la pose; si miente, se recorta o
+  se corrige. Los bots no envían mensajes de vehículo.
+- Los disparos desde vehículo siguen pasando por `onShoot`/`onThrow`: fase,
+  vivo, arma, cargador, cadencia, línea de visión y margen de origen. El
+  vehículo del tirador no participa en el hitscan. Las granadas exigen LOS
+  desde el blast al pecho de cada víctima, y los bots solo actualizan su
+  memoria de posición, disparan o granadean con LOS real.
+
+#### 11.16.8 Verificación
+
+- `royale:check` valida cantidad (4 + 3), tipos, spawns caminables, altura
+  sobre el suelo, separación de anclas (≥ 6 m), separación entre vehículos
+  (≥ 8 m), distancia al POI (≤ 30 m) y constantes de vida/barra.
+- `royale:match` cubre: entrar al coche, conducir, tope de velocidad, atropello
+  de 40, salto imposible con `mg8-vehicle-correct`, disparo desde el coche y
+  desde el globo contra un objetivo con LOS, disparo que daña el coche,
+  destrucción con explosión y eyección; globo con recorte de bounds, techo de
+  55 m y salida en `glide` con punto autoritativo. También prueba un muro real
+  de `ROYALE_OCCLUDERS`, un control positivo en el cielo y un bot sin LOS que
+  no refresca la posición, no dispara y no granadea.
+- `royale:match --bots`, `royale:balance`, `royale:bots`, `tsc` de frontend y
+  backend, `check`, `build` y `royale:check` pasan en verde.
+
 ## 12. Progreso
 
 | Fecha      | Estado   | Nota                                                                                                    |
@@ -1213,7 +1493,10 @@ Reglas:
 | 2026-11-14 | implementado | **Skyfall Royale completo en `islas-ciudad`.** Checkpoint `minigame-8`, room `royale`, datos generados (`world/islas-ciudad.royale.json`: 14 POI, 70 loot, 28 anclas, 914 oclusores, rejilla 210×250 con 10 075 celdas), motor autoritativo y bots de relleno (hasta 11), cliente y HUD completos, audio, misión `royale-first-win` y guía. Navegación A* con heurística ALT por *landmarks* (mismas rutas, ~600 nodos frente al límite de 4 000); margen de tormenta adaptativo en círculos finales. Pasan `royale:build`, `royale:check`, `royale:balance`, `royale:match` (normal y `--bots`), `royale:bots` (500 solo-bots + 200 con humano de referencia), `world:sync`, `islas-ciudad:check`, `map:check`, `check`, `lint` y `build`. `SPEC-009` actualizado con la integración del mapa. |
 | 2026-11-14 | implementado | **Portado al servidor activo `backend/`.** El checkpoint no iniciaba nada porque el runtime usa el WebSocket de Elysia/Bun y `frontend/src/server/` es solo la copia de verificación. Añadidos `minigame-8` en `LOBBY_IDS`/`MINIGAME_LOBBY_IDS`/`LOBBY_DEFINITIONS`, tipos `Mg8*`, validadores `mg8-*`, confianza de lobby (`canEnter`), topic `lobby:minigame-8`, tick a 100 ms y engine completo con bots. Smoke test real por WebSocket: `enter-lobby minigame-8` → presencia dentro, `mg8-state` en `countdown` con 1 humano + 11 bots. `bunx tsc --noEmit` en `backend/` en verde. |
 | 2026-11-14 | implementado | **Pulido de cámara y bots.** La cámara de Royale usa el perfil de combate de Barn Siege (radio 6.5, hombro 0.9, pecho 1.55, entrada `theta = π`/`phi = 0.16`). Los bots piensan a 5 Hz pero se mueven de forma continua a 10 Hz con giro suavizado, objetivos de patrulla/tormenta estables y strafe continuo; ya no giran en círculos ni dan saltos de 200 ms. Corregida la navegación: los waypoints solo pisan celdas caminables, el objetivo exacto de A* se valida y un empujón de emergencia rescata al bot de una celda inválida. La línea de tiro acepta pecho/cabeza/cadera y el hitscan tiene tolerancia lateral `0.85 m`, así los bots son killables. Muestreo `royale:bots` 200+60: atascos ≤ `0.3 s`, humano de referencia `31.7 %` de victorias; la ejecución completa 500+200 queda en verde. |
+| 2026-11-15 | actualizado  | **Combate legible y disparos que cuentan.** El daño se subió a pistola 17 / escopeta 8×7 / SMG 11 / rifle 52 para que un cargador de pistola tumbe a 100 HP + 100 de escudo. El hitscan del servidor rebobina 200 ms las posiciones de los objetivos (`ROYALE_LAG_COMPENSATION_MS`), la mira asistida sube a 2.2 m y el hit marker del crosshair ya se enciende con cada impacto confirmado (`royaleEffects.impact`). Pasan `royale:balance`, `royale:match`, `royale:bots`, `check` y `build`. |
 | 2026-11-14 | actualizado  | **Recompensas NFT y guía de turismo.** La pista `royale` de `SPEC-045` documenta `royale-first` (T0, sin mint), `royale-kills-10` → `sniper-gold`, `royale-kills-50` → `bazooka-gold` y `royale-kills-200` → `ghost` (T3, requiere 200 kills y 5 victorias). El centro de turismo (`SPEC-033`) lista Skyfall Royale como novena actividad con el mapa `islas-ciudad`; solo lectura, sin mint desde el kiosco. |
+| 2026-11-15 | implementado | **Coches y globos destruibles.** 4 coches (`coche_calabaza`, `coche_momia`, `coche_halloween`) y 3 globos (`props/balloon.glb`) fijos por partida, en puntos caminables a ≥ 6 m del loot/bots y ≤ 30 m de su POI. `E` entra/sale; coche con `VehiclePhysics` a 26 m/s y atropello de 40; globo con despegue, 13 m/s, techo de 55 m y margen de mapa de 10 m. Vida 550/400, barra sobre el modelo y en el HUD, hitscan contra la carrocería que protege al conductor, destrucción con explosión de 7 m (85 → 20) y salida en planeo desde el globo. Autoridad de servidor con `mg8-vehicle-*`, `mg8-vehicle-correct` y eventos `vehicle-enter/exit/hit/destroyed`. `royale:check` valida los spawns y `royale:match` cubre coche y globo; pasan `royale:check`, `royale:match` (normal y `--bots`), `royale:balance`, `royale:bots`, `tsc` de frontend/backend, `check` y `build`. |
+| 2026-11-15 | corregido | **Conducción, disparo desde vehículos y bots justos.** La cápsula de `PlayerCollider` se desactiva al conducir y deja de empujar el chasis desde dentro; `RoyaleCar`/`RoyaleBalloon` usan el id de conductor inmediato (evento) en vez del snapshot a 1 Hz; `R` endereza el coche y se aplican las teclas mantenidas al entrar. Se puede disparar y lanzar granadas desde coche/globo: el servidor amplía el margen de origen y excluye el vehículo del tirador del hitscan. La cámara del globo tiene perfil propio y los controles móviles añaden `Fire`/granada. Los bots solo refrescan la posición vista con LOS, no disparan/granadean a ciegas, y las explosiones exigen LOS desde el blast al pecho. Pasan `royale:check`, `royale:match` (normal y `--bots`), `royale:bots`, `tsc` de frontend/backend, `check` y `build`. |
 
 ## 13. Changelog
 
@@ -1223,3 +1506,8 @@ Reglas:
 - 2026-11-14 — Portado el motor al backend activo (`backend/`): `minigame-8`, protocolo `Mg8*`, validación `mg8-*`, estado de lobby, tick y handlers. El checkpoint ya inicia la partida en el juego real; el fallo era que solo existía en la copia de referencia de `frontend/src/server/`.
 - 2026-11-14 — Cámara de Royale alineada con Barn Siege (`ROYALE_PROFILE`) y bots fluidos: pensamiento a 5 Hz con desplazamiento continuo a 10 Hz, giro suavizado, patrulla/tormenta estables, strafe continuo y red de seguridad contra atascos. Navegación endurecida para no pisar celdas no caminables y combate con LOS a pecho/cabeza/cadera y tolerancia lateral mayor para que todos los bots sean killables.
 - 2026-11-14 — Recompensas NFT documentadas: pista `royale` de `SPEC-045` con `sniper-gold`, `bazooka-gold` y `ghost`, y entrada de Skyfall Royale en el centro de turismo (`SPEC-033`) con `islas-ciudad` y estado de misión. Sin mint desde el checkpoint ni desde el kiosco.
+- 2026-11-15 — Disparos que se sienten: daño de armas +42 %/+17 %/+22 %/+13 %, compensación de retardo de 200 ms en el hitscan autoritativo, mira asistida de 2.2 m e hit marker conectado a `royaleEffects.impact`. El retroceso visual del crosshair ya no es la única señal de un impacto.
+- 2026-11-15 — Vehículos destruibles: 4 coches y 3 globos con vida (550/400), barras sobre el modelo y HUD, entrada/salida con `E`, atropello de 40, explosión de 7 m (85 → 20) y eyección, límites autoritativos de mapa/altitud/velocidad, `mg8-vehicle-correct` y salida en planeo desde un globo en vuelo. Añadidos `RoyaleVehicles`, `RoyaleCar`, `RoyaleBalloon`, `RoyaleVehicleBar`, `RoyaleVehicleControls`, `royaleVehicles.svelte.ts`, validación de spawns en `royale:check` y pruebas de coche/globo en `royale:match`.
+- 2026-11-15 — Corrección de conducción y combate: la cápsula de a pie se desactiva al conducir (el coche deja de recibir empujes desde dentro), el conductor se detecta por evento y no por snapshot a 1 Hz, `R` endereza, se aplican las teclas mantenidas al entrar y la cámara del globo tiene perfil propio. Se puede disparar y granadear desde coche/globo, con margen de origen ampliado y el propio vehículo excluido del hitscan. Los bots solo refrescan la posición vista con LOS, no disparan/granadean a ciegas y las explosiones exigen LOS desde el blast al pecho. Añadidos `Fire`/granada móviles y pruebas de LOS, bot sin LOS y disparo desde ambos vehículos en `royale:match`.
+- 2026-11-15 — Vista de combate: el globo arranca en 1ª persona con rumbo inicial de la barquilla, `V`/`View` alternan a 3ª y `ROYALE_BALLOON_EYE_OFFSET` alinea cámara, disparo y granada. El coche oculta la retícula y los avatares remotos (incluidos bots) reproducen clips de puntería 1.6 s tras cada `shot-fired`.
+- 2026-11-16 — Daño por caída (RF-82): solo la salida de un globo en vuelo registra altura y cobra el golpe al aterrizar; el salto del zepelín sigue siendo gratis porque es la entrada estándar con planeo. El planeo amortigua (×0.5) pero no anula. Curva en `royaleConfig.ts` (`royaleFallDamage`), causa `fall` en el killfeed/overlay y pruebas en `royale:check` y `royale:match`. El checkpoint se movió junto a la tienda (`-17.5, 0.4, 6.5`).

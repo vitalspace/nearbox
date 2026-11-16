@@ -56,6 +56,8 @@
 	import RoyaleSession from './components/royale/RoyaleSession.svelte';
 	import RoyaleSpectator from './components/royale/RoyaleSpectator.svelte';
 	import RoyaleStorm from './components/royale/RoyaleStorm.svelte';
+	import RoyaleVehicleControls from './components/royale/RoyaleVehicleControls.svelte';
+	import RoyaleVehicles from './components/royale/RoyaleVehicles.svelte';
 	import ThirdPersonCamera from './components/camera/ThirdPersonCamera.svelte';
 	import CrosshairTracker from './components/combat/CrosshairTracker.svelte';
 	import SceneAudio from './components/audio/SceneAudio.svelte';
@@ -176,11 +178,13 @@
 		<RoyaleDrop />
 		<RoyaleStorm />
 		<RoyaleControls />
+		<RoyaleVehicleControls />
 		<RoyaleSpectator />
 		{#if minigame8.snapshot}
 			<RoyaleRemotes />
 			<RoyaleLoot />
 			<RoyaleProjectiles />
+			<RoyaleVehicles />
 		{/if}
 	{/if}
 {/if}

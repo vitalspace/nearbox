@@ -11,8 +11,11 @@ export function errorMessage(err: unknown): string {
 }
 
 /** User-friendly messages for the login / onboarding UI. */
-export function humanizeError(err: unknown): string {
+export type AuthErrorContext = 'google' | 'wallet';
+
+export function humanizeError(err: unknown, context: AuthErrorContext = 'google'): string {
 	const raw = errorMessage(err);
+	const wallet = context === 'wallet';
 
 	if (/429|too many requests|rate.?limit/i.test(raw)) {
 		return 'The public RPC is rate-limiting requests (429). Wait a few seconds and try again.';
@@ -26,32 +29,46 @@ export function humanizeError(err: unknown): string {
 		return `We couldn't prepare your account: ${raw}`;
 	}
 
-	if (/popup|window\.open|blocked/i.test(raw)) {
-		return 'The browser blocked the Google window. Allow popups for this site and try again.';
+	if (/aborted without reason|aborterror|the operation was aborted|user closed|closed the (wallet|popup|window)/i.test(raw)) {
+		return wallet
+			? 'You closed the wallet before finishing. Try again and approve the connection.'
+			: 'You closed the Google window before finishing. Try again and let the popup load completely.';
 	}
 
-	if (/aborted without reason|aborterror|the operation was aborted|user closed/i.test(raw)) {
-		return 'You closed the Google window before finishing. Try again and let the popup load completely.';
+	if (/popup|window\.open|blocked/i.test(raw)) {
+		return wallet
+			? 'Your browser blocked the wallet window. Allow popups for this site and try again.'
+			: 'The browser blocked the Google window. Allow popups for this site and try again.';
+	}
+
+	if (/user (rejected|denied|cancell?ed)|rejected by user|denied by user|declined/i.test(raw)) {
+		return wallet
+			? 'You rejected the connection in the wallet. Try again and approve it.'
+			: 'You cancelled the Google sign-in. Try again.';
 	}
 
 	if (/invalid_grant|login_required|consent_required|interaction_required/i.test(raw)) {
-		return 'Your Google session expired. Sign in again.';
+		return wallet
+			? 'The wallet session expired. Connect again.'
+			: 'Your Google session expired. Sign in again.';
 	}
 
 	if (/jwt|token.*expired|401/i.test(raw)) {
-		return 'Your Google session expired. Sign in again or use a paid mint.';
-	}
-
-	if (/rate.?limit|429|too many requests/i.test(raw)) {
-		return 'Too many requests. Wait a minute and try again.';
+		return wallet
+			? 'Your wallet session expired. Sign the message again.'
+			: 'Your Google session expired. Sign in again or use a paid mint.';
 	}
 
 	if (/mpc.*(signature|firma)|did not return the mpc/i.test(raw)) {
-		return 'The MPC did not return a signature. Try again.';
+		return wallet
+			? 'The wallet did not return a signature. Try again.'
+			: 'The MPC did not return a signature. Try again.';
 	}
 
 	if (/approved a different transaction|stale signing token|byte mismatch/i.test(raw)) {
-		return 'Google approved a different transaction. Close the popup and try again.';
+		return wallet
+			? 'The wallet approved a different transaction. Close it and try again.'
+			: 'Google approved a different transaction. Close the popup and try again.';
 	}
 
 	const first = raw.split('\n')[0].split(' at ')[0];

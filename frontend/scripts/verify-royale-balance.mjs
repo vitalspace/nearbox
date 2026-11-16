@@ -81,10 +81,10 @@ function createEngine(seed) {
 // ---------------------------------------------------------------------------
 
 const expectedWeapons = {
-	pistol: { damage: 12, rate: 6, range: 55, magSize: 12, pellets: 1, spread: 0 },
-	shotgun: { damage: 6, rate: 1.2, range: 32, magSize: 6, pellets: 8, spread: (7 * Math.PI) / 180 },
-	smg: { damage: 9, rate: 11, range: 42, magSize: 30, pellets: 1, spread: 0 },
-	rifle: { damage: 46, rate: 1.5, range: 130, magSize: 5, pellets: 1, spread: 0 }
+	pistol: { damage: 17, rate: 6, range: 55, magSize: 12, pellets: 1, spread: 0 },
+	shotgun: { damage: 7, rate: 1.2, range: 32, magSize: 6, pellets: 8, spread: (7 * Math.PI) / 180 },
+	smg: { damage: 11, rate: 11, range: 42, magSize: 30, pellets: 1, spread: 0 },
+	rifle: { damage: 52, rate: 1.5, range: 130, magSize: 5, pellets: 1, spread: 0 }
 };
 
 assert(ROYALE_WEAPONS.length === 4, `${ROYALE_WEAPONS.length} armas, se esperaban 4`);
@@ -126,15 +126,24 @@ for (const [id, result] of Object.entries(ttk)) {
 	);
 }
 
-close(ttk.pistol.seconds, 1.33, 0.02, 'pistol TTK');
-close(ttk.shotgun.seconds, 1.67, 0.02, 'shotgun TTK');
-close(ttk.smg.seconds, 1, 0.02, 'smg TTK');
-close(ttk.rifle.seconds, 1.33, 0.02, 'rifle TTK');
+close(ttk.pistol.seconds, 0.83, 0.02, 'pistol TTK');
+close(ttk.shotgun.seconds, 0.83, 0.02, 'shotgun TTK');
+close(ttk.smg.seconds, 0.82, 0.02, 'smg TTK');
+close(ttk.rifle.seconds, 0.67, 0.02, 'rifle TTK');
 
-assert(ttk.pistol.shots === 9, `pistol necesita ${ttk.pistol.shots} disparos`);
-assert(ttk.shotgun.shots === 3, `shotgun necesita ${ttk.shotgun.shots} disparos`);
-assert(ttk.smg.shots === 12, `smg necesita ${ttk.smg.shots} disparos`);
-assert(ttk.rifle.shots === 3, `rifle necesita ${ttk.rifle.shots} disparos`);
+assert(ttk.pistol.shots === 6, `pistol necesita ${ttk.pistol.shots} disparos`);
+assert(ttk.shotgun.shots === 2, `shotgun necesita ${ttk.shotgun.shots} disparos`);
+assert(ttk.smg.shots === 10, `smg necesita ${ttk.smg.shots} disparos`);
+assert(ttk.rifle.shots === 2, `rifle necesita ${ttk.rifle.shots} disparos`);
+
+// Un cargador completo de pistola debe tumbar a un rival con 100 HP + 100
+// de escudo: era el caso que se quedaba a medias y parecía que no había daño.
+const pistol = ROYALE_WEAPONS.find((weapon) => weapon.id === 'pistol');
+assert(pistol, 'falta la pistola');
+assert(
+	pistol.damage * pistol.magSize >= ROYALE_HEALTH_MAX + ROYALE_SHIELD_MAX,
+	`la pistola solo hace ${pistol.damage * pistol.magSize} con el cargador lleno`
+);
 
 ok(
 	`armas OK — TTK ${Object.entries(ttk)

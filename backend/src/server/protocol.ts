@@ -1138,6 +1138,46 @@ export type Mg8Placement = {
 	placement: number;
 };
 
+export type Mg8VehicleKind = 'car' | 'balloon';
+
+/** Estado autoritativo de un coche o globo del battle royale. */
+export type Mg8VehicleState = {
+	id: string;
+	kind: Mg8VehicleKind;
+	name: string;
+	model: string | null;
+	x: number;
+	y: number;
+	z: number;
+	qx: number;
+	qy: number;
+	qz: number;
+	qw: number;
+	yaw: number;
+	speed: number;
+	health: number;
+	maxHealth: number;
+	destroyed: boolean;
+	driverId: string | null;
+};
+
+/** Pose interpolable de vehículo (10 Hz). */
+export type Mg8VehiclePose = {
+	id: string;
+	x: number;
+	y: number;
+	z: number;
+	qx: number;
+	qy: number;
+	qz: number;
+	qw: number;
+	yaw: number;
+	speed: number;
+	health: number;
+	destroyed: boolean;
+	driverId: string | null;
+};
+
 export type Mg8Snapshot = {
 	phase: Mg8Phase;
 	serverTime: number;
@@ -1151,6 +1191,7 @@ export type Mg8Snapshot = {
 	humans: number;
 	bots: number;
 	loot: Mg8Loot[];
+	vehicles: Mg8VehicleState[];
 	placements: Mg8Placement[];
 	winner: string | null;
 	waitingForPlayers: boolean;
@@ -1172,6 +1213,7 @@ export type Mg8Positions = {
 	at: number;
 	players: Mg8PositionPlayer[];
 	grenades: Array<{ id: string; x: number; y: number; z: number }>;
+	vehicles: Mg8VehiclePose[];
 };
 
 export type Mg8EventKind =
@@ -1191,6 +1233,10 @@ export type Mg8EventKind =
 	| 'player-died'
 	| 'storm-phase'
 	| 'storm-damage'
+	| 'vehicle-enter'
+	| 'vehicle-exit'
+	| 'vehicle-hit'
+	| 'vehicle-destroyed'
 	| 'match-ended';
 
 export type Mg8Event = {
@@ -1200,11 +1246,17 @@ export type Mg8Event = {
 	weapon?: Mg5WeaponId;
 	lootId?: string;
 	lootKind?: Mg8LootKind;
+	vehicleId?: string;
+	vehicleKind?: Mg8VehicleKind;
 	amount?: number;
 	placement?: number;
-	cause?: 'storm' | 'fell' | 'combat';
+	cause?: 'storm' | 'fell' | 'fall' | 'combat';
 	winner?: string | null;
 	mode?: Mg8Mode;
+	/** Posición de aterrizaje/abandono al salir de un vehículo. */
+	px?: number;
+	py?: number;
+	pz?: number;
 	x?: number;
 	y?: number;
 	z?: number;
@@ -1289,7 +1341,18 @@ export type ServerMessage =
 	| { type: 'mg8-state'; state: Mg8Snapshot }
 	| ({ type: 'mg8-positions' } & Mg8Positions)
 	| { type: 'mg8-event'; event: Mg8Event }
-	| { type: 'mg8-correct'; correct: Mg8Correct };
+	| { type: 'mg8-correct'; correct: Mg8Correct }
+	| {
+			type: 'mg8-vehicle-correct';
+			vehicleId: string;
+			x: number;
+			y: number;
+			z: number;
+			qx: number;
+			qy: number;
+			qz: number;
+			qw: number;
+	  };
 
 export type ClientMessage =
 	/** Legacy Bun handshake. Identity comes from the socket id. */
@@ -1459,6 +1522,24 @@ export type ClientMessage =
 	  }
 	| { type: 'mg8-reload' }
 	| { type: 'mg8-equip'; slot: number }
+	| { type: 'mg8-vehicle-enter'; vehicleId: string }
+	| { type: 'mg8-vehicle-exit' }
+	| {
+			type: 'mg8-vehicle-state';
+			vehicleId: string;
+			x: number;
+			y: number;
+			z: number;
+			qx: number;
+			qy: number;
+			qz: number;
+			qw: number;
+			vx: number;
+			vy: number;
+			vz: number;
+			speed: number;
+			steering: number;
+	  }
 	/** Temporary client telemetry; the race room logs it to `rundot rooms logs`. */
 	| { type: 'race-debug'; event: string; detail?: string };
 

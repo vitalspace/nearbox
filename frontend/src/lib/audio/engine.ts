@@ -5,6 +5,7 @@ import {
 	getPcm,
 	prewarm as prewarmSynth,
 	releasePcm,
+	renderNow,
 	cachedBytes,
 	SAMPLE_RATE
 } from './synth';
@@ -702,7 +703,7 @@ class AudioEngine {
 		let buffer = this.buffers.get(id) ?? null;
 
 		if (!buffer) {
-			const pcm = ensurePcm(id, false);
+			const pcm = options.sync ? renderNow(id) : ensurePcm(id, false);
 
 			if (!pcm) {
 				return null;

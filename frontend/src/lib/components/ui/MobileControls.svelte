@@ -33,6 +33,7 @@
 	import { minigame5 } from '../../state/minigame5.svelte';
 	import { minigame8 } from '../../state/minigame8.svelte';
 	import { royaleInput } from '../../state/royaleInput';
+	import { royaleVehicles } from '../../state/royaleVehicles.svelte';
 	import { sceneState } from '../../state/sceneState.svelte';
 	import { waveInput } from '../../state/waveInput';
 
@@ -157,7 +158,8 @@
 				balloon.isOccupant ||
 				ride.isRiding ||
 				sceneState.inRoadmap ||
-				inWavesCar
+				inWavesCar ||
+				minigame8.isDriving
 			) {
 				carInput.setTouch(0, 0);
 			}
@@ -173,7 +175,8 @@
 			balloon.isOccupant ||
 			ride.isRiding ||
 			sceneState.inRoadmap ||
-			inWavesCar
+			inWavesCar ||
+			minigame8.isDriving
 		) {
 			// Stick up = accelerate; left/right = steer.
 			carInput.setTouch(-(ny / magnitude) * strength, (nx / magnitude) * strength);
@@ -761,8 +764,159 @@
 							<Eye size={26} strokeWidth={2.4} aria-hidden="true" />
 							<span>Glider</span>
 						</button>
+					{:else if minigame8.phase === 'playing' && minigame8.isAlive && minigame8.isDriving}
+						<div class="flex flex-col items-end gap-2">
+							{#if minigame8.drivingKind === 'balloon'}
+								<div class="flex gap-2">
+									<button
+										type="button"
+										aria-label="Ascend the balloon"
+										class="touch-control flex h-16 w-16 touch-none flex-col items-center justify-center gap-0.5 rounded-full border border-sky-200/60 bg-sky-400/85 text-[10px] font-semibold tracking-wide text-sky-950 uppercase shadow-lg shadow-sky-500/30 backdrop-blur-md transition duration-75 active:scale-95"
+										onpointerdown={(event) => {
+											event.preventDefault();
+											royaleInput.lift = 1;
+										}}
+										onpointerup={() => {
+											royaleInput.lift = 0;
+										}}
+										onpointercancel={() => {
+											royaleInput.lift = 0;
+										}}
+										onlostpointercapture={() => {
+											royaleInput.lift = 0;
+										}}
+									>
+										<ChevronsUp size={22} strokeWidth={2.4} aria-hidden="true" />
+										<span>Rise</span>
+									</button>
+									<button
+										type="button"
+										aria-label="Descend the balloon"
+										class="touch-control flex h-16 w-16 touch-none flex-col items-center justify-center gap-0.5 rounded-full border border-white/15 bg-slate-950/55 text-[10px] font-semibold tracking-wide text-slate-100 uppercase shadow-lg backdrop-blur-md transition duration-75 active:scale-95 active:bg-white/20"
+										onpointerdown={(event) => {
+											event.preventDefault();
+											royaleInput.lift = -1;
+										}}
+										onpointerup={() => {
+											royaleInput.lift = 0;
+										}}
+										onpointercancel={() => {
+											royaleInput.lift = 0;
+										}}
+										onlostpointercapture={() => {
+											royaleInput.lift = 0;
+										}}
+									>
+										<ChevronsDown size={22} strokeWidth={2.4} aria-hidden="true" />
+										<span>Down</span>
+									</button>
+									<button
+										type="button"
+										aria-label="Switch balloon camera view"
+										class="touch-control flex h-16 w-16 touch-none flex-col items-center justify-center gap-0.5 rounded-full border border-white/15 bg-slate-950/55 text-[10px] font-semibold tracking-wide text-slate-100 uppercase shadow-[0_8px_24px_rgba(0,0,0,0.35)] backdrop-blur-md transition duration-75 active:scale-95 active:bg-white/20"
+										onpointerdown={(event) => {
+											event.preventDefault();
+											royaleVehicles.toggleBalloonView();
+										}}
+									>
+										<Eye size={22} strokeWidth={2.4} aria-hidden="true" />
+										<span>View</span>
+									</button>
+								</div>
+							{/if}
+
+							<div class="flex items-end gap-2">
+								<button
+									type="button"
+									aria-label="Fire"
+									class="touch-control flex h-20 w-20 touch-none flex-col items-center justify-center gap-0.5 rounded-full border border-rose-200/60 bg-rose-500/85 text-[10px] font-semibold tracking-wide text-rose-50 uppercase shadow-lg shadow-rose-500/40 backdrop-blur-md transition duration-75 active:scale-95 active:bg-rose-400"
+									onpointerdown={(event) => {
+										event.preventDefault();
+										try {
+											(event.currentTarget as HTMLElement).setPointerCapture(event.pointerId);
+										} catch {
+											// Pointer already released: up/cancel still clear the flag.
+										}
+										royaleInput.fireHeld = true;
+										royaleInput.requestFire();
+									}}
+									onpointerup={() => {
+										royaleInput.fireHeld = false;
+									}}
+									onpointercancel={() => {
+										royaleInput.fireHeld = false;
+									}}
+									onlostpointercapture={() => {
+										royaleInput.fireHeld = false;
+									}}
+								>
+									<Crosshair size={26} strokeWidth={2.4} aria-hidden="true" />
+									<span>Fire</span>
+								</button>
+
+								<div class="flex flex-col gap-2">
+									<button
+										type="button"
+										aria-label="Throw grenade"
+										class="touch-control flex h-16 w-16 touch-none flex-col items-center justify-center gap-0.5 rounded-full border border-lime-200/60 bg-lime-500/85 text-[9px] font-semibold tracking-wide text-lime-950 uppercase shadow-lg shadow-lime-500/30 backdrop-blur-md transition duration-75 active:scale-95"
+										onpointerdown={(event) => {
+											event.preventDefault();
+											royaleInput.requestGrenade();
+										}}
+									>
+										<Bomb size={20} strokeWidth={2.4} aria-hidden="true" />
+										<span>Grenade</span>
+									</button>
+
+									<!-- En el globo o el coche no hay teclado: sin este botón
+									no se puede recargar mientras se pilota. -->
+									<button
+										type="button"
+										aria-label="Reload"
+										class="touch-control flex h-16 w-16 touch-none flex-col items-center justify-center gap-0.5 rounded-full border border-white/15 bg-slate-950/55 text-[9px] font-semibold tracking-wide text-slate-100 uppercase backdrop-blur-md transition duration-75 active:scale-95 active:bg-white/20"
+										onpointerdown={(event) => {
+											event.preventDefault();
+											royaleInput.requestReload();
+										}}
+									>
+										<RotateCcw size={20} strokeWidth={2.4} aria-hidden="true" />
+										<span>Reload</span>
+									</button>
+								</div>
+							</div>
+
+							<button
+								type="button"
+								aria-label="Exit the vehicle"
+								class="touch-control flex h-20 w-20 touch-none flex-col items-center justify-center gap-0.5 rounded-full border border-rose-200/60 bg-rose-400/85 text-[10px] font-semibold tracking-wide text-rose-950 uppercase shadow-lg shadow-rose-500/30 backdrop-blur-md transition duration-75 active:scale-95"
+								onpointerdown={(event) => {
+									event.preventDefault();
+									royaleVehicles.exit();
+								}}
+							>
+								<Car size={26} strokeWidth={2.4} aria-hidden="true" />
+								<span>Exit</span>
+							</button>
+						</div>
 					{:else if minigame8.phase === 'playing' && minigame8.isAlive}
 						<div class="flex flex-col items-end gap-2">
+							{#if royaleVehicles.nearby}
+								<button
+									type="button"
+									aria-label={royaleVehicles.nearby.kind === 'balloon'
+										? 'Pilot the nearby balloon'
+										: 'Drive the nearby car'}
+									class="touch-control flex h-16 w-16 touch-none flex-col items-center justify-center gap-0.5 self-end rounded-full border border-emerald-200/60 bg-emerald-400/85 text-[10px] font-semibold tracking-wide text-emerald-950 uppercase shadow-lg shadow-emerald-500/30 backdrop-blur-md transition duration-75 active:scale-95"
+									onpointerdown={(event) => {
+										event.preventDefault();
+										royaleVehicles.enter();
+									}}
+								>
+									<Car size={20} strokeWidth={2.4} aria-hidden="true" />
+									<span>{royaleVehicles.nearby.kind === 'balloon' ? 'Fly' : 'Drive'}</span>
+								</button>
+							{/if}
+
 							<div class="grid grid-cols-2 gap-1.5">
 								{#each [1, 2, 3, 4] as slot (slot)}
 									<button
